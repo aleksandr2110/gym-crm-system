@@ -1,0 +1,5 @@
+Kelly,Scot,Kelly.Scot,pass111,true
+Casey,Sherman,Casey.Sherman,pass222,true
+Jeff,Johnson,Jeff.Johnson,pass333,true
+Ketty,Perry,Ketty.Perry,pass444,true
+Charly,Wilson,Charly.Wilson,pass555,false
