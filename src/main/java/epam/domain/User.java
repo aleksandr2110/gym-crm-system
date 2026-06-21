@@ -1,14 +1,14 @@
-package epam.model;
+package epam.domain;
 
 import java.util.Objects;
 
 public class User {
 
-    private String firstName;
-    private String lastName;
-    private String userName;
-    private String Password;
-    private boolean isActive;
+    String firstName;
+    String lastName;
+    String username;
+    String Password;
+    boolean isActive;
 
     public User() {
     }
@@ -30,11 +30,11 @@ public class User {
     }
 
     public String getUserName() {
-        return userName;
+        return username;
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.username = userName;
     }
 
     public String getPassword() {
@@ -57,11 +57,11 @@ public class User {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return isActive == user.isActive && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(userName, user.userName) && Objects.equals(Password, user.Password);
+        return isActive == user.isActive && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(username, user.username) && Objects.equals(Password, user.Password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName, userName, Password, isActive);
+        return Objects.hash(firstName, lastName, username, Password, isActive);
     }
 }
