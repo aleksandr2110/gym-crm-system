@@ -17,12 +17,12 @@ public class DataSilosConfig {
     }
 
     @Bean
-    public Map<String, TrainerDao> trainerStorage() {
+    public Map<String, TraineeDao> traineeStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<String, TraineeDao> traineeStorage() {
+    public Map<String, TrainerDao> trainerStorage() {
         return new HashMap<>();
     }
 
