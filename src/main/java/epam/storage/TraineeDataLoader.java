@@ -1,7 +1,6 @@
 package epam.storage;
 
 import epam.dao.TraineeDao;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;

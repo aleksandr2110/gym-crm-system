@@ -40,7 +40,7 @@ public class TraineeRepository implements EntityRepository<Trainee, String> {
             appointId(trainee);
         }
 
-        traineeStorage.put(trainee.getUserName(), traineeMapper.toDao(trainee));
+        traineeStorage.put(trainee.getUserId(), traineeMapper.toDao(trainee));
         logger.info("New trainee has been added to the storage");
         return trainee;
     }
@@ -52,16 +52,34 @@ public class TraineeRepository implements EntityRepository<Trainee, String> {
             logger.warning("Attempt to select user with null id");
             throw new IllegalArgumentException("Attempt to select user with null id");
         }
+        System.out.println("size " + traineeStorage.size());
 
-        TraineeDao selectedTraineeDao = null;
+        TraineeDao selectedTraineeDao = null; // optional
         for (Map.Entry<String, TraineeDao> entry : traineeStorage.entrySet()) {
             var traineeDao = entry.getValue();
+            System.out.println("traineeDao " + traineeDao.toString());
             if (traineeDao.getUserId().equals(id)) {
                 selectedTraineeDao = traineeDao;
             }
         }
 
         return traineeMapper.toModelTrainee(selectedTraineeDao);
+    }
+
+    @Override
+    public Trainee update(Trainee trainee) {
+
+        Trainee updatedTrainee = null;
+        for (Map.Entry<String, TraineeDao> entry : traineeStorage.entrySet()) {
+            var traineeDao = entry.getValue();
+            if (traineeDao.getUserId().equals(trainee.getUserId())) {
+                TraineeDao updatedDao = traineeMapper.toDao(trainee);
+                traineeStorage.put(trainee.getUserId(), updatedDao);
+                updatedTrainee = traineeMapper.toModelTrainee(updatedDao);
+                break;
+            }
+        }
+        return updatedTrainee;
     }
 
     @Override

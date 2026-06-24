@@ -3,7 +3,6 @@ package epam.request;
 import epam.domain.InnerDataTraining;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
