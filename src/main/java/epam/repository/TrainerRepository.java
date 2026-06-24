@@ -1,6 +1,8 @@
 package epam.repository;
 
+import epam.dao.TraineeDao;
 import epam.dao.TrainerDao;
+import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.util.TrainerMapper;
 import epam.util.UsernameAndPasswordGenerator;
@@ -61,6 +63,21 @@ public class TrainerRepository implements EntityRepository<Trainer, String> {
         }
 
         return trainerMapper.toModel(selectedTrainerDao);
+    }
+
+    @Override
+    public Trainer update(Trainer trainer) {
+        Trainer updatedTrainer = null;
+        for (Map.Entry<String, TrainerDao> entry : trainerStorage.entrySet()) {
+            var trainerDao = entry.getValue();
+            if (trainerDao.getUserId().equals(trainer.getUserId())) {
+                TrainerDao updatedDao = trainerMapper.toDao(trainer);
+                trainerStorage.put(trainer.getUserId(), updatedDao);
+                updatedTrainer = trainerMapper.toModel(updatedDao);
+                break;
+            }
+        }
+        return updatedTrainer;
     }
 
     private void checkEqualsUsername(String username, Trainer trainer) {

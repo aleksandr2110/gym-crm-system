@@ -35,7 +35,7 @@ public class TrainerDataLoader implements DataLoader<TrainerDao, String> {
                         TrainerDao trainer = new TrainerDao();
                         trainer.setUserId(parts[0].trim());
                         trainer.setSpecialization(parts[1].trim());
-                        result.put(trainer.getUsername(), trainer);
+                        result.put(trainer.getUserId(), trainer);
                     } else {
                         logger.warning("Invalid trainer line: " + line);
                     }

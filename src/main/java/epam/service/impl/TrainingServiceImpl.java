@@ -23,7 +23,7 @@ public class TrainingServiceImpl implements TrainingService {
     public Training create(TrainingRequest trainingRequest) {
         logger.info("Creating training: " + trainingRequest.getInnerDataTraining().toString());
 
-        Training training = new Training();
+        var training = new Training();
         training.setInnerDataTraining(trainingRequest.getInnerDataTraining());
         training.setTrainingType(trainingRequest.getTrainingType());
         training.setTrainingDate(trainingRequest.getTrainingDate());
