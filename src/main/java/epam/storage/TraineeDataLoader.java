@@ -33,11 +33,16 @@ public class TraineeDataLoader implements DataLoader<TraineeDao, String> {
                 if (!line.isEmpty()) {
                     String[] parts = line.split(",");
 
-                    if (parts.length == 3) {
+                    if (parts.length == 8) {
                         TraineeDao trainee = new TraineeDao();
                         trainee.setUserId(parts[0].trim());
                         trainee.setDateOfBirth(LocalDate.parse(parts[1].trim()));
                         trainee.setAddress(parts[2].trim());
+                        trainee.setActive(Boolean.getBoolean(parts[3].trim()));
+                        trainee.setFirstName(parts[4].trim());
+                        trainee.setLastName(parts[5].trim());
+                        trainee.setUsername(parts[6].trim());
+                        trainee.setPassword(parts[7].trim());
                         result.put(trainee.getUserId(), trainee);
                     } else {
                         logger.warning("Invalid trainee line: {} " + line);

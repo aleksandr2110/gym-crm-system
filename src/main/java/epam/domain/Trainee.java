@@ -54,4 +54,18 @@ public class Trainee extends User {
     public int hashCode() {
         return Objects.hash(super.hashCode(), userId, dateOfBirth, address);
     }
+
+    @Override
+    public String toString() {
+        return "Trainee{" +
+                "userId='" + userId + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", address='" + address + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", username='" + username + '\'' +
+                ", Password='" + Password + '\'' +
+                ", isActive=" + isActive +
+                '}';
+    }
 }
