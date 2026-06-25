@@ -31,10 +31,15 @@ public class TrainerDataLoader implements DataLoader<TrainerDao, String> {
                 if (!line.isEmpty()) {
                     String[] parts = line.split(",");
 
-                    if (parts.length == 2) {
+                    if (parts.length == 7) {
                         TrainerDao trainer = new TrainerDao();
                         trainer.setUserId(parts[0].trim());
                         trainer.setSpecialization(parts[1].trim());
+                        trainer.setActive(Boolean.getBoolean(parts[2].trim()));
+                        trainer.setFirstName(parts[3].trim());
+                        trainer.setLastName(parts[4].trim());
+                        trainer.setUsername(parts[5].trim());
+                        trainer.setPassword(parts[6].trim());
                         result.put(trainer.getUserId(), trainer);
                     } else {
                         logger.warning("Invalid trainer line: " + line);

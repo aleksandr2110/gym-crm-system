@@ -43,4 +43,17 @@ public class Trainer extends User {
     public int hashCode() {
         return Objects.hash(super.hashCode(), userId, specialization);
     }
+
+    @Override
+    public String toString() {
+        return "Trainer{" +
+                "userId='" + userId + '\'' +
+                ", specialization='" + specialization + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", username='" + username + '\'' +
+                ", Password='" + Password + '\'' +
+                ", isActive=" + isActive +
+                '}';
+    }
 }

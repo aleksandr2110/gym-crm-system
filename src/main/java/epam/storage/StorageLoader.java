@@ -2,12 +2,10 @@ package epam.storage;
 
 import epam.dao.TraineeDao;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
-
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -36,7 +34,6 @@ public class StorageLoader implements InitializingBean, ApplicationContextAware 
     @Value("${storage.trainingTypes}")
     private String trainingTypesFilePath;
 
-    //private final Map<String, TraineeDao> traineeStorage;
     private final List<DataLoader<?, ?>> dataLoaders;
     private ApplicationContext applicationContext;
     private Map<String, String> fileMap;
@@ -45,9 +42,6 @@ public class StorageLoader implements InitializingBean, ApplicationContextAware 
 
     public StorageLoader(List<DataLoader<?, ?>> dataLoaders) {
         this.dataLoaders = dataLoaders;
-        //this.traineeStorage = traineeStorage;
-        // ,
-        //                         @Qualifier("traineeStorage") Map<String, TraineeDao> traineeStorage
     }
 
     @Override
@@ -76,11 +70,9 @@ public class StorageLoader implements InitializingBean, ApplicationContextAware 
             }
         }
         for (String bean : beans) {
-            //Map<Object, Object> storage = (Map<Object, Object>) applicationContext.getBean(bean);
 
             if (bean.equals("traineeStorage")) {
                 Map<String, TraineeDao> traineeStorage = (Map<String, TraineeDao>) applicationContext.getBean(bean);
-                System.out.println("size of traineeStorage " + traineeStorage.size());
             }
         }
 
