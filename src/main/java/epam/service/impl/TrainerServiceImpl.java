@@ -1,6 +1,5 @@
 package epam.service.impl;
 
-import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.repository.TrainerRepository;
 import epam.request.TrainerRequest;
@@ -38,8 +37,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public Trainer update(TrainerRequest trainerRequest, String userId) {
-        logger.info("Updating user: " + trainerRequest.getFirstName() + " " + trainerRequest.getLastName());
+    public Trainer update(TrainerRequest trainerRequest, Long userId) {
 
         Trainer currentTrainer = trainerRepository.select(userId);
         if (currentTrainer == null) {
@@ -68,7 +66,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public Trainer select(String id) {
+    public Trainer select(Long id) {
         logger.info("Selecting user by username: " +  id);
         Trainer trainer = trainerRepository.select(id);
 

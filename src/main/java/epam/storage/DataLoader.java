@@ -5,6 +5,6 @@ import java.util.Map;
 
 public interface DataLoader<V, ID> {
 
-    Map<ID, V> loadData(InputStream inputStream);
+    Map<? extends Number, V> loadData(InputStream inputStream);
     String getStorageBeanName();
 }

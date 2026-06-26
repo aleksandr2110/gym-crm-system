@@ -4,22 +4,22 @@ import java.util.Objects;
 
 public class Trainer extends User {
 
-    private String userId;
+    private Long userId;
     private String specialization;
 
     public Trainer() {
     }
 
-    public Trainer(String userId, String specialization) {
+    public Trainer(Long userId, String specialization) {
         this.userId = userId;
         this.specialization = specialization;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

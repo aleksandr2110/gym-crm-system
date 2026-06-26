@@ -53,7 +53,7 @@ public class TraineeServiceImplTest {
     @Test
     void shouldUpdateTrainee() {
         //GIVEN
-        String userId = "1";
+        Long userId = 1L;
         var traineeRequest = new TraineeRequest();
         traineeRequest.setFirstName("Alex");
         traineeRequest.setLastName("Hofman");
@@ -88,7 +88,7 @@ public class TraineeServiceImplTest {
     @Test
     void shouldThrowExceptionWhenUpdateTrainee() {
         //GIVEN
-        String userId = "1";
+        Long userId = 1L;
         Trainee empty = null;
         var traineeRequest = new TraineeRequest();
 
@@ -105,7 +105,7 @@ public class TraineeServiceImplTest {
     @Test
     void shouldSelectTraineeById() {
         //GIVEN
-        String userId = "1";
+        Long userId = 1L;
         var trainee = new Trainee();
         trainee.setFirstName("Rerg");
         trainee.setLastName("Grill");
@@ -127,7 +127,7 @@ public class TraineeServiceImplTest {
     @Test
     void shouldDeleteTraineeById() {
         //GIVEN
-        String userId = "1";
+        Long userId = 1L;
 
         //WHEN
         traineeService.delete(userId);

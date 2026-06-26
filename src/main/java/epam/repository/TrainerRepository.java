@@ -1,8 +1,6 @@
 package epam.repository;
 
-import epam.dao.TraineeDao;
 import epam.dao.TrainerDao;
-import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.util.TrainerMapper;
 import epam.util.UsernameAndPasswordGenerator;
@@ -14,11 +12,11 @@ import java.util.logging.Logger;
 @Repository
 public class TrainerRepository implements EntityRepository<Trainer, String> {
 
-    private final Map<String, TrainerDao> trainerStorage;
+    private final Map<Long, TrainerDao> trainerStorage;
     private final TrainerMapper trainerMapper;
     private static final Logger logger = Logger.getLogger(TrainerRepository.class.getName());
 
-    public TrainerRepository(Map<String, TrainerDao> trainerStorage, TrainerMapper trainerMapper) {
+    public TrainerRepository(Map<Long, TrainerDao> trainerStorage, TrainerMapper trainerMapper) {
         this.trainerStorage = trainerStorage;
         this.trainerMapper = trainerMapper;
     }
@@ -38,26 +36,24 @@ public class TrainerRepository implements EntityRepository<Trainer, String> {
                     trainer.getLastName()));
             checkEqualsUsername(trainer.getUserName(), trainer);
             trainer.setPassword(UsernameAndPasswordGenerator.generatePassword());
-            Integer id = trainerStorage.size();
-            trainer.setUserId((++id).toString());
-            appointId(trainer);
+            trainer.setUserId(appointId((long) trainerStorage.size() + 1));
         }
 
-        trainerStorage.put(trainer.getUserName(), trainerMapper.toDao(trainer));
+        trainerStorage.put(trainer.getUserId(), trainerMapper.toDao(trainer));
         return trainer;
     }
 
     @Override
-    public Trainer select(String id) {
+    public Trainer select(Long id) {
         if (id == null) {
             logger.warning("Attempt to select user with null id");
             throw new IllegalArgumentException("Attempt to select user with null id");
         }
 
         TrainerDao selectedTrainerDao = null;
-        for (Map.Entry<String, TrainerDao> entry : trainerStorage.entrySet()) {
+        for (Map.Entry<Long, TrainerDao> entry : trainerStorage.entrySet()) {
             var traineeDao = entry.getValue();
-            if (traineeDao.getUserId().equals(id)) {
+            if (traineeDao.getUserId().longValue() == id.longValue()) {
                 selectedTrainerDao = traineeDao;
             }
         }
@@ -68,7 +64,7 @@ public class TrainerRepository implements EntityRepository<Trainer, String> {
     @Override
     public Trainer update(Trainer trainer) {
         Trainer updatedTrainer = null;
-        for (Map.Entry<String, TrainerDao> entry : trainerStorage.entrySet()) {
+        for (Map.Entry<Long, TrainerDao> entry : trainerStorage.entrySet()) {
             var trainerDao = entry.getValue();
             if (trainerDao.getUserId().equals(trainer.getUserId())) {
                 TrainerDao updatedDao = trainerMapper.toDao(trainer);
@@ -98,18 +94,16 @@ public class TrainerRepository implements EntityRepository<Trainer, String> {
         }
     }
 
-    private void appointId(Trainer trainee) {
-        Integer newId = Integer.parseInt(trainee.getUserId() + 1);
+    private Long appointId(Long userId) {
 
-        for (Map.Entry<String, TrainerDao> entry : trainerStorage.entrySet()) {
+        for (Map.Entry<Long, TrainerDao> entry : trainerStorage.entrySet()) {
             TrainerDao traineeDao = entry.getValue();
-            if (traineeDao.getUserId().equals(trainee.getUserId())) {
-                trainee.setUserId(newId.toString());
-                appointId(trainee);
+            if (traineeDao.getUserId().longValue() == userId.longValue()) {
+                appointId(++userId);
                 break;
             }
         }
 
-        logger.info("Id " + trainee.getUserId() + " assigned for username: " + trainee.getUserName());
+        return userId;
     }
 }

@@ -6,7 +6,7 @@ import epam.request.TraineeRequest;
 public interface TraineeService {
 
     Trainee create(TraineeRequest traineeRequest);
-    Trainee update(TraineeRequest traineeRequest, String username);
-    Trainee select(String id);
-    void delete(String id);
+    Trainee update(TraineeRequest traineeRequest, Long userId);
+    Trainee select(Long id);
+    void delete(Long id);
 }

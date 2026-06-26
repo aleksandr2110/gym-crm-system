@@ -6,6 +6,6 @@ import epam.request.TrainerRequest;
 public interface TrainerService {
 
     Trainer create(TrainerRequest trainerDto);
-    Trainer update(TrainerRequest trainerDto, String oldUsername);
-    Trainer select(String id);
+    Trainer update(TrainerRequest trainerDto, Long userId);
+    Trainer select(Long id);
 }

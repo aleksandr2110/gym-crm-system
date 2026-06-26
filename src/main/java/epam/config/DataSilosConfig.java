@@ -1,7 +1,6 @@
 package epam.config;
 
 import epam.dao.*;
-import epam.domain.InnerDataTraining;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,27 +11,22 @@ import java.util.Map;
 public class DataSilosConfig {
 
     @Bean
-    public Map<String, UserDao> userStorage() {
+    public Map<Long, TraineeDao> traineeStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<String, TraineeDao> traineeStorage() {
+    public Map<Long, TrainerDao> trainerStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<String, TrainerDao> trainerStorage() {
+    public Map<Long, TrainingDao> trainingStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<InnerDataTraining, TrainingDao> trainingStorage() {
-        return new HashMap<>();
-    }
-
-    @Bean
-    public Map<String, TrainingTypeDao> trainingTypeStorage() {
+    public Map<Long, TrainingTypeDao> trainingTypeStorage() {
         return new HashMap<>();
     }
 }

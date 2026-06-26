@@ -1,6 +1,5 @@
 package epam.application;
 
-import epam.domain.InnerDataTraining;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.domain.Training;
@@ -35,17 +34,17 @@ public class FacadeGymCrmSystem {
         return traineeService.create(traineeRequest);
     }
 
-    public Trainee updateTrainee(TraineeRequest traineeRequest, String userId) {
+    public Trainee updateTrainee(TraineeRequest traineeRequest, Long userId) {
         logger.info("Updating trainee with id " + userId);
         return traineeService.update(traineeRequest, userId);
     }
 
-    public Trainee getTrainee(String userId) {
+    public Trainee getTrainee(Long userId) {
         logger.info("Getting trainee with userId " + userId);
         return traineeService.select(userId);
     }
 
-    public void deleteTrainee(String userId) {
+    public void deleteTrainee(Long userId) {
         logger.info("Deleting trainee with userId " + userId);
         traineeService.delete(userId);
     }
@@ -55,23 +54,22 @@ public class FacadeGymCrmSystem {
         return trainerService.create(trainerDto);
     }
 
-    public Trainer updateTrainer(TrainerRequest trainerDto, String username) {
-        logger.info("Facade: Updating trainer with username " + username);
-        return trainerService.update(trainerDto, username);
+    public Trainer updateTrainer(TrainerRequest trainerDto, Long userId) {
+        logger.info("Facade: Updating trainer with id " + userId);
+        return trainerService.update(trainerDto, userId);
     }
 
-    public Trainer getTrainer(String userId) {
+    public Trainer getTrainer(Long userId) {
         logger.info("Facade: Getting trainer with userId " + userId);
         return trainerService.select(userId);
     }
 
-    public Training createTraining(TrainingRequest trainingCreateRequest) {
-        logger.info("Creating training " +
-                trainingCreateRequest.getInnerDataTraining().toString());
-        return trainingService.create(trainingCreateRequest);
+    public Training createTraining(TrainingRequest trainingRequest) {
+        logger.info("Creating training " + trainingRequest.toString());
+        return trainingService.create(trainingRequest);
     }
 
-    public Training getTraining(InnerDataTraining trainingId) {
+    public Training getTraining(Long trainingId) {
         logger.info("Facade: Getting training with id " + trainingId);
         return trainingService.select(trainingId);
     }

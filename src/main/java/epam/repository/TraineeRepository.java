@@ -12,11 +12,11 @@ import java.util.logging.Logger;
 @Repository
 public class TraineeRepository implements EntityRepository<Trainee, String> {
 
-    private final Map<String, TraineeDao> traineeStorage;
+    private final Map<Long, TraineeDao> traineeStorage;
     private final TraineeMapper traineeMapper;
     private static final Logger logger = Logger.getLogger(TraineeRepository.class.getName());
 
-    public TraineeRepository(Map<String, TraineeDao> traineeStorage, TraineeMapper traineeMapper) {
+    public TraineeRepository(Map<Long, TraineeDao> traineeStorage, TraineeMapper traineeMapper) {
         this.traineeStorage = traineeStorage;
         this.traineeMapper = traineeMapper;
     }
@@ -36,26 +36,25 @@ public class TraineeRepository implements EntityRepository<Trainee, String> {
             checkEqualsUsername(trainee.getUserName(), trainee);
             trainee.setPassword(UsernameAndPasswordGenerator.generatePassword());
             Integer id = traineeStorage.size();
-            trainee.setUserId((++id).toString());
-            appointId(trainee);
+            long newId = (long) id++;
+            trainee.setUserId(appointId((long) ++id));
+            ;
         }
 
         traineeStorage.put(trainee.getUserId(), traineeMapper.toDao(trainee));
-        logger.info("New trainee has been added to the storage");
         return trainee;
     }
 
     @Override
-    public Trainee select(String id) {
+    public Trainee select(Long id) {
 
         if (id == null) {
             logger.warning("Attempt to select user with null id");
             throw new IllegalArgumentException("Attempt to select user with null id");
         }
-        System.out.println("size " + traineeStorage.size());
 
         TraineeDao selectedTraineeDao = null; // optional
-        for (Map.Entry<String, TraineeDao> entry : traineeStorage.entrySet()) {
+        for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
             var traineeDao = entry.getValue();
             if (traineeDao.getUserId().equals(id)) {
                 selectedTraineeDao = traineeDao;
@@ -69,7 +68,7 @@ public class TraineeRepository implements EntityRepository<Trainee, String> {
     public Trainee update(Trainee trainee) {
 
         Trainee updatedTrainee = null;
-        for (Map.Entry<String, TraineeDao> entry : traineeStorage.entrySet()) {
+        for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
             var traineeDao = entry.getValue();
             if (traineeDao.getUserId().equals(trainee.getUserId())) {
                 TraineeDao updatedDao = traineeMapper.toDao(trainee);
@@ -82,14 +81,14 @@ public class TraineeRepository implements EntityRepository<Trainee, String> {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(Long id) {
         if (id == null) {
             logger.warning("Attempt to delete user with null id");
             throw new IllegalArgumentException("Username can not be null!" );
         }
 
         TraineeDao selectedTraineeDao = null;
-        for (Map.Entry<String, TraineeDao> entry : traineeStorage.entrySet()) {
+        for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
             var traineeDao = entry.getValue();
             if (traineeDao.getUserId().equals(id)) {
                 selectedTraineeDao = traineeDao;
@@ -117,18 +116,16 @@ public class TraineeRepository implements EntityRepository<Trainee, String> {
         }
     }
 
-    private void appointId(Trainee trainee) {
-        Integer newId = Integer.parseInt(trainee.getUserId() + 1);
+    private Long appointId(Long userId) {
 
-        for (Map.Entry<String, TraineeDao> entry : traineeStorage.entrySet()) {
+        for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
             TraineeDao traineeDao = entry.getValue();
-            if (traineeDao.getUserId().equals(trainee.getUserId())) {
-                trainee.setUserId(newId.toString());
-                appointId(trainee);
+            if (traineeDao.getUserId().longValue() == userId.longValue()) {
+                appointId(++userId);
                 break;
             }
         }
 
-        logger.info("Id " + trainee.getUserId() + " assigned for username: " + trainee.getUserName());
+        return userId;
     }
 }

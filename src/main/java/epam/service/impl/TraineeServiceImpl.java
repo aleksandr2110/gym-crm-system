@@ -21,8 +21,6 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public Trainee create(TraineeRequest traineeRequest) {
-        logger.info("Creating user: " +  traineeRequest.getFirstName() + " " +
-                traineeRequest.getLastName());
 
         Trainee trainee = new Trainee();
         trainee.setFirstName(traineeRequest.getFirstName());
@@ -37,9 +35,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public Trainee update(TraineeRequest traineeRequest, String userId) {
-        logger.info("Updating user with new data: " + traineeRequest.getFirstName() +
-                " " + traineeRequest.getLastName());
+    public Trainee update(TraineeRequest traineeRequest, Long userId) {
 
         Trainee currentTrainee = traineeRepository.select(userId);
         if (currentTrainee == null) {
@@ -68,8 +64,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public Trainee select(String id) {
-        logger.info("Selecting user by userId: " +  id);
+    public Trainee select(Long id) {
         Trainee trainee = traineeRepository.select(id);
 
         if (trainee == null) {
@@ -82,7 +77,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(Long id) {
         logger.info("Deleting user with userId: " + id);
         traineeRepository.delete(id);
         logger.info("User deleted successfully with userId: " + id);

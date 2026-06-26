@@ -1,8 +1,6 @@
 package epam.util;
 
-import epam.dao.InnerDataTrainingDao;
 import epam.dao.TrainingDao;
-import epam.domain.InnerDataTraining;
 import epam.domain.Training;
 import org.springframework.stereotype.Component;
 
@@ -11,12 +9,10 @@ public class TrainingMapper {
 
     public TrainingDao toDao(Training training) {
         TrainingDao trainingDao = new TrainingDao();
-        InnerDataTrainingDao innerDataTrainingDao = new InnerDataTrainingDao();
-        innerDataTrainingDao.setTrainerId(training.getInnerDataTraining().getTrainerId());
-        innerDataTrainingDao.setTraineeId(training.getInnerDataTraining().getTraineeId());
-        innerDataTrainingDao.setTrainingName(training.getInnerDataTraining().getTrainingName());
-
-        trainingDao.setInnerDataTraining(innerDataTrainingDao);
+        trainingDao.setId(training.getId());
+        trainingDao.setTrainer(training.getTrainer());
+        trainingDao.setTrainers(training.getTrainers());
+        trainingDao.setTrainingName(training.getTrainingName());
         trainingDao.setTrainingType(training.getTrainingType());
         trainingDao.setTrainingDate(training.getTrainingDate());
         trainingDao.setTrainingDuration(training.getTrainingDuration());
@@ -26,14 +22,12 @@ public class TrainingMapper {
 
     public Training toModel(TrainingDao trainingDao) {
         Training training = new Training();
-        InnerDataTraining innerDataTraining = new InnerDataTraining();
-        innerDataTraining.setTraineeId(trainingDao.getInnerDataTraining().getTraineeId());
-        innerDataTraining.setTrainerId(trainingDao.getInnerDataTraining().getTrainerId());
-        innerDataTraining.setTrainingName(innerDataTraining.getTrainingName());
-
-        training.setInnerDataTraining(innerDataTraining);
-        training.setTrainingDate(trainingDao.getTrainingDate());
+        training.setId(trainingDao.getId());
+        training.setTrainer(trainingDao.getTrainer());
+        training.setTrainingName(trainingDao.getTrainingName());
+        training.setTrainers(trainingDao.getTrainers());
         training.setTrainingType(trainingDao.getTrainingType());
+        training.setTrainingDate(trainingDao.getTrainingDate());
         training.setTrainingDuration(trainingDao.getTrainingDuration());
 
         return training;

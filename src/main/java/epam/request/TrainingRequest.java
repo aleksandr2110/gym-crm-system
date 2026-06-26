@@ -1,15 +1,17 @@
 package epam.request;
 
-import epam.domain.InnerDataTraining;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.List;
 
 @Component
 public class TrainingRequest {
 
-    private InnerDataTraining innerDataTraining;
+    private Long id;
+    private Long trainerId;
+    private List<Long> traineeIds;
+    private String trainingName;
     private String trainingType;
     private LocalDateTime trainingDate;
     private String trainingDuration;
@@ -17,20 +19,28 @@ public class TrainingRequest {
     public TrainingRequest() {
     }
 
-    public TrainingRequest(InnerDataTraining innerDataTraining, String trainingType,
-                           LocalDateTime trainingDate, String trainingDuration) {
-        this.innerDataTraining = innerDataTraining;
-        this.trainingType = trainingType;
-        this.trainingDate = trainingDate;
-        this.trainingDuration = trainingDuration;
+    public Long getId() {
+        return id;
     }
 
-    public InnerDataTraining getInnerDataTraining() {
-        return innerDataTraining;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setInnerDataTraining(InnerDataTraining innerDataTraining) {
-        this.innerDataTraining = innerDataTraining;
+    public Long getTrainerId() {
+        return trainerId;
+    }
+
+    public void setTrainerId(Long trainerId) {
+        this.trainerId = trainerId;
+    }
+
+    public List<Long> getTraineeIds() {
+        return traineeIds;
+    }
+
+    public void setTraineeIds(List<Long> traineeIds) {
+        this.traineeIds = traineeIds;
     }
 
     public String getTrainingType() {
@@ -57,15 +67,24 @@ public class TrainingRequest {
         this.trainingDuration = trainingDuration;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        TrainingRequest that = (TrainingRequest) o;
-        return Objects.equals(innerDataTraining, that.innerDataTraining) && Objects.equals(trainingType, that.trainingType) && Objects.equals(trainingDate, that.trainingDate) && Objects.equals(trainingDuration, that.trainingDuration);
+    public String getTrainingName() {
+        return trainingName;
+    }
+
+    public void setTrainingName(String trainingName) {
+        this.trainingName = trainingName;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(innerDataTraining, trainingType, trainingDate, trainingDuration);
+    public String toString() {
+        return "TrainingRequest{" +
+                "id=" + id +
+                ", trainerId=" + trainerId +
+                ", traineeIds=" + traineeIds +
+                ", trainingName='" + trainingName + '\'' +
+                ", trainingType='" + trainingType + '\'' +
+                ", trainingDate=" + trainingDate +
+                ", trainingDuration='" + trainingDuration + '\'' +
+                '}';
     }
 }

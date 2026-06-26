@@ -4,13 +4,13 @@ import java.util.Objects;
 
 public class TrainerDao extends UserDao {
 
-    private String userId;
+    private Long userId;
     private String specialization;
 
     public TrainerDao() {
     }
 
-    public TrainerDao(String userId, String specialization) {
+    public TrainerDao(Long userId, String specialization) {
         this.specialization = specialization;
         this.userId = userId;
     }
@@ -23,11 +23,11 @@ public class TrainerDao extends UserDao {
         this.specialization = specialization;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

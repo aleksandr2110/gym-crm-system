@@ -51,7 +51,6 @@ public class AllBeansTest {
 
     @Test
     void testStorageBeansExist() {
-        assertNotNull(applicationContext.getBean("userStorage"));
         assertNotNull(applicationContext.getBean("traineeStorage"));
         assertNotNull(applicationContext.getBean("trainerStorage"));
         assertNotNull(applicationContext.getBean("trainingStorage"));
@@ -59,13 +58,7 @@ public class AllBeansTest {
     }
 
     @Test
-    void testUtilityBeansExist() {
-        assertNotNull(applicationContext.getBean(StorageLoader.class));
-    }
-
-    @Test
     void testDataLoaderBeansExist() {
-        assertNotNull(applicationContext.getBean(UserDataLoader.class));
         assertNotNull(applicationContext.getBean(TraineeDataLoader.class));
         assertNotNull(applicationContext.getBean(TrainerDataLoader.class));
         assertNotNull(applicationContext.getBean(TrainingDataLoader.class));

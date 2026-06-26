@@ -5,24 +5,24 @@ import java.util.Objects;
 
 public class TraineeDao extends UserDao {
 
-    private String userId;
+    private Long userId;
     private LocalDate dateOfBirth;
     private String address;
 
     public TraineeDao() {
     }
 
-    public TraineeDao(String userId, LocalDate dateOfBirth, String address) {
+    public TraineeDao(Long userId, LocalDate dateOfBirth, String address) {
         this.userId = userId;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 

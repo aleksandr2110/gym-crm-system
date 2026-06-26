@@ -53,7 +53,7 @@ public class TrainerServiceImplTest {
     @Test
     void shouldUpdateTrainer() {
         //GIVEN
-        String userId = "1";
+        Long userId = 1L;
         var trainerRequest = new TrainerRequest();
         trainerRequest.setFirstName("Alexandr");
         trainerRequest.setLastName("Kirichenko");
@@ -88,7 +88,7 @@ public class TrainerServiceImplTest {
     @Test
     void shouldThrowExceptionWhenUpdateTrainer() {
         //GIVEN
-        String userId = "1";
+        Long userId = 1L;
         Trainer empty = null;
         var trainerRequest = new TrainerRequest();
 
@@ -105,7 +105,7 @@ public class TrainerServiceImplTest {
     @Test
     void shouldSelectTrainerById() {
         //GIVEN
-        String userId = "1";
+        Long userId = 1L;
         var trainer = new Trainer();
         trainer.setFirstName("Rerg");
         trainer.setLastName("Grill");

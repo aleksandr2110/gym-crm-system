@@ -22,10 +22,10 @@ public class GymApplication {
     public static void main(String[] args) {
         ApplicationContext context = new AnnotationConfigApplicationContext(GymApplication.class);
         TraineeService traineeService = context.getBean(TraineeServiceImpl.class);
-        Trainee trainee = traineeService.select("2");
+        Trainee trainee = traineeService.select(2L);
         System.out.println("trainee with id " + trainee.toString());
         TrainerService trainerService = context.getBean(TrainerServiceImpl.class);
-        Trainer trainer = trainerService.select("2");
+        Trainer trainer = trainerService.select(2L);
         System.out.println("trainer with id " + trainer.toString());
     }
 }

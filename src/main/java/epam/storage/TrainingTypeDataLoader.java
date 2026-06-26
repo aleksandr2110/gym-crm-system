@@ -18,8 +18,8 @@ public class TrainingTypeDataLoader implements DataLoader<TrainingTypeDao, Strin
     private static final Logger logger = Logger.getLogger(TrainingTypeDataLoader.class.getName());
 
     @Override
-    public Map<String, TrainingTypeDao> loadData(InputStream inputStream) {
-        Map<String, TrainingTypeDao> result = new HashMap<>();
+    public Map<Long, TrainingTypeDao> loadData(InputStream inputStream) {
+        Map<Long, TrainingTypeDao> result = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -29,9 +29,14 @@ public class TrainingTypeDataLoader implements DataLoader<TrainingTypeDao, Strin
                 line = line.trim();
 
                 if (!line.isEmpty()) {
-                    TrainingTypeDao trainingType = new TrainingTypeDao();
-                    trainingType.setTrainingTypeName(line);
-                    result.put(trainingType.getTrainingTypeName(), trainingType);
+                    String[] parts = line.split(",");
+
+                    if (parts.length == 2) {
+                        TrainingTypeDao trainingType = new TrainingTypeDao();
+                        trainingType.setId(Long.parseLong(parts[0].trim()));
+                        trainingType.setTrainingTypeName(parts[1].trim());
+                        result.put(trainingType.getId(), trainingType);
+                    }
                 }
             }
         } catch (IOException e) {

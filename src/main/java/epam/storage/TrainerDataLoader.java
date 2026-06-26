@@ -18,8 +18,8 @@ public class TrainerDataLoader implements DataLoader<TrainerDao, String> {
     private static final Logger logger = Logger.getLogger(TrainerDataLoader.class.getName());
 
     @Override
-    public Map<String, TrainerDao> loadData(InputStream inputStream) {
-        Map<String, TrainerDao> result = new HashMap<>();
+    public Map<Long, TrainerDao> loadData(InputStream inputStream) {
+        Map<Long, TrainerDao> result = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -33,7 +33,7 @@ public class TrainerDataLoader implements DataLoader<TrainerDao, String> {
 
                     if (parts.length == 7) {
                         TrainerDao trainer = new TrainerDao();
-                        trainer.setUserId(parts[0].trim());
+                        trainer.setUserId(Long.parseLong(parts[0].trim()));
                         trainer.setSpecialization(parts[1].trim());
                         trainer.setActive(Boolean.getBoolean(parts[2].trim()));
                         trainer.setFirstName(parts[3].trim());
