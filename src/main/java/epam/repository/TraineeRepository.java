@@ -56,7 +56,7 @@ public class TraineeRepository implements EntityRepository<Trainee, String> {
         TraineeDao selectedTraineeDao = null; // optional
         for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
             var traineeDao = entry.getValue();
-            if (traineeDao.getUserId().equals(id)) {
+            if (traineeDao.getUserId().longValue() == id.longValue()) {
                 selectedTraineeDao = traineeDao;
             }
         }

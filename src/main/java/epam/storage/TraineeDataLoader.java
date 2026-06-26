@@ -2,7 +2,6 @@ package epam.storage;
 
 import epam.dao.TraineeDao;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -26,53 +25,13 @@ public class TraineeDataLoader implements DataLoader<TraineeDao, String>, BeanPo
     private static final Logger logger = Logger.getLogger(TraineeDataLoader.class.getName());
 
     private ApplicationContext applicationContext;
-    //private Loader loader;
 
     @Value("${storage.trainees}")
     private String traineesFilePath;
 
-//    @Autowired
-//    public void setLoader(Loader loader) {
-//        this.loader = loader;
-//    }
-
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-    }
-
-    /*@Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        logger.info("postProcessAfterInitialization — After Initialization method. Bean name is " + beanName);
-
-        if (beanName.equals("traineeStorage")) {
-            loader.loadDataPostProcessAfterInitialization(beanName);
-            Map<Long, TraineeDao> storage = (Map<Long, TraineeDao>) applicationContext.getBean(beanName);
-            loadDataFromFile(storage, traineesFilePath, beanName);
-        }
-
-        return bean;
-    }*/
-
-    public <V, ID> void loadDataFromFile(Map<Long, TraineeDao> storage,
-                                         String filePath, String beanName) {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(filePath)) {
-            if (is == null) {
-                logger.warning("File not found: " + filePath);
-                return;
-            }
-            //Map<? extends Number, TraineeDao> loadedData = loader.loadData(is);
-            Map<Long, TraineeDao> loadedData = loadData(is);
-            if (loadedData != null && !loadedData.isEmpty()) {
-                storage.putAll(loadedData);
-                logger.info("Loaded. Count of entities " + loadedData.size() +
-                        ", bean name - " + beanName);
-            } else {
-                logger.warning("Failed to load from " + filePath);
-            }
-        } catch (Exception e) {
-            logger.warning("Error during loading data for bean - " + beanName);
-        }
     }
 
     @Override
