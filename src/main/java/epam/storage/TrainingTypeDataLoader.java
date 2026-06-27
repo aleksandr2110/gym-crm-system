@@ -1,7 +1,5 @@
 package epam.storage;
 
-import epam.dao.TrainingTypeDao;
-import epam.domain.Trainer;
 import epam.domain.TrainingType;
 import org.springframework.stereotype.Component;
 

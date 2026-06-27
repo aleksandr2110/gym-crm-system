@@ -9,6 +9,9 @@ import epam.request.TrainingDTO;
 import epam.service.TraineeService;
 import epam.service.TrainerService;
 import epam.service.TrainingService;
+import epam.util.TraineeMapper;
+import epam.util.TrainerMapper;
+import epam.util.TrainingMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.logging.Logger;
@@ -19,24 +22,33 @@ public class FacadeGymCrmSystem {
     private final TrainerService trainerService;
     private final TraineeService traineeService;
     private final TrainingService trainingService;
+    private final TraineeMapper traineeMapper;
+    private final TrainerMapper trainerMapper;
+    private final TrainingMapper trainingMapper;
     private static final Logger logger = Logger.getLogger(FacadeGymCrmSystem.class.getName());
 
     public FacadeGymCrmSystem(TrainerService trainerService, TraineeService traineeService,
-                              TrainingService trainingService) {
+                              TrainingService trainingService, TraineeMapper traineeMapper,
+                              TrainerMapper trainerMapper, TrainingMapper trainingMapper) {
         this.trainerService = trainerService;
         this.traineeService = traineeService;
         this.trainingService = trainingService;
+        this.traineeMapper = traineeMapper;
+        this.trainerMapper = trainerMapper;
+        this.trainingMapper = trainingMapper;
     }
 
     public Trainee createTrainee(TraineeDTO traineeDTO) {
         logger.info("Creating trainee " + traineeDTO.getFirstName() +
                 traineeDTO.getLastName());
-        return traineeService.create(traineeDTO);
+        var trainee = traineeMapper.toModel(traineeDTO);
+        return traineeService.create(trainee);
     }
 
     public Trainee updateTrainee(TraineeDTO traineeDTO, Long userId) {
         logger.info("Updating trainee with id " + userId);
-        return traineeService.update(traineeDTO, userId);
+        var trainee = traineeMapper.toModel(traineeDTO);
+        return traineeService.update(trainee, userId);
     }
 
     public Trainee getTrainee(Long userId) {
@@ -51,12 +63,14 @@ public class FacadeGymCrmSystem {
 
     public Trainer createTrainer(TrainerDTO trainerDto) {
         logger.info("Creating trainer " + trainerDto.getFirstName() + " " + trainerDto.getLastName());
-        return trainerService.create(trainerDto);
+        var trainer =  trainerMapper.toModel(trainerDto);
+        return trainerService.create(trainer);
     }
 
     public Trainer updateTrainer(TrainerDTO trainerDto, Long userId) {
         logger.info("Facade: Updating trainer with id " + userId);
-        return trainerService.update(trainerDto, userId);
+        var trainer =  trainerMapper.toModel(trainerDto);
+        return trainerService.update(trainer, userId);
     }
 
     public Trainer getTrainer(Long userId) {
@@ -66,7 +80,8 @@ public class FacadeGymCrmSystem {
 
     public Training createTraining(TrainingDTO trainingDTO) {
         logger.info("Creating training " + trainingDTO.toString());
-        return trainingService.create(trainingDTO);
+        var training = trainingMapper.toModel(trainingDTO);
+        return trainingService.create(training, trainingDTO.getTrainerId(), trainingDTO.getTraineeIds());
     }
 
     public Training getTraining(Long trainingId) {

@@ -1,6 +1,5 @@
 package epam.config;
 
-import epam.dao.*;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.domain.Training;

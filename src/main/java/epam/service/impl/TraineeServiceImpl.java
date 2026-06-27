@@ -2,7 +2,6 @@ package epam.service.impl;
 
 import epam.domain.Trainee;
 import epam.repository.TraineeRepository;
-import epam.request.TraineeDTO;
 import epam.service.TraineeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,22 +22,15 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public Trainee create(TraineeDTO traineeDTO) {
-
-        Trainee trainee = new Trainee();
-        trainee.setFirstName(traineeDTO.getFirstName());
-        trainee.setLastName(traineeDTO.getLastName());
-        trainee.setActive(true);
-        trainee.setDateOfBirth(traineeDTO.getDateOfBirth());
-        trainee.setAddress(traineeDTO.getAddress());
-
+    public Trainee create(Trainee trainee) {
         Trainee createdTrainee = traineeRepository.save(trainee);
         logger.info("User created successfully with userId: " +  createdTrainee.getUserId());
+
         return createdTrainee;
     }
 
     @Override
-    public Trainee update(TraineeDTO traineeDTO, Long userId) {
+    public Trainee update(Trainee trainee, Long userId) {
 
         Trainee currentTrainee = traineeRepository.select(userId);
         if (currentTrainee == null) {
@@ -46,20 +38,20 @@ public class TraineeServiceImpl implements TraineeService {
             throw new IllegalArgumentException("User with id: " + userId + " not found!");
         }
 
-        boolean nameChanged = !currentTrainee.getFirstName().equals(traineeDTO.getFirstName()) ||
-                !currentTrainee.getLastName().equals(traineeDTO.getLastName());
+        boolean nameChanged = !currentTrainee.getFirstName().equals(trainee.getFirstName()) ||
+                !currentTrainee.getLastName().equals(trainee.getLastName());
 
         if (nameChanged) {
             logger.info("Name changed. Before first/last name " +
                     currentTrainee.getFirstName() + " " + currentTrainee.getLastName() +
-                    " After " + traineeDTO.getFirstName() + " " + traineeDTO.getLastName());
+                    " After " + trainee.getFirstName() + " " + trainee.getLastName());
         }
 
-        currentTrainee.setFirstName(traineeDTO.getFirstName());
-        currentTrainee.setLastName(traineeDTO.getLastName());
-        currentTrainee.setAddress(traineeDTO.getAddress());
-        currentTrainee.setDateOfBirth(traineeDTO.getDateOfBirth());
-        currentTrainee.setActive(traineeDTO.getActive());
+        currentTrainee.setFirstName(trainee.getFirstName());
+        currentTrainee.setLastName(trainee.getLastName());
+        currentTrainee.setAddress(trainee.getAddress());
+        currentTrainee.setDateOfBirth(trainee.getDateOfBirth());
+        currentTrainee.setActive(trainee.isActive());
 
         Trainee updatedTrainee = traineeRepository.update(currentTrainee);
         logger.info("User updated successfully with id " + updatedTrainee.getUserId());

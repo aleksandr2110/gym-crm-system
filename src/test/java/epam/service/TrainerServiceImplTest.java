@@ -2,7 +2,6 @@ package epam.service;
 
 import epam.domain.Trainer;
 import epam.repository.TrainerRepository;
-import epam.request.TrainerDTO;
 import epam.service.impl.TrainerServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +24,7 @@ public class TrainerServiceImplTest {
     @Test
     void shouldSaveTrainer() {
         //GIVEN
-        var trainerRequest = new TrainerDTO();
+        var trainerRequest = new Trainer();
         trainerRequest.setFirstName("Sergey");
         trainerRequest.setLastName("Hofman");
         trainerRequest.setSpecialization("PHP");
@@ -54,7 +53,7 @@ public class TrainerServiceImplTest {
     void shouldUpdateTrainer() {
         //GIVEN
         Long userId = 1L;
-        var trainerRequest = new TrainerDTO();
+        var trainerRequest = new Trainer();
         trainerRequest.setFirstName("Alexandr");
         trainerRequest.setLastName("Kirichenko");
         trainerRequest.setSpecialization("PHP");
@@ -70,7 +69,7 @@ public class TrainerServiceImplTest {
         updatedTrainer.setFirstName(trainerRequest.getFirstName());
         updatedTrainer.setLastName(trainerRequest.getLastName());
         updatedTrainer.setSpecialization(trainerRequest.getSpecialization());
-        updatedTrainer.setActive(trainerRequest.getActive());
+        updatedTrainer.setActive(trainerRequest.isActive());
 
         //WHEN
         when(trainerRepository.select(userId)).thenReturn(currentTrainer);
@@ -90,7 +89,7 @@ public class TrainerServiceImplTest {
         //GIVEN
         Long userId = 1L;
         Trainer empty = null;
-        var trainerRequest = new TrainerDTO();
+        var trainerRequest = new Trainer();
 
         //WHEN
         when(trainerRepository.select(userId)).thenReturn(empty);

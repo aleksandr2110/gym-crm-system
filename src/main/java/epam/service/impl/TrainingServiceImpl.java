@@ -5,7 +5,6 @@ import epam.domain.Training;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
-import epam.request.TrainingDTO;
 import epam.service.TrainingService;
 import org.springframework.stereotype.Service;
 
@@ -30,20 +29,14 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public Training create(TrainingDTO trainingDTO) {
-        var training = new Training();
-        training.setTrainer(trainerRepository.select(trainingDTO.getTrainerId()));
+    public Training create(Training training, Long trainerId, List<Long> traineeIds) {
+        training.setTrainer(trainerRepository.select(trainerId));
         List<Trainee> traineeList = new ArrayList();
-        for (Long traineeId : trainingDTO.getTraineeIds()) {
+        for (Long traineeId : traineeIds) {
             traineeList.add(traineeRepository.select(traineeId));
         }
         training.setTrainers(traineeList);
-        training.setTrainingName(trainingDTO.getTrainingName());
-        training.setTrainingType(trainingDTO.getTrainingType());
-        training.setTrainingDate(trainingDTO.getTrainingDate());
-        training.setTrainingDuration(trainingDTO.getTrainingDuration());
-
-        Training createdTraining = trainingRepository.save(training);
+        var createdTraining = trainingRepository.save(training);
 
         if (createdTraining == null) {
             logger.warning("Failed to create training: ");

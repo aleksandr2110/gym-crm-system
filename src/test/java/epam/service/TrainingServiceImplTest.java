@@ -38,10 +38,11 @@ public class TrainingServiceImplTest {
     @Test
     void shouldSaveTraining() {
         //GIVEN
-        Training training = new Training();
+        var training = new Training();
         training.setTrainingType("C#");
         training.setTrainingDate(LocalDateTime.of(2026, Month.OCTOBER, 13, 12, 15, 00));
         training.setTrainingDuration("45");
+        training.setTrainingName("TypeScript");
 
         var trainingRequest = new TrainingDTO();
         trainingRequest.setTrainerId(1L);
@@ -53,7 +54,8 @@ public class TrainingServiceImplTest {
         when(trainerRepository.select(any())).thenReturn(trainer);
         when(traineeRepository.select(any())).thenReturn(trainee);
         when(trainingRepository.save(any())).thenReturn(training);
-        var createdTraining = trainingService.create(trainingRequest);
+        var createdTraining = trainingService.create(training,
+                trainingRequest.getTrainerId(), trainingRequest.getTraineeIds());
 
         //THEN
         assertNotNull(createdTraining);

@@ -20,15 +20,11 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public Trainer create(TrainerDTO trainerDTO) {
-        logger.info("Creating trainer: " + trainerDTO.getFirstName() + " " +
-                trainerDTO.getLastName());
+    public Trainer create(Trainer trainer) {
+        logger.info("Creating trainer: " + trainer.getFirstName() + " " +
+                trainer.getLastName());
 
-        Trainer trainer = new Trainer();
-        trainer.setFirstName(trainerDTO.getFirstName());
-        trainer.setLastName(trainerDTO.getLastName());
-        trainer.setActive(true);
-        trainer.setSpecialization(trainerDTO.getSpecialization());
+
 
         Trainer createdTrainer = trainerRepository.save(trainer);
 
@@ -37,7 +33,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public Trainer update(TrainerDTO trainerDTO, Long userId) {
+    public Trainer update(Trainer trainer, Long userId) {
 
         Trainer currentTrainer = trainerRepository.select(userId);
         if (currentTrainer == null) {
@@ -45,18 +41,18 @@ public class TrainerServiceImpl implements TrainerService {
             throw new IllegalArgumentException("User with id: " + userId + " not found!");
         }
 
-        boolean nameChanged = !currentTrainer.getFirstName().equals(trainerDTO.getFirstName()) ||
-                !currentTrainer.getLastName().equals(trainerDTO.getLastName());
+        boolean nameChanged = !currentTrainer.getFirstName().equals(trainer.getFirstName()) ||
+                !currentTrainer.getLastName().equals(trainer.getLastName());
 
-        currentTrainer.setFirstName(trainerDTO.getFirstName());
-        currentTrainer.setLastName(trainerDTO.getLastName());
-        currentTrainer.setSpecialization(trainerDTO.getSpecialization());
-        currentTrainer.setActive(trainerDTO.getActive());
+        currentTrainer.setFirstName(trainer.getFirstName());
+        currentTrainer.setLastName(trainer.getLastName());
+        currentTrainer.setSpecialization(trainer.getSpecialization());
+        currentTrainer.setActive(trainer.isActive());
 
         if (nameChanged) {
             logger.info("Name changed. Before first/last name: " +
                     currentTrainer.getFirstName() + " " + currentTrainer.getLastName() +
-                    " After: " + trainerDTO.getFirstName() + " " + trainerDTO.getLastName());
+                    " After: " + trainer.getFirstName() + " " + trainer.getLastName());
         }
 
         Trainer updatedTrainer = trainerRepository.update(currentTrainer);

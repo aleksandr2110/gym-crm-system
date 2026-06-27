@@ -3,7 +3,9 @@ package epam.storage;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.domain.Training;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -20,14 +22,15 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Component
-public class TrainingDataLoader implements DataLoader<Long, Training> {
+public class TrainingDataLoader implements DataLoader<Long, Training>, ApplicationContextAware {
 
     private static final Logger logger = Logger.getLogger(TrainingDataLoader.class.getName());
+    private ApplicationContext applicationContext;
 
-    @Autowired
-    private Map<Long, Trainee> traineeStorage;
-    @Autowired
-    private Map<Long, Trainer> trainerStorage;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
 
     @Override
     public Map<Long, Training> loadData(InputStream inputStream) {
@@ -44,13 +47,15 @@ public class TrainingDataLoader implements DataLoader<Long, Training> {
                     String[] parts = line.split(",");
 
                     if (parts.length == 7) {
-                        Training training = new Training();
+                        Map<Long, Trainee> traineeStorage = (Map<Long, Trainee>) applicationContext.getBean("traineeStorage");
+                        Map<Long, Trainer> trainerStorage = (Map<Long, Trainer>) applicationContext.getBean("trainerStorage");
+                        var training = new Training();
                         training.setId(Long.parseLong(parts[0].trim()));
                         Trainer trainer = trainerStorage.get(Long.parseLong(parts[1].trim()));
                         training.setTrainer(trainer);
                         String traineesLine = parts[2].trim();
                         String[] trainees = traineesLine.split("-");
-                        List<Trainee> traineeList = new ArrayList();
+                        List<Trainee> traineeList = new ArrayList<>();
                         for (String traineeId : trainees) {
                             var trainee = traineeStorage.get(Long.parseLong(traineeId));
                             traineeList.add(trainee);

@@ -1,12 +1,11 @@
 package epam.service;
 
 import epam.domain.Trainee;
-import epam.request.TraineeDTO;
 
 public interface TraineeService {
 
-    Trainee create(TraineeDTO traineeDTO);
-    Trainee update(TraineeDTO traineeDTO, Long userId);
+    Trainee create(Trainee trainee);
+    Trainee update(Trainee trainee, Long userId);
     Trainee select(Long id);
     void delete(Long id);
 }

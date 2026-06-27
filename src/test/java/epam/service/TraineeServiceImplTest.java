@@ -2,7 +2,6 @@ package epam.service;
 
 import epam.domain.Trainee;
 import epam.repository.TraineeRepository;
-import epam.request.TraineeDTO;
 import epam.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +24,7 @@ public class TraineeServiceImplTest {
     @Test
     void shouldSaveTrainee() {
         //GIVEN
-        var traineeRequest = new TraineeDTO();
+        var traineeRequest = new Trainee();
         traineeRequest.setFirstName("Alex");
         traineeRequest.setLastName("Hofman");
         traineeRequest.setAddress("23 Road star st");
@@ -54,7 +53,7 @@ public class TraineeServiceImplTest {
     void shouldUpdateTrainee() {
         //GIVEN
         Long userId = 1L;
-        var traineeRequest = new TraineeDTO();
+        var traineeRequest = new Trainee();
         traineeRequest.setFirstName("Alex");
         traineeRequest.setLastName("Hofman");
         traineeRequest.setAddress("23 Road star st");
@@ -70,7 +69,7 @@ public class TraineeServiceImplTest {
         updatedTrainee.setFirstName(traineeRequest.getFirstName());
         updatedTrainee.setLastName(traineeRequest.getLastName());
         updatedTrainee.setAddress(traineeRequest.getAddress());
-        updatedTrainee.setActive(traineeRequest.getActive());
+        updatedTrainee.setActive(traineeRequest.isActive());
 
         //WHEN
         when(traineeRepository.select(userId)).thenReturn(currentTrainee);
@@ -90,7 +89,7 @@ public class TraineeServiceImplTest {
         //GIVEN
         Long userId = 1L;
         Trainee empty = null;
-        var traineeRequest = new TraineeDTO();
+        var traineeRequest = new Trainee();
 
         //WHEN
         when(traineeRepository.select(userId)).thenReturn(empty);

@@ -3,8 +3,6 @@ package epam;
 import epam.application.FacadeGymCrmSystem;
 import epam.config.ApplicationConfig;
 import epam.config.DataSilosConfig;
-import epam.dao.TraineeDao;
-import epam.dao.TrainerDao;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.domain.Training;
@@ -52,11 +50,12 @@ public class GymFacadeTest {
 
     @Test
     void testCreateTrainee() {
-        TraineeDTO traineeDTO = new TraineeDTO();
+        var traineeDTO = new TraineeDTO();
         traineeDTO.setFirstName("Jonny");
         traineeDTO.setLastName("Dep");
         traineeDTO.setDateOfBirth(LocalDate.of(1978, 8, 21));
         traineeDTO.setAddress("3 Bank St");
+        traineeDTO.setActive(true);
 
         Trainee createdTrainee = gymFacade.createTrainee(traineeDTO);
 
@@ -70,11 +69,12 @@ public class GymFacadeTest {
 
     @Test
     void testGetTrainee() {
-        TraineeDTO traineeDTO = new TraineeDTO();
+        var traineeDTO = new TraineeDTO();
         traineeDTO.setFirstName("Jastin");
         traineeDTO.setLastName("Timbarlake");
         traineeDTO.setDateOfBirth(LocalDate.of(1984, 3, 14));
         traineeDTO.setAddress("11/2 Dark Ave");
+        traineeDTO.setActive(true);
 
         Trainee created = gymFacade.createTrainee(traineeDTO);
         Long userId = created.getUserId();
@@ -192,6 +192,7 @@ public class GymFacadeTest {
         traineeRequest.setLastName("Ogiy");
         traineeRequest.setDateOfBirth(LocalDate.of(1991, 2, 2));
         traineeRequest.setAddress("79 Nikolska st");
+        traineeRequest.setActive(true);
         var trainee = gymFacade.createTrainee(traineeRequest);
 
         var trainerRequest = new TrainerDTO();
@@ -199,7 +200,7 @@ public class GymFacadeTest {
         trainerRequest.setLastName("Rubak");
         trainerRequest.setSpecialization("TypeScript");
         trainerRequest.setActive(true);
-        Trainer trainer = gymFacade.createTrainer(trainerRequest);
+        var trainer = gymFacade.createTrainer(trainerRequest);
 
         var trainingRequest = new TrainingDTO();
         trainingRequest.setTrainerId(trainer.getUserId());
@@ -209,12 +210,12 @@ public class GymFacadeTest {
         trainingRequest.setTrainingDate(LocalDateTime.of(2026, Month.MAY, 15, 12, 15, 00));
         trainingRequest.setTrainingDuration("60");
 
-        Training created = gymFacade.createTraining(trainingRequest);
+        var training = gymFacade.createTraining(trainingRequest);
 
-        assertNotNull(created);
-        assertEquals("TypeScript", created.getTrainingName());
-        assertEquals("Learning TypeScript", created.getTrainingType());
-        assertEquals("60", created.getTrainingDuration());
+        assertNotNull(training);
+        assertEquals("TypeScript", training.getTrainingName());
+        assertEquals("Learning TypeScript", training.getTrainingType());
+        assertEquals("60", training.getTrainingDuration());
     }
 
     @Test
@@ -231,6 +232,7 @@ public class GymFacadeTest {
         traineeRequest.setLastName("Prokofev");
         traineeRequest.setDateOfBirth(LocalDate.of(1988, 11, 1));
         traineeRequest.setAddress("77 Manyilo st");
+        traineeRequest.setActive(true);
         Trainee trainee = gymFacade.createTrainee(traineeRequest);
 
         var traineeRequest2 = new TraineeDTO();
@@ -238,6 +240,7 @@ public class GymFacadeTest {
         traineeRequest2.setLastName("Krunickiy");
         traineeRequest2.setDateOfBirth(LocalDate.of(1986, 1, 13));
         traineeRequest2.setAddress("23 Mostova st");
+        traineeRequest2.setActive(true);
         Trainee trainee2 = gymFacade.createTrainee(traineeRequest2);
 
         var trainingRequest = new TrainingDTO();

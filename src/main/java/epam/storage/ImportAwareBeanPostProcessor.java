@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -17,14 +16,14 @@ import java.util.logging.Logger;
 
 
 @Component
-public class StorageLoader implements ApplicationContextAware, BeanPostProcessor, InitializingBean { //
+public class ImportAwareBeanPostProcessor implements ApplicationContextAware, BeanPostProcessor, InitializingBean { //
 
-    private static final Logger logger = Logger.getLogger(StorageLoader.class.getName());
+    private static final Logger logger = Logger.getLogger(ImportAwareBeanPostProcessor.class.getName());
 
-    private final TraineeDataLoader traineeDataLoader = new TraineeDataLoader();
-    private final TrainerDataLoader trainerDataLoader = new TrainerDataLoader();
-    private final TrainingDataLoader trainingDataLoader = new TrainingDataLoader();
-    private final TrainingTypeDataLoader trainingTypeDataLoader = new TrainingTypeDataLoader();
+    private final TraineeDataLoader traineeDataLoader;
+    private final TrainerDataLoader trainerDataLoader;
+    private final TrainingDataLoader trainingDataLoader;
+    private final TrainingTypeDataLoader trainingTypeDataLoader;
 
     @Value("${storage.trainers}")
     private String trainersFilePath;
@@ -41,19 +40,17 @@ public class StorageLoader implements ApplicationContextAware, BeanPostProcessor
     private ApplicationContext applicationContext;
     private Map<String, String> fileMap;
 
-    public StorageLoader() {
-    }
 
-    /*@Autowired
-    public StorageLoader(TraineeDataLoader traineeDataLoader,
-                         TrainerDataLoader trainerDataLoader,
-                         TrainingDataLoader trainingDataLoader,
-                         TrainingTypeDataLoader trainingTypeDataLoader) {
+    @Autowired
+    public ImportAwareBeanPostProcessor(TraineeDataLoader traineeDataLoader,
+                                        TrainerDataLoader trainerDataLoader,
+                                        TrainingDataLoader trainingDataLoader,
+                                        TrainingTypeDataLoader trainingTypeDataLoader) {
         this.traineeDataLoader = traineeDataLoader;
         this.trainerDataLoader = trainerDataLoader;
         this.trainingDataLoader = trainingDataLoader;
         this.trainingTypeDataLoader = trainingTypeDataLoader;
-    }*/
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -69,11 +66,6 @@ public class StorageLoader implements ApplicationContextAware, BeanPostProcessor
         fileMap.put("trainingTypeStorage", trainingTypesFilePath);
 
         logger.info("All storages initialized successfully");
-    }
-    @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException  {
-        System.out.println("bean name " + beanName);
-        return bean;
     }
 
     @Override
