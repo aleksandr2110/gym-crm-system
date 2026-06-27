@@ -1,5 +1,0 @@
-1,1985-05-19,1 Metro St,true,Stive,Jobs,Stive.Jobs,sxsdfdf
-2,1990-09-21,122 Spain Avenu,true,Sabrina,Kovti,Sabrina.Kovti,rewrwfdt
-3,1991-02-18,56 Portygal Avenu,true,Mari,Katrin,Mari.Katrin,rerwew
-4,1992-06-11,15 Rikky St,true,Barbara,Kovti,Barbara.Kovti,fds3dsfd
-5,1994-10-11,67 Portline St,true,Emilia,Kavi,Emilia.Kavi,rewrwfdt

@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
 @Repository
-public class TrainingRepository implements EntityRepository<Training, String> {
+public class TrainingRepository implements EntityRepository<Training, Long> {
 
     private final Map<Long, TrainingDao> trainingStorage;
     private final TrainingMapper trainerMapper;

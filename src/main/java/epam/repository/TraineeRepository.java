@@ -4,19 +4,22 @@ import epam.dao.TraineeDao;
 import epam.domain.Trainee;
 import epam.util.TraineeMapper;
 import epam.util.UsernameAndPasswordGenerator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 import java.util.logging.Logger;
 
 @Repository
-public class TraineeRepository implements EntityRepository<Trainee, String> {
+public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
     private final Map<Long, TraineeDao> traineeStorage;
     private final TraineeMapper traineeMapper;
     private static final Logger logger = Logger.getLogger(TraineeRepository.class.getName());
 
-    public TraineeRepository(Map<Long, TraineeDao> traineeStorage, TraineeMapper traineeMapper) {
+    @Autowired
+    public TraineeRepository(@Lazy Map<Long, TraineeDao> traineeStorage, TraineeMapper traineeMapper) {
         this.traineeStorage = traineeStorage;
         this.traineeMapper = traineeMapper;
     }

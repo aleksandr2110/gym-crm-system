@@ -1,5 +1,0 @@
-1,1,Learning Python,Python,2026-06-20T15:30:00,60
-2,2,Learning C#,C#,2026-07-16T15:30:00,90
-3,3,Learning Java,Java,2026-07-17T15:30:00,60
-4,4,Learning JavaScript,JavaScript,2026-07-18T15:30:00,75
-5,5,Learning TypeScript,TypeScript,2026-01-19T15:30:00,50

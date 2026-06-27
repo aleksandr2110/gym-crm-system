@@ -4,6 +4,7 @@ import epam.domain.Trainee;
 import epam.repository.TraineeRepository;
 import epam.request.TraineeRequest;
 import epam.service.TraineeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -15,6 +16,8 @@ public class TraineeServiceImpl implements TraineeService {
     private final TraineeRepository traineeRepository;
     private static final Logger logger = Logger.getLogger(TraineeServiceImpl.class.getName());
 
+
+    @Autowired
     public TraineeServiceImpl(TraineeRepository traineeRepository) {
         this.traineeRepository = traineeRepository;
     }

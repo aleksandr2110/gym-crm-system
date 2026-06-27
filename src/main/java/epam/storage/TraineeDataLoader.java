@@ -20,19 +20,12 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Component
-public class TraineeDataLoader implements DataLoader<TraineeDao, String>, BeanPostProcessor, ApplicationContextAware {
+public class TraineeDataLoader implements DataLoader<TraineeDao, String>, BeanPostProcessor {
 
     private static final Logger logger = Logger.getLogger(TraineeDataLoader.class.getName());
 
-    private ApplicationContext applicationContext;
-
     @Value("${storage.trainees}")
     private String traineesFilePath;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 
     @Override
     public Map<Long, TraineeDao> loadData(InputStream inputStream) {

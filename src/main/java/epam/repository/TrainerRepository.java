@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Repository
-public class TrainerRepository implements EntityRepository<Trainer, String> {
+public class TrainerRepository implements EntityRepository<Trainer, Long> {
 
     private final Map<Long, TrainerDao> trainerStorage;
     private final TrainerMapper trainerMapper;
