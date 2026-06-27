@@ -5,17 +5,17 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 @Component
-public class TrainerRequest {
+public class TrainerDTO {
 
     private String firstName;
     private String lastName;
     private String specialization;
     private Boolean isActive;
 
-    public TrainerRequest() {
+    public TrainerDTO() {
     }
 
-    public TrainerRequest(String firstName, String lastName, String specialization, Boolean isActive) {
+    public TrainerDTO(String firstName, String lastName, String specialization, Boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.specialization = specialization;
@@ -57,7 +57,7 @@ public class TrainerRequest {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        TrainerRequest that = (TrainerRequest) o;
+        TrainerDTO that = (TrainerDTO) o;
         return Objects.equals(firstName, that.firstName) && Objects.equals(lastName, that.lastName) && Objects.equals(specialization, that.specialization) && Objects.equals(isActive, that.isActive);
     }
 

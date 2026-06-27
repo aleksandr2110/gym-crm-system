@@ -103,14 +103,14 @@ public class StorageLoader implements ApplicationContextAware, BeanPostProcessor
         return bean;
     }
 
-    private <V, ID> void loadDataFromFile(DataLoader<V, ID> loader, Map<Object, Object> storage,
+    private <V, ID> void loadDataFromFile(DataLoader<ID, V> loader, Map<Object, Object> storage,
                                   String filePath, String beanName) {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(filePath)) {
             if (is == null) {
                 logger.warning("File not found: " + filePath);
                 return;
             }
-            Map<? extends Number, V> loadedData = loader.loadData(is);
+            Map<ID, V> loadedData = loader.loadData(is);
             if (loadedData != null && !loadedData.isEmpty()) {
                 storage.putAll(loadedData);
                 logger.info("Loaded. Count of entities " + loadedData.size() +

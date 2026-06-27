@@ -1,11 +1,6 @@
 package epam.storage;
 
-import epam.dao.TraineeDao;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import epam.domain.Trainee;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -20,16 +15,13 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Component
-public class TraineeDataLoader implements DataLoader<TraineeDao, String>, BeanPostProcessor {
+public class TraineeDataLoader implements DataLoader<Long, Trainee> {
 
     private static final Logger logger = Logger.getLogger(TraineeDataLoader.class.getName());
 
-    @Value("${storage.trainees}")
-    private String traineesFilePath;
-
     @Override
-    public Map<Long, TraineeDao> loadData(InputStream inputStream) {
-        Map<Long, TraineeDao> result = new HashMap<>();
+    public Map<Long, Trainee> loadData(InputStream inputStream) {
+        Map<Long, Trainee> result = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -42,14 +34,14 @@ public class TraineeDataLoader implements DataLoader<TraineeDao, String>, BeanPo
                     String[] parts = line.split(",");
 
                     if (parts.length == 8) {
-                        TraineeDao trainee = new TraineeDao();
+                        Trainee trainee = new Trainee();
                         trainee.setUserId(Long.parseLong(parts[0].trim()));
                         trainee.setDateOfBirth(LocalDate.parse(parts[1].trim()));
                         trainee.setAddress(parts[2].trim());
                         trainee.setActive(Boolean.getBoolean(parts[3].trim()));
                         trainee.setFirstName(parts[4].trim());
                         trainee.setLastName(parts[5].trim());
-                        trainee.setUsername(parts[6].trim());
+                        trainee.setUserName(parts[6].trim());
                         trainee.setPassword(parts[7].trim());
                         result.put(trainee.getUserId(), trainee);
                     } else {
@@ -62,11 +54,6 @@ public class TraineeDataLoader implements DataLoader<TraineeDao, String>, BeanPo
         }
 
         return result;
-    }
-
-    @Override
-    public String getStorageBeanName() {
-        return "traineeStorage";
     }
 
 }

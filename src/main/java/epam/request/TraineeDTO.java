@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 @Component
-public class TraineeRequest {
+public class TraineeDTO {
 
     private String firstName;
     private String lastName;
@@ -14,10 +14,10 @@ public class TraineeRequest {
     private String address;
     private Boolean isActive;
 
-    public TraineeRequest() {
+    public TraineeDTO() {
     }
 
-    public TraineeRequest(String firstName, String lastName, LocalDate dateOfBirth, String address, Boolean isActive) {
+    public TraineeDTO(String firstName, String lastName, LocalDate dateOfBirth, String address, Boolean isActive) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
@@ -68,7 +68,7 @@ public class TraineeRequest {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        TraineeRequest that = (TraineeRequest) o;
+        TraineeDTO that = (TraineeDTO) o;
         return Objects.equals(firstName, that.firstName) && Objects.equals(lastName, that.lastName) && Objects.equals(dateOfBirth, that.dateOfBirth) && Objects.equals(address, that.address) && Objects.equals(isActive, that.isActive);
     }
 

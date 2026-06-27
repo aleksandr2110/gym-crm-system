@@ -1,10 +1,10 @@
 package epam.service;
 
 import epam.domain.Training;
-import epam.request.TrainingRequest;
+import epam.request.TrainingDTO;
 
 public interface TrainingService {
 
-    Training create(TrainingRequest trainingRequest);
+    Training create(TrainingDTO trainingDTO);
     Training select(Long id);
 }

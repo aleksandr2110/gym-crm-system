@@ -6,7 +6,7 @@ import epam.domain.Training;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
-import epam.request.TrainingRequest;
+import epam.request.TrainingDTO;
 import epam.service.impl.TrainingServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +43,7 @@ public class TrainingServiceImplTest {
         training.setTrainingDate(LocalDateTime.of(2026, Month.OCTOBER, 13, 12, 15, 00));
         training.setTrainingDuration("45");
 
-        var trainingRequest = new TrainingRequest();
+        var trainingRequest = new TrainingDTO();
         trainingRequest.setTrainerId(1L);
         trainingRequest.setTraineeIds(Arrays.asList(1L, 2L));
         var trainer = new Trainer();

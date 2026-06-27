@@ -1,8 +1,7 @@
 package epam.repository;
 
-import epam.dao.TraineeDao;
+
 import epam.domain.Trainee;
-import epam.util.TraineeMapper;
 import epam.util.UsernameAndPasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -14,14 +13,12 @@ import java.util.logging.Logger;
 @Repository
 public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
-    private final Map<Long, TraineeDao> traineeStorage;
-    private final TraineeMapper traineeMapper;
+    private final Map<Long, Trainee> traineeStorage;
     private static final Logger logger = Logger.getLogger(TraineeRepository.class.getName());
 
     @Autowired
-    public TraineeRepository(@Lazy Map<Long, TraineeDao> traineeStorage, TraineeMapper traineeMapper) {
+    public TraineeRepository(Map<Long, Trainee> traineeStorage) {
         this.traineeStorage = traineeStorage;
-        this.traineeMapper = traineeMapper;
     }
 
     @Override
@@ -38,13 +35,10 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
                     trainee.getLastName()));
             checkEqualsUsername(trainee.getUserName(), trainee);
             trainee.setPassword(UsernameAndPasswordGenerator.generatePassword());
-            Integer id = traineeStorage.size();
-            long newId = (long) id++;
-            trainee.setUserId(appointId((long) ++id));
-            ;
+            trainee.setUserId(appointId((long) traineeStorage.size() + 1));
         }
 
-        traineeStorage.put(trainee.getUserId(), traineeMapper.toDao(trainee));
+        traineeStorage.put(trainee.getUserId(), trainee);
         return trainee;
     }
 
@@ -56,31 +50,21 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
             throw new IllegalArgumentException("Attempt to select user with null id");
         }
 
-        TraineeDao selectedTraineeDao = null; // optional
-        for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
-            var traineeDao = entry.getValue();
-            if (traineeDao.getUserId().longValue() == id.longValue()) {
-                selectedTraineeDao = traineeDao;
+        Trainee selectedTrainee = null; // optional
+        for (Map.Entry<Long, Trainee> entry : traineeStorage.entrySet()) {
+            var trainee = entry.getValue();
+            if (trainee.getUserId().longValue() == id.longValue()) {
+                selectedTrainee = trainee;
             }
         }
 
-        return traineeMapper.toModelTrainee(selectedTraineeDao);
+        return selectedTrainee;
     }
 
     @Override
-    public Trainee update(Trainee trainee) {
+    public Trainee update(Trainee entity) {
 
-        Trainee updatedTrainee = null;
-        for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
-            var traineeDao = entry.getValue();
-            if (traineeDao.getUserId().equals(trainee.getUserId())) {
-                TraineeDao updatedDao = traineeMapper.toDao(trainee);
-                traineeStorage.put(trainee.getUserId(), updatedDao);
-                updatedTrainee = traineeMapper.toModelTrainee(updatedDao);
-                break;
-            }
-        }
-        return updatedTrainee;
+        return traineeStorage.put(entity.getUserId(), entity);
     }
 
     @Override
@@ -90,15 +74,7 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
             throw new IllegalArgumentException("Username can not be null!" );
         }
 
-        TraineeDao selectedTraineeDao = null;
-        for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
-            var traineeDao = entry.getValue();
-            if (traineeDao.getUserId().equals(id)) {
-                selectedTraineeDao = traineeDao;
-            }
-        }
-
-        traineeStorage.remove(selectedTraineeDao.getUsername());
+        traineeStorage.remove(id);
     }
 
     private void checkEqualsUsername(String username, Trainee trainee) {
@@ -121,9 +97,10 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
     private Long appointId(Long userId) {
 
-        for (Map.Entry<Long, TraineeDao> entry : traineeStorage.entrySet()) {
-            TraineeDao traineeDao = entry.getValue();
-            if (traineeDao.getUserId().longValue() == userId.longValue()) {
+        for (Map.Entry<Long, Trainee> entry : traineeStorage.entrySet()) {
+            Trainee trainee = entry.getValue();
+            if (trainee.getUserId().longValue() == userId.longValue()) {
+                System.out.println("user id " + userId);
                 appointId(++userId);
                 break;
             }

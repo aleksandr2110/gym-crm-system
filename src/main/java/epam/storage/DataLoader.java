@@ -1,10 +1,11 @@
 package epam.storage;
 
+import epam.domain.Trainer;
+
 import java.io.InputStream;
 import java.util.Map;
 
-public interface DataLoader<V, ID> {
+public interface DataLoader<K, V> {
 
-    Map<? extends Number, V> loadData(InputStream inputStream);
-    String getStorageBeanName();
+    Map<K, V> loadData(InputStream inputStream);
 }

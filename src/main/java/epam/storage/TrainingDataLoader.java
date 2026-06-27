@@ -1,13 +1,8 @@
 package epam.storage;
 
-import epam.dao.TraineeDao;
-import epam.dao.TrainerDao;
-import epam.dao.TrainingDao;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
-import epam.util.TraineeMapper;
-import epam.util.TrainerMapper;
-import epam.util.TrainingMapper;
+import epam.domain.Training;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,24 +20,18 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Component
-public class TrainingDataLoader implements DataLoader<TrainingDao, String> {
+public class TrainingDataLoader implements DataLoader<Long, Training> {
 
     private static final Logger logger = Logger.getLogger(TrainingDataLoader.class.getName());
 
     @Autowired
-    private Map<Long, TraineeDao> traineeStorage;
+    private Map<Long, Trainee> traineeStorage;
     @Autowired
-    private Map<Long, TrainerDao> trainerStorage;
-    @Autowired
-    private TrainingMapper trainingMapper;
-    @Autowired
-    private TraineeMapper traineeMapper;
-    @Autowired
-    private TrainerMapper trainerMapper;
+    private Map<Long, Trainer> trainerStorage;
 
     @Override
-    public Map<Long, TrainingDao> loadData(InputStream inputStream) {
-        Map<Long, TrainingDao> result = new HashMap<>();
+    public Map<Long, Training> loadData(InputStream inputStream) {
+        Map<Long, Training> result = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -55,17 +44,16 @@ public class TrainingDataLoader implements DataLoader<TrainingDao, String> {
                     String[] parts = line.split(",");
 
                     if (parts.length == 7) {
-                        TrainingDao training = new TrainingDao();
+                        Training training = new Training();
                         training.setId(Long.parseLong(parts[0].trim()));
-                        TrainerDao trainerDao = trainerStorage.get(Long.parseLong(parts[1].trim()));
-                        Trainer trainer = trainerMapper.toModel(trainerDao);
+                        Trainer trainer = trainerStorage.get(Long.parseLong(parts[1].trim()));
                         training.setTrainer(trainer);
                         String traineesLine = parts[2].trim();
                         String[] trainees = traineesLine.split("-");
                         List<Trainee> traineeList = new ArrayList();
                         for (String traineeId : trainees) {
-                            var traineeDao = traineeStorage.get(Long.parseLong(traineeId));
-                            traineeList.add(traineeMapper.toModelTrainee(traineeDao));
+                            var trainee = traineeStorage.get(Long.parseLong(traineeId));
+                            traineeList.add(trainee);
                         }
                         training.setTrainers(traineeList);
                         training.setTrainingName(parts[3].trim());
@@ -85,8 +73,4 @@ public class TrainingDataLoader implements DataLoader<TrainingDao, String> {
         return result;
     }
 
-    @Override
-    public String getStorageBeanName() {
-        return  "trainingStorage";
-    }
 }

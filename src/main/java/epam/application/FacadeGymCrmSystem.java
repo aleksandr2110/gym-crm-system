@@ -3,9 +3,9 @@ package epam.application;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.domain.Training;
-import epam.request.TraineeRequest;
-import epam.request.TrainerRequest;
-import epam.request.TrainingRequest;
+import epam.request.TraineeDTO;
+import epam.request.TrainerDTO;
+import epam.request.TrainingDTO;
 import epam.service.TraineeService;
 import epam.service.TrainerService;
 import epam.service.TrainingService;
@@ -28,15 +28,15 @@ public class FacadeGymCrmSystem {
         this.trainingService = trainingService;
     }
 
-    public Trainee createTrainee(TraineeRequest traineeRequest) {
-        logger.info("Creating trainee " + traineeRequest.getFirstName() +
-                traineeRequest.getLastName());
-        return traineeService.create(traineeRequest);
+    public Trainee createTrainee(TraineeDTO traineeDTO) {
+        logger.info("Creating trainee " + traineeDTO.getFirstName() +
+                traineeDTO.getLastName());
+        return traineeService.create(traineeDTO);
     }
 
-    public Trainee updateTrainee(TraineeRequest traineeRequest, Long userId) {
+    public Trainee updateTrainee(TraineeDTO traineeDTO, Long userId) {
         logger.info("Updating trainee with id " + userId);
-        return traineeService.update(traineeRequest, userId);
+        return traineeService.update(traineeDTO, userId);
     }
 
     public Trainee getTrainee(Long userId) {
@@ -49,12 +49,12 @@ public class FacadeGymCrmSystem {
         traineeService.delete(userId);
     }
 
-    public Trainer createTrainer(TrainerRequest trainerDto) {
+    public Trainer createTrainer(TrainerDTO trainerDto) {
         logger.info("Creating trainer " + trainerDto.getFirstName() + " " + trainerDto.getLastName());
         return trainerService.create(trainerDto);
     }
 
-    public Trainer updateTrainer(TrainerRequest trainerDto, Long userId) {
+    public Trainer updateTrainer(TrainerDTO trainerDto, Long userId) {
         logger.info("Facade: Updating trainer with id " + userId);
         return trainerService.update(trainerDto, userId);
     }
@@ -64,9 +64,9 @@ public class FacadeGymCrmSystem {
         return trainerService.select(userId);
     }
 
-    public Training createTraining(TrainingRequest trainingRequest) {
-        logger.info("Creating training " + trainingRequest.toString());
-        return trainingService.create(trainingRequest);
+    public Training createTraining(TrainingDTO trainingDTO) {
+        logger.info("Creating training " + trainingDTO.toString());
+        return trainingService.create(trainingDTO);
     }
 
     public Training getTraining(Long trainingId) {

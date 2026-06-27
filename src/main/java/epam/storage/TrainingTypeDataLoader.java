@@ -1,6 +1,8 @@
 package epam.storage;
 
 import epam.dao.TrainingTypeDao;
+import epam.domain.Trainer;
+import epam.domain.TrainingType;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -13,13 +15,13 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 @Component
-public class TrainingTypeDataLoader implements DataLoader<TrainingTypeDao, String> {
+public class TrainingTypeDataLoader implements DataLoader<Long, TrainingType> {
 
     private static final Logger logger = Logger.getLogger(TrainingTypeDataLoader.class.getName());
 
     @Override
-    public Map<Long, TrainingTypeDao> loadData(InputStream inputStream) {
-        Map<Long, TrainingTypeDao> result = new HashMap<>();
+    public Map<Long, TrainingType> loadData(InputStream inputStream) {
+        Map<Long, TrainingType> result = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -32,10 +34,10 @@ public class TrainingTypeDataLoader implements DataLoader<TrainingTypeDao, Strin
                     String[] parts = line.split(",");
 
                     if (parts.length == 2) {
-                        TrainingTypeDao trainingType = new TrainingTypeDao();
-                        trainingType.setId(Long.parseLong(parts[0].trim()));
+                        TrainingType trainingType = new TrainingType();
+                        trainingType.setUserId(Long.parseLong(parts[0].trim()));
                         trainingType.setTrainingTypeName(parts[1].trim());
-                        result.put(trainingType.getId(), trainingType);
+                        result.put(trainingType.getUserId(), trainingType);
                     }
                 }
             }
@@ -46,8 +48,4 @@ public class TrainingTypeDataLoader implements DataLoader<TrainingTypeDao, Strin
         return result;
     }
 
-    @Override
-    public String getStorageBeanName() {
-        return "trainingTypeStorage";
-    }
 }

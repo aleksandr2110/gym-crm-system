@@ -1,11 +1,11 @@
 package epam.service;
 
 import epam.domain.Trainer;
-import epam.request.TrainerRequest;
+import epam.request.TrainerDTO;
 
 public interface TrainerService {
 
-    Trainer create(TrainerRequest trainerDto);
-    Trainer update(TrainerRequest trainerDto, Long userId);
+    Trainer create(TrainerDTO trainerDto);
+    Trainer update(TrainerDTO trainerDto, Long userId);
     Trainer select(Long id);
 }

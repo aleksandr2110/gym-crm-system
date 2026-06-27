@@ -1,9 +1,12 @@
 package epam.config;
 
 import epam.dao.*;
+import epam.domain.Trainee;
+import epam.domain.Trainer;
+import epam.domain.Training;
+import epam.domain.TrainingType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,22 +15,22 @@ import java.util.Map;
 public class DataSilosConfig {
 
     @Bean
-    public Map<Long, TraineeDao> traineeStorage() {
+    public Map<Long, Trainee> traineeStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<Long, TrainerDao> trainerStorage() {
+    public Map<Long, Trainer> trainerStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<Long, TrainingDao> trainingStorage() {
+    public Map<Long, Training> trainingStorage() {
         return new HashMap<>();
     }
 
     @Bean
-    public Map<Long, TrainingTypeDao> trainingTypeStorage() {
+    public Map<Long, TrainingType> trainingTypeStorage() {
         return new HashMap<>();
     }
 }

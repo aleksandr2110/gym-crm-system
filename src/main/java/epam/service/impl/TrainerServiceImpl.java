@@ -2,7 +2,7 @@ package epam.service.impl;
 
 import epam.domain.Trainer;
 import epam.repository.TrainerRepository;
-import epam.request.TrainerRequest;
+import epam.request.TrainerDTO;
 import epam.service.TrainerService;
 import org.springframework.stereotype.Service;
 
@@ -20,15 +20,15 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public Trainer create(TrainerRequest trainerRequest) {
-        logger.info("Creating trainer: " + trainerRequest.getFirstName() + " " +
-                trainerRequest.getLastName());
+    public Trainer create(TrainerDTO trainerDTO) {
+        logger.info("Creating trainer: " + trainerDTO.getFirstName() + " " +
+                trainerDTO.getLastName());
 
         Trainer trainer = new Trainer();
-        trainer.setFirstName(trainerRequest.getFirstName());
-        trainer.setLastName(trainerRequest.getLastName());
+        trainer.setFirstName(trainerDTO.getFirstName());
+        trainer.setLastName(trainerDTO.getLastName());
         trainer.setActive(true);
-        trainer.setSpecialization(trainerRequest.getSpecialization());
+        trainer.setSpecialization(trainerDTO.getSpecialization());
 
         Trainer createdTrainer = trainerRepository.save(trainer);
 
@@ -37,7 +37,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public Trainer update(TrainerRequest trainerRequest, Long userId) {
+    public Trainer update(TrainerDTO trainerDTO, Long userId) {
 
         Trainer currentTrainer = trainerRepository.select(userId);
         if (currentTrainer == null) {
@@ -45,18 +45,18 @@ public class TrainerServiceImpl implements TrainerService {
             throw new IllegalArgumentException("User with id: " + userId + " not found!");
         }
 
-        boolean nameChanged = !currentTrainer.getFirstName().equals(trainerRequest.getFirstName()) ||
-                !currentTrainer.getLastName().equals(trainerRequest.getLastName());
+        boolean nameChanged = !currentTrainer.getFirstName().equals(trainerDTO.getFirstName()) ||
+                !currentTrainer.getLastName().equals(trainerDTO.getLastName());
 
-        currentTrainer.setFirstName(trainerRequest.getFirstName());
-        currentTrainer.setLastName(trainerRequest.getLastName());
-        currentTrainer.setSpecialization(trainerRequest.getSpecialization());
-        currentTrainer.setActive(trainerRequest.getActive());
+        currentTrainer.setFirstName(trainerDTO.getFirstName());
+        currentTrainer.setLastName(trainerDTO.getLastName());
+        currentTrainer.setSpecialization(trainerDTO.getSpecialization());
+        currentTrainer.setActive(trainerDTO.getActive());
 
         if (nameChanged) {
             logger.info("Name changed. Before first/last name: " +
                     currentTrainer.getFirstName() + " " + currentTrainer.getLastName() +
-                    " After: " + trainerRequest.getFirstName() + " " + trainerRequest.getLastName());
+                    " After: " + trainerDTO.getFirstName() + " " + trainerDTO.getLastName());
         }
 
         Trainer updatedTrainer = trainerRepository.update(currentTrainer);

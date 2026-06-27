@@ -2,7 +2,7 @@ package epam.service;
 
 import epam.domain.Trainee;
 import epam.repository.TraineeRepository;
-import epam.request.TraineeRequest;
+import epam.request.TraineeDTO;
 import epam.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ public class TraineeServiceImplTest {
     @Test
     void shouldSaveTrainee() {
         //GIVEN
-        var traineeRequest = new TraineeRequest();
+        var traineeRequest = new TraineeDTO();
         traineeRequest.setFirstName("Alex");
         traineeRequest.setLastName("Hofman");
         traineeRequest.setAddress("23 Road star st");
@@ -54,7 +54,7 @@ public class TraineeServiceImplTest {
     void shouldUpdateTrainee() {
         //GIVEN
         Long userId = 1L;
-        var traineeRequest = new TraineeRequest();
+        var traineeRequest = new TraineeDTO();
         traineeRequest.setFirstName("Alex");
         traineeRequest.setLastName("Hofman");
         traineeRequest.setAddress("23 Road star st");
@@ -90,7 +90,7 @@ public class TraineeServiceImplTest {
         //GIVEN
         Long userId = 1L;
         Trainee empty = null;
-        var traineeRequest = new TraineeRequest();
+        var traineeRequest = new TraineeDTO();
 
         //WHEN
         when(traineeRepository.select(userId)).thenReturn(empty);

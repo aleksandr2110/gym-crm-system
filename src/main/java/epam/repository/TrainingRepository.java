@@ -1,8 +1,6 @@
 package epam.repository;
 
-import epam.dao.TrainingDao;
 import epam.domain.Training;
-import epam.util.TrainingMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
@@ -12,14 +10,11 @@ import java.util.logging.Logger;
 @Repository
 public class TrainingRepository implements EntityRepository<Training, Long> {
 
-    private final Map<Long, TrainingDao> trainingStorage;
-    private final TrainingMapper trainerMapper;
+    private final Map<Long, Training> trainingStorage;
     private static final Logger logger = Logger.getLogger(TrainingRepository.class.getName());
 
-    public TrainingRepository(Map<Long, TrainingDao> trainingStorage,
-                              TrainingMapper trainerMapper) {
+    public TrainingRepository(Map<Long, Training> trainingStorage) {
         this.trainingStorage = trainingStorage;
-        this.trainerMapper = trainerMapper;
     }
 
     @Override
@@ -32,8 +27,7 @@ public class TrainingRepository implements EntityRepository<Training, Long> {
         Long trainingId = appointId((long) trainingStorage.size() + 1);
         entity.setId(trainingId);
         validate(entity);
-        TrainingDao trainingDao = trainerMapper.toDao(entity);
-        trainingStorage.put(trainingDao.getId(), trainingDao);
+        trainingStorage.put(entity.getId(), entity);
         return entity;
     }
 
@@ -44,20 +38,20 @@ public class TrainingRepository implements EntityRepository<Training, Long> {
             throw new IllegalArgumentException("Attempt to select training with null id");
         }
 
-        TrainingDao trainingDao = trainingStorage.get(id);
-        if (trainingDao == null) {
+        Training training = trainingStorage.get(id);
+        if (training == null) {
             logger.warning("Training with id " + id + " not found");
             throw new NoSuchElementException("Training with id " + id + " not found");
         }
 
-        return trainerMapper.toModel(trainingDao);
+        return training;
     }
 
     private Long appointId(Long trainingId) {
 
-        for (Map.Entry<Long, TrainingDao> entry : trainingStorage.entrySet()) {
-            TrainingDao trainingDao = entry.getValue();
-            if (trainingDao.getId().longValue() == trainingId.longValue()) {
+        for (Map.Entry<Long, Training> entry : trainingStorage.entrySet()) {
+            Training training = entry.getValue();
+            if (training.getId().longValue() == trainingId.longValue()) {
                 appointId(++trainingId);
                 break;
             }

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
-public class TrainingRequest {
+public class TrainingDTO {
 
     private Long id;
     private Long trainerId;
@@ -16,7 +16,7 @@ public class TrainingRequest {
     private LocalDateTime trainingDate;
     private String trainingDuration;
 
-    public TrainingRequest() {
+    public TrainingDTO() {
     }
 
     public Long getId() {
