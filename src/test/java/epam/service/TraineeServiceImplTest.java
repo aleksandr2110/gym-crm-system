@@ -31,6 +31,7 @@ public class TraineeServiceImplTest {
         traineeRequest.setActive(true);
 
         var trainee = new Trainee();
+        trainee.setUserId(1L);
         trainee.setFirstName("Alex");
         trainee.setLastName("Hofman");
         trainee.setAddress("23 Road star st");
@@ -54,18 +55,21 @@ public class TraineeServiceImplTest {
         //GIVEN
         Long userId = 1L;
         var traineeRequest = new Trainee();
+        traineeRequest.setUserId(userId);
         traineeRequest.setFirstName("Alex");
         traineeRequest.setLastName("Hofman");
         traineeRequest.setAddress("23 Road star st");
         traineeRequest.setActive(true);
 
         var currentTrainee = new Trainee();
+        currentTrainee.setUserId(userId);
         currentTrainee.setFirstName("Rerg");
         currentTrainee.setLastName("Grill");
         currentTrainee.setAddress("23 Road star st");
         currentTrainee.setActive(true);
 
         var updatedTrainee = new Trainee();
+        updatedTrainee.setUserId(traineeRequest.getUserId());
         updatedTrainee.setFirstName(traineeRequest.getFirstName());
         updatedTrainee.setLastName(traineeRequest.getLastName());
         updatedTrainee.setAddress(traineeRequest.getAddress());

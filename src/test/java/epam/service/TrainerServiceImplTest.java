@@ -24,6 +24,7 @@ public class TrainerServiceImplTest {
     @Test
     void shouldSaveTrainer() {
         //GIVEN
+        Long userId = 1L;
         var trainerRequest = new Trainer();
         trainerRequest.setFirstName("Sergey");
         trainerRequest.setLastName("Hofman");
@@ -31,6 +32,7 @@ public class TrainerServiceImplTest {
         trainerRequest.setActive(true);
 
         var trainer = new Trainer();
+        trainer.setUserId(userId);
         trainer.setFirstName("Sergey");
         trainer.setLastName("Hofman");
         trainer.setSpecialization("PHP");
@@ -54,18 +56,21 @@ public class TrainerServiceImplTest {
         //GIVEN
         Long userId = 1L;
         var trainerRequest = new Trainer();
+        trainerRequest.setUserId(userId);
         trainerRequest.setFirstName("Alexandr");
         trainerRequest.setLastName("Kirichenko");
         trainerRequest.setSpecialization("PHP");
         trainerRequest.setActive(true);
 
         var currentTrainer = new Trainer();
+        currentTrainer.setUserId(userId);
         currentTrainer.setFirstName("Rerg");
         currentTrainer.setLastName("Grill");
         currentTrainer.setSpecialization("PHP");
         currentTrainer.setActive(true);
 
         var updatedTrainer = new Trainer();
+        updatedTrainer.setUserId(trainerRequest.getUserId());
         updatedTrainer.setFirstName(trainerRequest.getFirstName());
         updatedTrainer.setLastName(trainerRequest.getLastName());
         updatedTrainer.setSpecialization(trainerRequest.getSpecialization());

@@ -43,7 +43,7 @@ public class TrainingServiceImpl implements TrainingService {
         if (createdTraining == null) {
             logger.warning("Failed to create training: ");
         } else {
-            logger.info("Training created successfully: ");
+            logger.info("Training created successfully with id : " + createdTraining.getId());
         }
 
         return createdTraining;

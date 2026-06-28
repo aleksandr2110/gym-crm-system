@@ -3,7 +3,6 @@ package epam.service.impl;
 import epam.annotation.ExecutionTime;
 import epam.domain.Trainer;
 import epam.repository.TrainerRepository;
-import epam.request.TrainerDTO;
 import epam.service.TrainerService;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +58,7 @@ public class TrainerServiceImpl implements TrainerService {
         }
 
         Trainer updatedTrainer = trainerRepository.update(currentTrainer);
-        logger.info("User updated successfully with id {}" + updatedTrainer.getUserId());
+        logger.info("User updated successfully with id " + updatedTrainer.getUserId());
 
         return updatedTrainer;
     }

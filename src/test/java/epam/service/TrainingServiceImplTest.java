@@ -38,7 +38,9 @@ public class TrainingServiceImplTest {
     @Test
     void shouldSaveTraining() {
         //GIVEN
+        Long userId = 1L;
         var training = new Training();
+        training.setId(userId);
         training.setTrainingType("C#");
         training.setTrainingDate(LocalDateTime.of(2026, Month.OCTOBER, 13, 12, 15, 00));
         training.setTrainingDuration("45");
