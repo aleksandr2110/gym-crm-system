@@ -1,5 +1,6 @@
 package epam.service.impl;
 
+import epam.annotation.ExecutionTime;
 import epam.domain.Trainee;
 import epam.domain.Training;
 import epam.repository.TraineeRepository;
@@ -29,6 +30,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    @ExecutionTime
     public Training create(Training training, Long trainerId, List<Long> traineeIds) {
         training.setTrainer(trainerRepository.select(trainerId));
         List<Trainee> traineeList = new ArrayList();
@@ -48,6 +50,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    @ExecutionTime
     public Training select(Long trainingId) {
         Training training = trainingRepository.select(trainingId);
 

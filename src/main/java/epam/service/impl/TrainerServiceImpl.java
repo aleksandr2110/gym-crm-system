@@ -1,5 +1,6 @@
 package epam.service.impl;
 
+import epam.annotation.ExecutionTime;
 import epam.domain.Trainer;
 import epam.repository.TrainerRepository;
 import epam.request.TrainerDTO;
@@ -20,6 +21,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
+    @ExecutionTime
     public Trainer create(Trainer trainer) {
         logger.info("Creating trainer: " + trainer.getFirstName() + " " +
                 trainer.getLastName());
@@ -33,6 +35,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
+    @ExecutionTime
     public Trainer update(Trainer trainer, Long userId) {
 
         Trainer currentTrainer = trainerRepository.select(userId);
@@ -62,6 +65,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
+    @ExecutionTime
     public Trainer select(Long id) {
         logger.info("Selecting user by username: " +  id);
         Trainer trainer = trainerRepository.select(id);

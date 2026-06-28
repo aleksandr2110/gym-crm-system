@@ -1,5 +1,6 @@
 package epam.service.impl;
 
+import epam.annotation.ExecutionTime;
 import epam.domain.Trainee;
 import epam.repository.TraineeRepository;
 import epam.service.TraineeService;
@@ -22,6 +23,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @ExecutionTime
     public Trainee create(Trainee trainee) {
         Trainee createdTrainee = traineeRepository.save(trainee);
         logger.info("User created successfully with userId: " +  createdTrainee.getUserId());
@@ -30,6 +32,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @ExecutionTime
     public Trainee update(Trainee trainee, Long userId) {
 
         Trainee currentTrainee = traineeRepository.select(userId);
@@ -59,6 +62,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @ExecutionTime
     public Trainee select(Long id) {
         Trainee trainee = traineeRepository.select(id);
 
@@ -72,6 +76,7 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
+    @ExecutionTime
     public void delete(Long id) {
         logger.info("Deleting user with userId: " + id);
         traineeRepository.delete(id);
