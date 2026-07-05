@@ -1,4 +1,4 @@
-package epam.storage;
+package epam.bpp;
 
 import epam.annotation.ExecutionTime;
 import org.springframework.beans.BeansException;
@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-@Component
-public class MethodExecutingBeanPostProcessor implements BeanPostProcessor {
+//@Component
+public class TimeExecutingMethodBeanPostProcessor implements BeanPostProcessor {
 
-    private static final Logger logger = Logger.getLogger(MethodExecutingBeanPostProcessor.class.getName());
+    private static final Logger logger = Logger.getLogger(TimeExecutingMethodBeanPostProcessor.class.getName());
 
     private final Map<String, Class<?>> map = new HashMap<>();
 

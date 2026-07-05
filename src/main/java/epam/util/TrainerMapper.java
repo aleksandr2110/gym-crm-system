@@ -1,6 +1,8 @@
 package epam.util;
 
 import epam.domain.Trainer;
+import epam.domain.TrainingType;
+import epam.domain.TrainingTypeName;
 import epam.request.TrainerDTO;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +13,10 @@ public class TrainerMapper {
         var trainer = new Trainer();
         trainer.setFirstName(trainerDto.getFirstName());
         trainer.setLastName(trainerDto.getLastName());
-        trainer.setSpecialization(trainerDto.getSpecialization());
-        trainer.setActive(trainerDto.getActive());
+        var trainingType = new TrainingType();
+        trainingType.setTrainingTypeName(TrainingTypeName.valueOf(trainerDto.getSpecialization()));
+        trainer.setSpecialization(trainingType);
+        trainer.setIsActive(trainerDto.getActive());
         return trainer;
     }
 

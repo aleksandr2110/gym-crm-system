@@ -1,59 +1,38 @@
 package epam.domain;
 
-import java.util.Objects;
+import jakarta.persistence.*;
+import lombok.*;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "trainers")
 public class Trainer extends User {
 
-    private Long userId;
-    private String specialization;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    public Trainer() {
-    }
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "specialization_id")
+    private TrainingType specialization;
 
-    public Trainer(Long userId, String specialization) {
-        this.userId = userId;
-        this.specialization = specialization;
-    }
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
+    @JoinTable(name = "trainers_trainees",
+            joinColumns = @JoinColumn(name = "trainee_id"),
+            inverseJoinColumns = @JoinColumn(name = "trainer_id")
+    )
+    List<Trainee> trainees = new ArrayList<>();
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getSpecialization() {
-        return specialization;
-    }
-
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Trainer trainer = (Trainer) o;
-        return Objects.equals(userId, trainer.userId) && Objects.equals(specialization, trainer.specialization);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), userId, specialization);
-    }
-
-    @Override
-    public String toString() {
-        return "Trainer{" +
-                "userId='" + userId + '\'' +
-                ", specialization='" + specialization + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", username='" + username + '\'' +
-                ", Password='" + Password + '\'' +
-                ", isActive=" + isActive +
-                '}';
-    }
+    @OneToMany(mappedBy = "trainer")
+    Set<Training> trainings = new LinkedHashSet<>();
 }

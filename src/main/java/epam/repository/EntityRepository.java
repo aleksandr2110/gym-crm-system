@@ -1,13 +1,23 @@
 package epam.repository;
 
+import epam.domain.Trainer;
+
+import java.util.List;
+import java.util.Optional;
+
 public interface EntityRepository<T, ID> {
 
     T save(T entity);
-    T select(Long id);
-    default T update(T entity) {
-        throw new UnsupportedOperationException("Delete operation is not supported");
-    }
-    default void delete(Long id) {
-        throw new UnsupportedOperationException("Delete operation is not supported");
+    T findById(ID id);
+    Optional<T> findByUsername(String userName);
+    void changePassword(Long id, String newPassword);
+    void changePassword(String username, String newPassword);
+    T updateProfile(T entity);
+    void activate(ID id);
+    void deactivate(ID id);
+    boolean authenticate(String username, String password);
+    void delete(String username);
+    default List<Trainer> findAllNotAssignedToTrainee(String traineeUsername) {
+        return List.of();
     }
 }

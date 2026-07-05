@@ -28,25 +28,25 @@ public class TraineeServiceImplTest {
         traineeRequest.setFirstName("Alex");
         traineeRequest.setLastName("Hofman");
         traineeRequest.setAddress("23 Road star st");
-        traineeRequest.setActive(true);
+        traineeRequest.setIsActive(true);
 
         var trainee = new Trainee();
-        trainee.setUserId(1L);
+        trainee.setId(1L);
         trainee.setFirstName("Alex");
         trainee.setLastName("Hofman");
         trainee.setAddress("23 Road star st");
-        trainee.setActive(true);
+        trainee.setIsActive(true);
 
         //WHEN
         when(traineeRepository.save(any())).thenReturn(trainee);
-        Trainee createdTrainee = traineeService.create(traineeRequest);
+        Trainee createdTrainee = traineeService.save(traineeRequest);
 
         //THEN
         assertNotNull(createdTrainee);
         assertEquals(traineeRequest.getFirstName(), createdTrainee.getFirstName());
         assertEquals(traineeRequest.getLastName(), createdTrainee.getLastName());
         assertEquals(traineeRequest.getAddress(), createdTrainee.getAddress());
-        assertTrue(createdTrainee.isActive());
+        assertTrue(createdTrainee.getIsActive());
         verify(traineeRepository, times(1)).save(any());
     }
 
@@ -55,37 +55,37 @@ public class TraineeServiceImplTest {
         //GIVEN
         Long userId = 1L;
         var traineeRequest = new Trainee();
-        traineeRequest.setUserId(userId);
+        traineeRequest.setId(userId);
         traineeRequest.setFirstName("Alex");
         traineeRequest.setLastName("Hofman");
         traineeRequest.setAddress("23 Road star st");
-        traineeRequest.setActive(true);
+        traineeRequest.setIsActive(true);
 
         var currentTrainee = new Trainee();
-        currentTrainee.setUserId(userId);
+        currentTrainee.setId(userId);
         currentTrainee.setFirstName("Rerg");
         currentTrainee.setLastName("Grill");
         currentTrainee.setAddress("23 Road star st");
-        currentTrainee.setActive(true);
+        currentTrainee.setIsActive(true);
 
         var updatedTrainee = new Trainee();
-        updatedTrainee.setUserId(traineeRequest.getUserId());
+        updatedTrainee.setId(traineeRequest.getId());
         updatedTrainee.setFirstName(traineeRequest.getFirstName());
         updatedTrainee.setLastName(traineeRequest.getLastName());
         updatedTrainee.setAddress(traineeRequest.getAddress());
-        updatedTrainee.setActive(traineeRequest.isActive());
+        updatedTrainee.setIsActive(traineeRequest.getIsActive());
 
         //WHEN
-        when(traineeRepository.select(userId)).thenReturn(currentTrainee);
-        when(traineeRepository.update(any())).thenReturn(updatedTrainee);
-        Trainee updatedTraineeById = traineeService.update(traineeRequest, userId);
+        when(traineeRepository.findById(userId)).thenReturn(currentTrainee);
+        when(traineeRepository.updateProfile(any())).thenReturn(updatedTrainee);
+        Trainee updatedTraineeById = traineeService.updateProfile(traineeRequest, userId);
 
         //THEN
         assertNotNull(updatedTraineeById);
         assertEquals(traineeRequest.getFirstName(), updatedTraineeById.getFirstName());
         assertEquals(traineeRequest.getLastName(), updatedTraineeById.getLastName());
         assertEquals(traineeRequest.getAddress(), updatedTraineeById.getAddress());
-        assertTrue(updatedTraineeById.isActive());
+        assertTrue(updatedTraineeById.getIsActive());
     }
 
     @Test
@@ -96,11 +96,11 @@ public class TraineeServiceImplTest {
         var traineeRequest = new Trainee();
 
         //WHEN
-        when(traineeRepository.select(userId)).thenReturn(empty);
+        when(traineeRepository.findById(userId)).thenReturn(empty);
 
         //THEN
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            traineeService.update(traineeRequest, userId);
+            traineeService.updateProfile(traineeRequest, userId);
         });
         assertEquals("User with id: " + userId + " not found!", exception.getMessage());
     }
@@ -113,29 +113,29 @@ public class TraineeServiceImplTest {
         trainee.setFirstName("Rerg");
         trainee.setLastName("Grill");
         trainee.setAddress("67 Road star st");
-        trainee.setActive(false);
+        trainee.setIsActive(false);
 
         //WHEN
-        when(traineeRepository.select(userId)).thenReturn(trainee);
-        var selectedTraineeById = traineeService.select(userId);
+        when(traineeRepository.findById(userId)).thenReturn(trainee);
+        var selectedTraineeById = traineeService.findById(userId);
 
         //THEN
         assertNotNull(selectedTraineeById);
         assertEquals(trainee.getFirstName(), selectedTraineeById.getFirstName());
         assertEquals(trainee.getLastName(), selectedTraineeById.getLastName());
         assertEquals(trainee.getAddress(), selectedTraineeById.getAddress());
-        assertFalse(selectedTraineeById.isActive());
+        assertFalse(selectedTraineeById.getIsActive());
     }
 
     @Test
     void shouldDeleteTraineeById() {
         //GIVEN
-        Long userId = 1L;
+        String userName = "oleksandr.kypriy";
 
         //WHEN
-        traineeService.delete(userId);
+        traineeService.deleteProfile(userName);
 
         //THEN
-        verify(traineeRepository, times(1)).delete(userId);
+        verify(traineeRepository, times(1)).delete(userName);
     }
 }

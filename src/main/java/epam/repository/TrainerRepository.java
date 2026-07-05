@@ -2,95 +2,203 @@ package epam.repository;
 
 import epam.domain.Trainer;
 import epam.util.UsernameAndPasswordGenerator;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
-import java.util.logging.Logger;
+import java.util.List;
+import java.util.Optional;
 
+
+@Slf4j
 @Repository
 public class TrainerRepository implements EntityRepository<Trainer, Long> {
 
-    private final Map<Long, Trainer> trainerStorage;
-    private static final Logger logger = Logger.getLogger(TrainerRepository.class.getName());
+    private final EntityManager entityManager;
 
-    public TrainerRepository(Map<Long, Trainer> trainerStorage) {
-        this.trainerStorage = trainerStorage;
+    public TrainerRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Override
     public Trainer save(Trainer trainer) {
         if (trainer == null) {
-            logger.warning("Attempt to save null user");
-            throw new IllegalArgumentException("Attempt to save null user");
+            log.info("Attempt to save null trainer");
+            throw new IllegalArgumentException("Attempt to save null trainer");
         }
-
         String username = trainer.getUserName();
 
         if (username == null) {
             trainer.setUserName(UsernameAndPasswordGenerator.createUsername(
                     trainer.getFirstName(),
                     trainer.getLastName()));
-            checkEqualsUsername(trainer.getUserName(), trainer);
             trainer.setPassword(UsernameAndPasswordGenerator.generatePassword());
-            trainer.setUserId(appointId((long) trainerStorage.size() + 1));
+            trainer.setUserName(checkEqualsUsername(trainer.getUserName()));
+            if (trainer.getId() == null) {
+                entityManager.persist(trainer);
+                log.info("Trainer created with username: {}", trainer.getUser().getUserName());
+            } else {
+                trainer = entityManager.merge(trainer);
+                log.info("Trainer updated with username: {}", trainer.getUser().getUserName());
+            }
         }
 
-        trainerStorage.put(trainer.getUserId(), trainer);
         return trainer;
     }
 
     @Override
-    public Trainer select(Long id) {
-        if (id == null) {
-            logger.warning("Attempt to select user with null id");
-            throw new IllegalArgumentException("Attempt to select user with null id");
+    public Trainer findById(Long id) {
+        var entity = entityManager.find(Trainer.class, id);
+        if (entity == null) {
+            log.warn("Trainer not found with id: {}", id);
         }
 
-        Trainer selectedTrainer = null;
-        for (Map.Entry<Long, Trainer> entry : trainerStorage.entrySet()) {
-            var traineeDao = entry.getValue();
-            if (traineeDao.getUserId().longValue() == id.longValue()) {
-                selectedTrainer = traineeDao;
-            }
-        }
-
-        return selectedTrainer;
+        return entity;
     }
 
     @Override
-    public Trainer update(Trainer entity) {
-
-        return trainerStorage.put(entity.getUserId(), entity);
+    public Optional<Trainer> findByUsername(String userName) {
+        try {
+            Query query = entityManager.createQuery(
+                    "SELECT t FROM " +  Trainer.class +
+                            " t WHERE t.user.userName = :username", Trainer.class);
+            query.setParameter("username", userName);
+            return (Optional<Trainer>) query.getSingleResult();
+        } catch (NoResultException e) {
+            log.warn("Trainer not found with username: {}", userName);
+            return null;
+        }
     }
 
-    private void checkEqualsUsername(String username, Trainer trainer) {
-        Integer identifier;
+    @Override
+    public void changePassword(Long id, String newPassword) {
+        var entity = findById(id);
+        if (entity == null) {
+            log.warn("Trainer not found for password change with id: {}", id);
+            throw new IllegalArgumentException("Trainer not found with id: " + id);
+        }
 
-        if (trainerStorage.containsKey(username)) {
-            for (identifier = 1; identifier < 100; identifier++) {
-                username = username + identifier;
-                if (!trainerStorage.containsKey(username)) {
-                    trainer.setUserName(username);
-                    logger.info("User with username: " + username);
-                    break;
-                }
-            }
+        entity.getUser().setPassword(newPassword);
+        entityManager.merge(entity);
+        log.info("Password changed for trainer with id: {}",  id);
+    }
+
+    @Override
+    public void changePassword(String username, String newPassword) {
+        var entity = findByUsername(username);
+        if (entity.isEmpty()) {
+            log.warn("Trainer not found for password change: {}", username);
+            throw new IllegalArgumentException("Trainer not found with username: " + username);
+        }
+
+        entity.get().getUser().setPassword(newPassword);
+        entityManager.merge(entity);
+        log.info("Password changed for trainer with username {}:", username);
+    }
+
+    @Override
+    public Trainer updateProfile(Trainer entity) {
+        return entityManager.merge(entity);
+    }
+
+    @Override
+    public void activate(Long id) {
+        var entity = findById(id);
+        if (entity == null) {
+            log.warn("Trainer not found for activation with id: {}", id);
+            throw new IllegalArgumentException("Trainer not found with id: " + id);
+        }
+
+        if (!entity.getIsActive()) {
+            entity.getUser().setIsActive(true);
         } else {
-            trainer.setUserName(username);
-            logger.info("User with username: " + username);
+            entity.getUser().setIsActive(false);
+        }
+
+        entityManager.merge(entity);
+        log.info("Trainer activated with id: {}", id);
+    }
+
+    @Override
+    public void deactivate(Long id) {
+        var entity = findById(id);
+        if (entity == null) {
+            log.warn("Trainer not found for deactivation with id: {}", id);
+            throw new IllegalArgumentException("Trainer not found with id: " + id);
+        }
+
+        if (entity.getIsActive()) {
+            entity.getUser().setIsActive(false);
+        } else {
+            entity.getUser().setIsActive(true);
+        }
+
+        entityManager.merge(entity);
+        log.info("Trainer deactivated with id: {}", id);
+    }
+
+    @Override
+    public boolean authenticate(String username, String password) {
+        try {
+            Query query = entityManager.createQuery(
+                    "SELECT COUNT(t) FROM " + Trainer.class +
+                            " t WHERE t.user.userName = :username AND t.user.password = :password",
+                    Long.class);
+            query.setParameter("userName", username);
+            query.setParameter("password", password);
+            return (Long) query.getSingleResult() > 0;
+        } catch (IllegalArgumentException e) {
+            log.error("Error during {} authentication: {}", Trainer.class, e.getMessage());
+            return false;
         }
     }
 
-    private Long appointId(Long userId) {
-
-        for (Map.Entry<Long, Trainer> entry : trainerStorage.entrySet()) {
-            Trainer traineeDao = entry.getValue();
-            if (traineeDao.getUserId().longValue() == userId.longValue()) {
-                appointId(++userId);
-                break;
-            }
+    @Override
+    public void delete(String username) {
+        var entity = findByUsername(username);
+        if (entity == null) {
+            log.warn("Trainer not found for deletion with username: {}", username);
+            throw new IllegalArgumentException("Trainer not found with username: " + username);
         }
 
-        return userId;
+        entityManager.remove(entity);
+        log.info("Trainer deleted with username: {}", username);
     }
+
+    public List<Trainer> findAllNotAssignedToTrainee(String traineeUsername) {
+        if (traineeUsername == null) {
+            log.warn("Attempt to find trainers with null trainee username");
+            throw new IllegalArgumentException("Trainee username cannot be null");
+        }
+
+        Query query = entityManager.createNativeQuery(
+                """
+                SELECT t.id, t.user_id, t.specialization_id FROM trainers t \s
+                INNER JOIN users u ON t.user_id = u.id \s
+                WHERE t.id NOT IN \s
+                (SELECT tt.trainer_id FROM trainers_trainees tt \s
+                INNER JOIN trainees tr ON tt.trainee_id = tr.id \s
+                WHERE tr.user_id IN \s
+                (SELECT id FROM users WHERE username = :traineeUsername)) \s
+                AND u.is_active = true \s
+                """,
+                Trainer.class);
+        query.setParameter("traineeUsername", traineeUsername);
+        return query.getResultList();
+    }
+
+    private String checkEqualsUsername(String baseUsername) {
+        Integer identifier = 1;
+        String username = baseUsername;
+
+        while (findByUsername(username).isPresent()) {
+            username = baseUsername + identifier;
+            identifier++;
+        }
+
+        return username;
+    }
+
 }

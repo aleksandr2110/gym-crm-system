@@ -1,80 +1,90 @@
 package epam.repository;
 
+import epam.domain.Trainee;
+import epam.domain.Trainer;
 import epam.domain.Training;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.logging.Logger;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
+@Slf4j
 @Repository
-public class TrainingRepository implements EntityRepository<Training, Long> {
+public class TrainingRepository {
 
-    private final Map<Long, Training> trainingStorage;
-    private static final Logger logger = Logger.getLogger(TrainingRepository.class.getName());
+    private final EntityManager entityManager;
 
-    public TrainingRepository(Map<Long, Training> trainingStorage) {
-        this.trainingStorage = trainingStorage;
+    public TrainingRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
-    @Override
-    public Training save(Training entity) {
-        if (entity == null) {
-            logger.warning("Attempt to save null training");
-            throw new IllegalArgumentException("Attempt to save null training");
+    public Training save(Training training) {
+        if (training.getId() == null) {
+            entityManager.persist(training);
+            log.info("Training created: {}", training.getTrainingName());
+        } else {
+            training = entityManager.merge(training);
+            log.info("Training updated: {}", training.getTrainingName());
         }
-
-        Long trainingId = appointId((long) trainingStorage.size() + 1);
-        entity.setId(trainingId);
-        validate(entity);
-        trainingStorage.put(entity.getId(), entity);
-        return entity;
+        return training;
     }
 
-    @Override
-    public Training select(Long id) {
-        if (id == null) {
-            logger.warning("Attempt to select training with null id");
-            throw new IllegalArgumentException("Attempt to select training with null id");
-        }
-
-        Training training = trainingStorage.get(id);
+    public Training findTrainingById(Long id) {
+        var training = entityManager.find(Training.class, id);
         if (training == null) {
-            logger.warning("Training with id " + id + " not found");
-            throw new NoSuchElementException("Training with id " + id + " not found");
+            log.warn("Trainee not found with id: {}", id);
         }
 
         return training;
     }
 
-    private Long appointId(Long trainingId) {
-
-        for (Map.Entry<Long, Training> entry : trainingStorage.entrySet()) {
-            Training training = entry.getValue();
-            if (training.getId().longValue() == trainingId.longValue()) {
-                appointId(++trainingId);
-                break;
-            }
-        }
-        return trainingId;
+    public List<Training> findTraineeTrainingsByUserNameAndDate(String traineeUsername,
+                                                                LocalDate fromDate,
+                                               LocalDate toDate, String trainingType) {
+        return buildTrainingsQuery(training -> {
+            Join<Training, Trainee> trainee = training.join("trainee");
+            return trainee.get("user").get("userName"); // trainee
+        }, traineeUsername, fromDate, toDate, trainingType);
     }
 
-    private void validate(Training training) {
+    public List<Training> findTrainerTrainingsByUserNameAndDate(String trainerUsername, LocalDate fromDate, LocalDate toDate) {
+        return buildTrainingsQuery(training -> {
+            Join<Training, Trainer> trainer = training.join("trainer");
+            return trainer.get("user").get("userName");
+        }, trainerUsername, fromDate, toDate, null);
+    }
 
-        if (training.getTrainer() == null) {
-            logger.warning("Training ID cannot be null");
-            throw new IllegalArgumentException("Training ID cannot be null");
+    private List<Training> buildTrainingsQuery(Function<Root<Training>, Expression<String>> usernameGetter,
+                                               String userName, LocalDate fromDate,
+                                               LocalDate toDate, String trainingType) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Training> query = cb.createQuery(Training.class);
+        Root<Training> training = query.from(Training.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(usernameGetter.apply(training), userName));
+        addDatePredicates(cb, training, fromDate, toDate, predicates, trainingType);
+
+        query.where(cb.and(predicates.toArray(new Predicate[0])));
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    private void addDatePredicates(CriteriaBuilder cb, Root<Training> training,
+                                   LocalDate fromDate, LocalDate toDate, List<Predicate> predicates,
+                                   String trainingType) {
+        if (fromDate != null) {
+            predicates.add(cb.greaterThanOrEqualTo(training.get("trainingDate"), fromDate));
         }
-
-        if (training.getTrainer().getUserId() == null) {
-            logger.warning("Trainer ID cannot be null");
-            throw new IllegalArgumentException("Trainer ID cannot be null");
+        if (toDate != null) {
+            predicates.add(cb.lessThanOrEqualTo(training.get("trainingDate"), toDate));
         }
-
-        if (training.getTrainers().get(0).getUserId() == null) {
-            logger.warning("Trainee ID cannot be null");
-            throw new IllegalArgumentException("Trainee ID cannot be null");
+        if (trainingType != null && !trainingType.isBlank()) {
+            predicates.add(cb.equal(training.get("trainingType").get("trainingTypeName"), trainingType));
         }
-
     }
 }

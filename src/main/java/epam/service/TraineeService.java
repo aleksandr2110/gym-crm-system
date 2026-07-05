@@ -4,8 +4,14 @@ import epam.domain.Trainee;
 
 public interface TraineeService {
 
-    Trainee create(Trainee trainee);
-    Trainee update(Trainee trainee, Long userId);
-    Trainee select(Long id);
-    void delete(Long id);
+    Trainee save(Trainee trainee);
+    Trainee findById(Long id);
+    Trainee findByUsername(String userName);
+    void changePassword(Long id, String newPassword);
+    void changePassword(String username, String newPassword);
+    Trainee updateProfile(Trainee entity, Long userId);
+    void activate(Long id);
+    void deactivate(Long id);
+    boolean authenticateTrainee(String username, String password);
+    void deleteProfile(String username);
 }

@@ -3,29 +3,34 @@ package epam.repository;
 
 import epam.domain.Trainee;
 import epam.util.UsernameAndPasswordGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
-import java.util.logging.Logger;
+import java.util.Optional;
 
+@Slf4j
 @Repository
+@Qualifier("traineeRepository")
 public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
-    private final Map<Long, Trainee> traineeStorage;
-    private static final Logger logger = Logger.getLogger(TraineeRepository.class.getName());
+    private final EntityManager entityManager;
 
-    @Autowired
-    public TraineeRepository(Map<Long, Trainee> traineeStorage) {
-        this.traineeStorage = traineeStorage;
+    public TraineeRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Override
+    @Transactional
     public Trainee save(Trainee trainee) {
+        Trainee createdTrainee = null;
         if (trainee == null) {
-            logger.warning("Attempt to save null user");
-            throw new IllegalArgumentException("Attempt to save null user");
+            log.info("Attempt to save null trainee");
+            throw new IllegalArgumentException("Attempt to save null trainee");
         }
         String username = trainee.getUserName();
 
@@ -33,79 +38,164 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
             trainee.setUserName(UsernameAndPasswordGenerator.createUsername(
                     trainee.getFirstName(),
                     trainee.getLastName()));
-            checkEqualsUsername(trainee.getUserName(), trainee);
             trainee.setPassword(UsernameAndPasswordGenerator.generatePassword());
-            trainee.setUserId(appointId((long) traineeStorage.size() + 1));
+            trainee.setUserName(checkEqualsUsername(trainee.getUserName()));
+
+            if (trainee.getId() == null) {
+                entityManager.persist(trainee);
+                createdTrainee = findByUsername(trainee.getUserName()).get();
+                log.info("Created trainee with username: {}", createdTrainee.getUser().getUserName());
+            } else {
+                createdTrainee = entityManager.merge(trainee);
+                log.info("Updated trainee with username: {}", trainee.getUser().getUserName());
+            }
         }
 
-        traineeStorage.put(trainee.getUserId(), trainee);
-        return trainee;
+        return createdTrainee;
     }
 
     @Override
-    public Trainee select(Long id) {
+    public Trainee findById(Long id) {
 
         if (id == null) {
-            logger.warning("Attempt to select user with null id");
+            log.warn("Attempt to select user with null id");
             throw new IllegalArgumentException("Attempt to select user with null id");
         }
 
-        Trainee selectedTrainee = null; // optional
-        for (Map.Entry<Long, Trainee> entry : traineeStorage.entrySet()) {
-            var trainee = entry.getValue();
-            if (trainee.getUserId().longValue() == id.longValue()) {
-                selectedTrainee = trainee;
-            }
+        var entity = entityManager.find(Trainee.class, id);
+        if (entity == null) {
+            log.warn("Trainee not found with id: {}", id);
         }
 
-        return selectedTrainee;
+        return entity;
     }
 
     @Override
-    public Trainee update(Trainee entity) {
+    public Optional<Trainee> findByUsername(String userName) {
 
-        return traineeStorage.put(entity.getUserId(), entity);
+        try {
+            Query query = entityManager.createQuery(
+                    "FROM Trainee t WHERE t.user.userName = :username", Trainee.class);
+            query.setParameter("username", userName);
+            return (Optional<Trainee>) query.getSingleResult();
+        } catch (NoResultException e) {
+            log.warn("Trainee not found with username: {}", userName);
+            return Optional.empty();
+        }
+        /*Query query = entityManager.createQuery(
+                "SELECT t FROM " + Trainee.class +
+                        " t WHERE t.user.username = :username", Trainee.class);
+        query.setParameter("username", userName);*/
     }
 
     @Override
-    public void delete(Long id) {
-        if (id == null) {
-            logger.warning("Attempt to delete user with null id");
-            throw new IllegalArgumentException("Username can not be null!" );
+    public void changePassword(Long id, String newPassword) {
+        var entity = findById(id);
+        if (entity == null) {
+            log.warn("Trainee not found for password change with id: {}", id);
+            throw new IllegalArgumentException("Trainee not found with id: " + id);
         }
 
-        traineeStorage.remove(id);
+        entity.getUser().setPassword(newPassword);
+        entityManager.merge(entity);
+        log.info("Password changed for trainee with id: {}", id);
     }
 
-    private void checkEqualsUsername(String username, Trainee trainee) {
-        Integer identifier;
+    @Override
+    public void changePassword(String username, String newPassword) {
+        Optional<Trainee> entity = findByUsername(username);
+        if (entity.isEmpty()) {
+            log.warn("Trainee not found for password change: {}", username);
+            throw new IllegalArgumentException("Trainee not found with username: " + username);
+        }
 
-        if (traineeStorage.containsKey(username)) {
-            for (identifier = 1; identifier < 100; identifier++) {
-                username = username + identifier;
-                if (!traineeStorage.containsKey(username)) {
-                    trainee.setUserName(username);
-                    logger.info("User with username: " + username);
-                    break;
-                }
-            }
+        entity.get().getUser().setPassword(newPassword);
+        entityManager.merge(entity);
+        log.info("Password changed for trainee with user name: {}", username);
+    }
+
+    @Override
+    public Trainee updateProfile(Trainee entity) {
+
+        return entityManager.merge(entity);
+    }
+
+    public void activate(Long id) {
+        var entity = findById(id);
+        if (entity == null) {
+            log.warn("Trainee not found for activation with id: {}", id);
+            throw new IllegalArgumentException("Trainee not found with id: " + id);
+        }
+
+        if (!entity.getIsActive()) {
+            entity.getUser().setIsActive(true);
         } else {
-            trainee.setUserName(username);
-            logger.info("User with username: " + username);
+            entity.getUser().setIsActive(false);
+        }
+
+        entityManager.merge(entity);
+        log.info("Trainee activated with id: {}", id);
+    }
+
+    public void deactivate(Long id) {
+        var entity = findById(id);
+        if (entity == null) {
+            log.warn("Trainee not found for deactivation with id: {}", id);
+            throw new IllegalArgumentException("Trainee not found with id: " + id);
+        }
+
+        if (entity.getIsActive()) {
+            entity.getUser().setIsActive(false);
+        } else {
+            entity.getUser().setIsActive(true);
+        }
+
+        entityManager.merge(entity);
+        log.info("Trainee deactivated with id: {}", id);
+    }
+
+    @Override
+    public boolean authenticate(String username, String password) {
+        try {
+            Query query = entityManager.createQuery(
+                    "SELECT COUNT(t) FROM " + Trainee.class +
+                            " t WHERE t.user.userName = :username AND t.user.password = :password",
+                    Long.class);
+            query.setParameter("userName", username);
+            query.setParameter("password", password);
+            return (Long) query.getSingleResult() > 0;
+        } catch (IllegalArgumentException e) {
+            log.error("Error during authentication: {}", e.getMessage());
+            return false;
         }
     }
 
-    private Long appointId(Long userId) {
-
-        for (Map.Entry<Long, Trainee> entry : traineeStorage.entrySet()) {
-            Trainee trainee = entry.getValue();
-            if (trainee.getUserId().longValue() == userId.longValue()) {
-                System.out.println("user id " + userId);
-                appointId(++userId);
-                break;
-            }
+    @Override
+    public void delete(String username) {
+        var entity = findByUsername(username);
+        if (entity == null) {
+            log.warn("Trainee not found for deletion with username: {}", username);
+            throw new IllegalArgumentException("Trainee not found with username: " + username);
         }
 
-        return userId;
+        entityManager.remove(entity);
+        var deletedEntity = findByUsername(username);
+        if (deletedEntity == null) {
+            log.info("Trainee deleted with username: {}", username);
+        }
     }
+
+    private String checkEqualsUsername(String baseUsername) {
+        Integer identifier = 1;
+        String username = baseUsername;
+
+        while (findByUsername(username).isPresent()) {
+            username = baseUsername + identifier;
+            identifier++;
+
+        }
+
+        return username;
+    }
+
 }

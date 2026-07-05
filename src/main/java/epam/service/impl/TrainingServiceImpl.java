@@ -1,65 +1,92 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
-import epam.domain.Trainee;
 import epam.domain.Training;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
+import epam.repository.TrainingTypeRepository;
 import epam.service.TrainingService;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.logging.Logger;
 
+@Slf4j
 @Service
 public class TrainingServiceImpl implements TrainingService {
 
     private final TrainingRepository trainingRepository;
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
-    private static final Logger logger = Logger.getLogger(TrainingServiceImpl.class.getName());
+    private final TrainingTypeRepository trainingTypeRepository;
 
     public TrainingServiceImpl(TrainingRepository trainingRepository,
                                TraineeRepository traineeRepository,
-                               TrainerRepository trainerRepository) {
+                               TrainerRepository trainerRepository,
+                               TrainingTypeRepository trainingTypeRepository) {
         this.trainingRepository = trainingRepository;
         this.traineeRepository = traineeRepository;
         this.trainerRepository = trainerRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
+    }
+
+    @Transactional
+    @Override
+    @ExecutionTime
+    public Training save(Training trainingRequest) {
+        var training = getTraining(trainingRequest);
+        training.setTrainingName(trainingRequest.getTrainingName());
+        training.setTrainingDate(trainingRequest.getTrainingDate());
+        training.setTrainingDuration(trainingRequest.getTrainingDuration());
+
+        return trainingRepository.save(training);
     }
 
     @Override
-    @ExecutionTime
-    public Training create(Training training, Long trainerId, List<Long> traineeIds) {
-        training.setTrainer(trainerRepository.select(trainerId));
-        List<Trainee> traineeList = new ArrayList();
-        for (Long traineeId : traineeIds) {
-            traineeList.add(traineeRepository.select(traineeId));
-        }
-        training.setTrainers(traineeList);
-        var createdTraining = trainingRepository.save(training);
-
-        if (createdTraining == null) {
-            logger.warning("Failed to create training: ");
-        } else {
-            logger.info("Training created successfully with id : " + createdTraining.getId());
-        }
-
-        return createdTraining;
+    public Training findTrainingById(Long id) {
+        return trainingRepository.findTrainingById(id);
     }
 
     @Override
-    @ExecutionTime
-    public Training select(Long trainingId) {
-        Training training = trainingRepository.select(trainingId);
+    public List<Training> selectTraineeTrainings(String traineeUsername, LocalDate fromDate,
+                                                 LocalDate toDate, String trainingType) {
+        List<Training> trainings = trainingRepository.findTraineeTrainingsByUserNameAndDate(traineeUsername,
+                fromDate, toDate, trainingType);
 
-        if (training == null) {
-            logger.warning("Training not found with id: " + trainingId);
-        } else {
-            logger.info("Training found with id: " + trainingId);
+        return trainings;
+    }
+
+    @Override
+    public List<Training> selectTrainerTrainings(String trainerUsername, LocalDate fromDate,
+                                                 LocalDate toDate) {
+        List<Training> trainings = trainingRepository.findTrainerTrainingsByUserNameAndDate(trainerUsername, fromDate, toDate);
+
+        return trainings;
+    }
+
+    private Training getTraining(Training trainingRequest) {
+        var training = new Training();
+        var trainee = traineeRepository.findByUsername(trainingRequest.getTrainee().getUserName());
+        if (trainee.isEmpty()) {
+            log.warn("Trainee not found with username: {}", trainingRequest.getTrainee().getUserName());
+            throw new IllegalArgumentException("Trainee not found with username: "
+                    + trainingRequest.getTrainee().getUserName());
         }
+        training.setTrainee(trainee.get());
+
+        var trainer = trainerRepository.findByUsername(trainingRequest.getTrainer().getUserName());
+        if (trainer.isEmpty()) {
+            log.warn("Trainer not found with username: {}", trainingRequest.getTrainer().getUserName());
+            throw new IllegalArgumentException("Trainer not found with username: "
+                    + trainingRequest.getTrainer().getUserName());
+        }
+        training.setTrainer(trainer.get());
+        training.setTrainingType(trainingTypeRepository.findByName(trainingRequest.getTrainingType().toString()));
 
         return training;
     }
+
 }

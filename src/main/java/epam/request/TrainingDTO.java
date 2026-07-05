@@ -14,7 +14,7 @@ public class TrainingDTO {
     private String trainingName;
     private String trainingType;
     private LocalDateTime trainingDate;
-    private String trainingDuration;
+    private Integer trainingDuration;
 
     public TrainingDTO() {
     }
@@ -59,11 +59,11 @@ public class TrainingDTO {
         this.trainingDate = trainingDate;
     }
 
-    public String getTrainingDuration() {
+    public Integer getTrainingDuration() {
         return trainingDuration;
     }
 
-    public void setTrainingDuration(String trainingDuration) {
+    public void setTrainingDuration(Integer trainingDuration) {
         this.trainingDuration = trainingDuration;
     }
 

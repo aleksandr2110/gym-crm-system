@@ -1,13 +1,14 @@
 package epam.service;
 
-import epam.domain.Trainee;
 import epam.domain.Training;
-import epam.request.TrainingDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TrainingService {
 
-    Training create(Training training, Long trainerId, List<Long> traineeIds);
-    Training select(Long id);
+    Training save(Training training);
+    Training findTrainingById(Long id);
+    List<Training> selectTraineeTrainings(String traineeUsername, LocalDate fromDate, LocalDate toDate, String trainingType);
+    List<Training> selectTrainerTrainings(String trainerUsername, LocalDate fromDate, LocalDate toDate);
 }

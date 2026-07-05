@@ -1,67 +1,40 @@
 package epam.domain;
 
-import java.util.Objects;
+import jakarta.persistence.*;
+import lombok.*;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
+@Entity
+@Table(name = "users")
 public class User {
 
-    String firstName;
-    String lastName;
-    String username;
-    String Password;
-    boolean isActive;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    protected Long id;
 
-    public User() {
-    }
+    @Column(name = "first_name", nullable = false)
+    protected String firstName;
 
-    public String getFirstName() {
-        return firstName;
-    }
+    @Column(name = "last_name", nullable = false)
+    protected String lastName;
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    @Column(name = "username", nullable = false)
+    protected String userName;
 
-    public String getLastName() {
-        return lastName;
-    }
+    @Column(name = "password", nullable = false)
+    protected String Password;
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+    @Column(name = "is_active", nullable = false)
+    protected Boolean isActive;
 
-    public String getUserName() {
-        return username;
-    }
+    @OneToOne(mappedBy = "user")
+    protected Trainee trainee;
 
-    public void setUserName(String userName) {
-        this.username = userName;
-    }
+    @OneToOne(mappedBy = "user")
+    protected Trainer trainer;
 
-    public String getPassword() {
-        return Password;
-    }
-
-    public void setPassword(String password) {
-        Password = password;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return isActive == user.isActive && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(username, user.username) && Objects.equals(Password, user.Password);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(firstName, lastName, username, Password, isActive);
-    }
 }

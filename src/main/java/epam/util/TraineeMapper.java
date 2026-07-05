@@ -11,7 +11,7 @@ public class TraineeMapper {
         var trainee = new Trainee();
         trainee.setFirstName(traineeDto.getFirstName());
         trainee.setLastName(traineeDto.getLastName());
-        trainee.setActive(traineeDto.getActive());
+        trainee.setIsActive(traineeDto.getActive());
         trainee.setDateOfBirth(traineeDto.getDateOfBirth());
         trainee.setAddress(traineeDto.getAddress());
         return trainee;

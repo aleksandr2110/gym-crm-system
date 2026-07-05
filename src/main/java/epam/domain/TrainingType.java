@@ -1,23 +1,34 @@
 package epam.domain;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "training_types")
 public class TrainingType {
 
-    private Long userId;
-    private String trainingTypeName;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-    public Long getUserId() {
-        return userId;
-    }
+    @Column(name = "training_type_name", nullable = false)
+    private TrainingTypeName trainingTypeName;
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+    @OneToMany(mappedBy = "trainingType")
+    private Set<Training> trainings = new LinkedHashSet<>();
 
-    public String getTrainingTypeName() {
-        return trainingTypeName;
-    }
-
-    public void setTrainingTypeName(String trainingTypeName) {
-        this.trainingTypeName = trainingTypeName;
-    }
+    @OneToMany(mappedBy = "specialization")
+    private List<Trainer> trainers = new ArrayList<>();
 }
+

@@ -1,71 +1,35 @@
 package epam.domain;
 
-import java.time.LocalDate;
-import java.util.Objects;
+import jakarta.persistence.*;
+import lombok.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "trainees")
 public class Trainee extends User {
 
-    private Long userId;
-    private LocalDate dateOfBirth;
-    private String address;
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    User user;
 
-    public Trainee() {
-    }
+    @Column(name = "date_of_birth", nullable = true)
+    LocalDate dateOfBirth;
 
-    public Trainee(Long userId, LocalDate dateOfBirth, String address) {
-        this.userId = userId;
-        this.dateOfBirth = dateOfBirth;
-        this.address = address;
-    }
+    @Column(name = "address", nullable = true)
+    String address;
 
-    public Long getUserId() {
-        return userId;
-    }
+    @ManyToMany(mappedBy = "trainees")
+    List<Trainer> trainers = new ArrayList<>();
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+    @OneToMany(mappedBy = "trainee")
+    Set<Training> trainings = new LinkedHashSet<>();
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Trainee trainee = (Trainee) o;
-        return Objects.equals(userId, trainee.userId) && Objects.equals(dateOfBirth, trainee.dateOfBirth) && Objects.equals(address, trainee.address);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), userId, dateOfBirth, address);
-    }
-
-    @Override
-    public String toString() {
-        return "Trainee{" +
-                "userId='" + userId + '\'' +
-                ", dateOfBirth=" + dateOfBirth +
-                ", address='" + address + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", username='" + username + '\'' +
-                ", Password='" + Password + '\'' +
-                ", isActive=" + isActive +
-                '}';
-    }
 }

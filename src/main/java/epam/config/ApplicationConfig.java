@@ -8,7 +8,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 @ComponentScan("epam")
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application.yml")
 public class ApplicationConfig {
 
     @Bean
