@@ -26,15 +26,15 @@ public class User {
     protected String userName;
 
     @Column(name = "password", nullable = false)
-    protected String Password;
+    protected String password;
 
     @Column(name = "is_active", nullable = false)
     protected Boolean isActive;
 
-    @OneToOne(mappedBy = "user")
+    /*@OneToOne(mappedBy = "user")
     protected Trainee trainee;
 
     @OneToOne(mappedBy = "user")
-    protected Trainer trainer;
+    protected Trainer trainer;*/
 
 }

@@ -19,6 +19,12 @@ public class TrainingTypeRepository {
         this.entityManager = entityManager;
     }
 
+    public void saveTrainingType(List<TrainingType> trainingList) {
+        for (TrainingType training: trainingList) {
+            entityManager.persist(training);
+        }
+    }
+
     public TrainingType findByName(String name) {
         try {
             Query query = entityManager.createQuery(

@@ -14,7 +14,7 @@ public class TrainerMapper {
         trainer.setFirstName(trainerDto.getFirstName());
         trainer.setLastName(trainerDto.getLastName());
         var trainingType = new TrainingType();
-        trainingType.setTrainingTypeName(TrainingTypeName.valueOf(trainerDto.getSpecialization()));
+        trainingType.setTrainingTypeName(TrainingTypeName.valueOf(trainerDto.getSpecialization().toUpperCase()));
         trainer.setSpecialization(trainingType);
         trainer.setIsActive(trainerDto.getActive());
         return trainer;

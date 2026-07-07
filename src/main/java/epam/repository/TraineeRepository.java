@@ -6,28 +6,30 @@ import epam.util.UsernameAndPasswordGenerator;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Slf4j
-@Repository
-@Qualifier("traineeRepository")
+@Repository("traineeRepository")
+//@Qualifier("traineeRepository")
 public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
     private final EntityManager entityManager;
 
+    @Autowired
     public TraineeRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     @Override
-    @Transactional
     public Trainee save(Trainee trainee) {
-        Trainee createdTrainee = null;
+        Trainee createdOptTrainee = null;
         if (trainee == null) {
             log.info("Attempt to save null trainee");
             throw new IllegalArgumentException("Attempt to save null trainee");
@@ -43,15 +45,15 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
             if (trainee.getId() == null) {
                 entityManager.persist(trainee);
-                createdTrainee = findByUsername(trainee.getUserName()).get();
-                log.info("Created trainee with username: {}", createdTrainee.getUser().getUserName());
+                log.info("Created trainee with username: {}", trainee.getUserName()); // getUser().
             } else {
-                createdTrainee = entityManager.merge(trainee);
-                log.info("Updated trainee with username: {}", trainee.getUser().getUserName());
+                entityManager.merge(trainee); // createdTrainee =
+                log.info("Updated trainee with username: {}", trainee.getUserName()); // getUser().
             }
+            createdOptTrainee = findByUsername(trainee.getUserName());
         }
 
-        return createdTrainee;
+        return createdOptTrainee;
     }
 
     @Override
@@ -71,21 +73,18 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
     }
 
     @Override
-    public Optional<Trainee> findByUsername(String userName) {
+    public Trainee findByUsername(String userName) {
 
         try {
-            Query query = entityManager.createQuery(
-                    "FROM Trainee t WHERE t.user.userName = :username", Trainee.class);
-            query.setParameter("username", userName);
-            return (Optional<Trainee>) query.getSingleResult();
+            TypedQuery<Trainee> query = entityManager.createQuery("FROM Trainee t WHERE t.userName = :userName", Trainee.class)
+                    .setParameter("userName", userName);
+            var trainee = query.getSingleResult();
+
+            return trainee;
         } catch (NoResultException e) {
             log.warn("Trainee not found with username: {}", userName);
-            return Optional.empty();
+            return null;
         }
-        /*Query query = entityManager.createQuery(
-                "SELECT t FROM " + Trainee.class +
-                        " t WHERE t.user.username = :username", Trainee.class);
-        query.setParameter("username", userName);*/
     }
 
     @Override
@@ -96,20 +95,20 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
             throw new IllegalArgumentException("Trainee not found with id: " + id);
         }
 
-        entity.getUser().setPassword(newPassword);
+        entity.setPassword(newPassword);
         entityManager.merge(entity);
         log.info("Password changed for trainee with id: {}", id);
     }
 
     @Override
     public void changePassword(String username, String newPassword) {
-        Optional<Trainee> entity = findByUsername(username);
-        if (entity.isEmpty()) {
+        Trainee entity = findByUsername(username);
+        if (entity == null) {
             log.warn("Trainee not found for password change: {}", username);
             throw new IllegalArgumentException("Trainee not found with username: " + username);
         }
 
-        entity.get().getUser().setPassword(newPassword);
+        entity.setPassword(newPassword);
         entityManager.merge(entity);
         log.info("Password changed for trainee with user name: {}", username);
     }
@@ -128,9 +127,9 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
         }
 
         if (!entity.getIsActive()) {
-            entity.getUser().setIsActive(true);
+            entity.setIsActive(true);
         } else {
-            entity.getUser().setIsActive(false);
+            entity.setIsActive(false);
         }
 
         entityManager.merge(entity);
@@ -145,9 +144,9 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
         }
 
         if (entity.getIsActive()) {
-            entity.getUser().setIsActive(false);
+            entity.setIsActive(false);
         } else {
-            entity.getUser().setIsActive(true);
+            entity.setIsActive(true);
         }
 
         entityManager.merge(entity);
@@ -155,13 +154,12 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
     }
 
     @Override
-    public boolean authenticate(String username, String password) {
+    public boolean authenticate(String userName, String password) {
         try {
             Query query = entityManager.createQuery(
-                    "SELECT COUNT(t) FROM " + Trainee.class +
-                            " t WHERE t.user.userName = :username AND t.user.password = :password",
+                    "SELECT COUNT(t) FROM Trainee t WHERE t.userName = :userName AND t.password = :password",
                     Long.class);
-            query.setParameter("userName", username);
+            query.setParameter("userName", userName);
             query.setParameter("password", password);
             return (Long) query.getSingleResult() > 0;
         } catch (IllegalArgumentException e) {
@@ -189,7 +187,7 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
         Integer identifier = 1;
         String username = baseUsername;
 
-        while (findByUsername(username).isPresent()) {
+        while (findByUsername(username) != null) {
             username = baseUsername + identifier;
             identifier++;
 

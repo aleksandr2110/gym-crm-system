@@ -59,13 +59,13 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
     }
 
     @Override
-    public Optional<Trainer> findByUsername(String userName) {
+    public Trainer findByUsername(String userName) {
         try {
             Query query = entityManager.createQuery(
                     "SELECT t FROM " +  Trainer.class +
                             " t WHERE t.user.userName = :username", Trainer.class);
             query.setParameter("username", userName);
-            return (Optional<Trainer>) query.getSingleResult();
+            return (Trainer) query.getSingleResult();
         } catch (NoResultException e) {
             log.warn("Trainer not found with username: {}", userName);
             return null;
@@ -88,12 +88,12 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
     @Override
     public void changePassword(String username, String newPassword) {
         var entity = findByUsername(username);
-        if (entity.isEmpty()) {
+        if (entity == null) {
             log.warn("Trainer not found for password change: {}", username);
             throw new IllegalArgumentException("Trainer not found with username: " + username);
         }
 
-        entity.get().getUser().setPassword(newPassword);
+        entity.getUser().setPassword(newPassword);
         entityManager.merge(entity);
         log.info("Password changed for trainer with username {}:", username);
     }
@@ -193,7 +193,7 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
         Integer identifier = 1;
         String username = baseUsername;
 
-        while (findByUsername(username).isPresent()) {
+        while (findByUsername(username) != null) {
             username = baseUsername + identifier;
             identifier++;
         }

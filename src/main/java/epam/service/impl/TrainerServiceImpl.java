@@ -10,6 +10,7 @@ import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
 import epam.repository.TrainingTypeRepository;
 import epam.service.TrainerService;
+import epam.service.TrainingTypeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +20,15 @@ import java.util.*;
 @Service
 public class TrainerServiceImpl implements TrainerService {
 
-    private final TrainingTypeRepository trainingTypeRepository;
+    private final TrainingTypeService trainingTypeService;
     private final TrainingRepository trainingRepository;
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
 
-    public TrainerServiceImpl(TrainingTypeRepository trainingTypeRepository,
+    public TrainerServiceImpl(TrainingTypeService trainingTypeService,
                               TrainingRepository trainingRepository,
                               TraineeRepository traineeRepository, TrainerRepository trainerRepository) {
-        this.trainingTypeRepository = trainingTypeRepository;
+        this.trainingTypeService = trainingTypeService;
         this.trainingRepository = trainingRepository;
         this.traineeRepository = traineeRepository;
         this.trainerRepository = trainerRepository;
@@ -37,7 +38,8 @@ public class TrainerServiceImpl implements TrainerService {
     @ExecutionTime
     public Trainer save(Trainer trainer) {
 
-        var trainingType = trainingTypeRepository.findByName(trainer.getSpecialization().toString());
+        var trainingType = trainingTypeService.findByName(trainer.getSpecialization()
+                .toString().toUpperCase());
         trainer.setSpecialization(trainingType);
 
         List<Trainee> traineeList = new ArrayList<>();
@@ -72,7 +74,7 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public Trainer findByUsername(String userName) {
 
-        return trainerRepository.findByUsername(userName).get();
+        return trainerRepository.findByUsername(userName);
     }
 
     @Override
@@ -127,7 +129,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public List<Trainer> findAllNotAssignedToTrainee(String traineeUsername) {
-        Trainee trainee = traineeRepository.findByUsername(traineeUsername).get();
+        Trainee trainee = traineeRepository.findByUsername(traineeUsername);
         if (trainee == null) {
             throw new NoSuchElementException("Trainee not found with username: " + traineeUsername);
         }

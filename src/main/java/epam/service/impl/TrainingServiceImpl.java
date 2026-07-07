@@ -70,20 +70,20 @@ public class TrainingServiceImpl implements TrainingService {
     private Training getTraining(Training trainingRequest) {
         var training = new Training();
         var trainee = traineeRepository.findByUsername(trainingRequest.getTrainee().getUserName());
-        if (trainee.isEmpty()) {
+        if (trainee == null) {
             log.warn("Trainee not found with username: {}", trainingRequest.getTrainee().getUserName());
             throw new IllegalArgumentException("Trainee not found with username: "
                     + trainingRequest.getTrainee().getUserName());
         }
-        training.setTrainee(trainee.get());
+        training.setTrainee(trainee);
 
         var trainer = trainerRepository.findByUsername(trainingRequest.getTrainer().getUserName());
-        if (trainer.isEmpty()) {
+        if (trainer == null) {
             log.warn("Trainer not found with username: {}", trainingRequest.getTrainer().getUserName());
             throw new IllegalArgumentException("Trainer not found with username: "
                     + trainingRequest.getTrainer().getUserName());
         }
-        training.setTrainer(trainer.get());
+        training.setTrainer(trainer);
         training.setTrainingType(trainingTypeRepository.findByName(trainingRequest.getTrainingType().toString()));
 
         return training;

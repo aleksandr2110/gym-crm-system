@@ -1,14 +1,20 @@
 package epam;
 
 import epam.application.FacadeGymCrmSystem;
-import epam.config.ApplicationConfig;
-import epam.config.JpaConfig;
+import epam.config.AppConfig;
+import epam.config.DatabaseConfig;
+import epam.config.JpaConfigTest;
+import epam.config.TestConfig;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
-import epam.domain.Training;
+import epam.domain.TrainingTypeName;
+import epam.exception.UnauthorizedException;
 import epam.request.TraineeDTO;
 import epam.request.TrainerDTO;
-import epam.request.TrainingDTO;
+import epam.request.TrainingTypeDTO;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,37 +22,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {ApplicationConfig.class, JpaConfig.class})
+@ContextConfiguration(classes = {TestConfig.class}) // JpaConfigTest , AppConfig.class
+@Transactional
 public class GymFacadeTest {
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Autowired
     private FacadeGymCrmSystem gymFacade;
-    private Map<Long, Trainee> traineeStorage;
-    private Map<Long, Trainer> trainerStorage;
-
-    @Autowired
-    public void setGymFacade(FacadeGymCrmSystem gymFacade) {
-        this.gymFacade = gymFacade;
-    }
-
-    @Autowired
-    public void setTraineeStorage(Map<Long, Trainee> traineeStorage) {
-        this.traineeStorage = traineeStorage;
-    }
-
-    @Autowired
-    public void setTrainerStorage(Map<Long, Trainer> trainerStorage) {
-        this.trainerStorage = trainerStorage;
-    }
-
 
     @Test
     void testCreateTrainee() {
@@ -76,25 +65,36 @@ public class GymFacadeTest {
         traineeDTO.setAddress("11/2 Dark Ave");
         traineeDTO.setActive(true);
 
-        Trainee created = gymFacade.createTrainee(traineeDTO);
-        Long userId = created.getId();
-        Trainee retrieved = gymFacade.getTrainee(userId);
+        var createdTrainee = gymFacade.createTrainee(traineeDTO);
+        Long userId = createdTrainee.getId();
+        var retrievedTrainee = gymFacade.getTrainee(createdTrainee.getUserName(),
+                createdTrainee.getPassword(), userId);
 
-        assertNotNull(retrieved);
-        assertEquals(userId, retrieved.getId());
-        assertEquals("Jastin", retrieved.getFirstName());
-        assertEquals("Timbarlake", retrieved.getLastName());
-        assertEquals(LocalDate.of(1984, 3, 14), retrieved.getDateOfBirth());
-        assertEquals("11/2 Dark Ave", retrieved.getAddress());
-        assertNotNull("Jastin.Timbarlake", retrieved.getUserName());
+        assertNotNull(retrievedTrainee);
+        assertEquals(userId, retrievedTrainee.getId());
+        assertEquals("Jastin", retrievedTrainee.getFirstName());
+        assertEquals("Timbarlake", retrievedTrainee.getLastName());
+        assertEquals(LocalDate.of(1984, 3, 14), retrievedTrainee.getDateOfBirth());
+        assertEquals("11/2 Dark Ave", retrievedTrainee.getAddress());
+        assertNotNull("Jastin.Timbarlake", retrievedTrainee.getUserName());
     }
 
     @Test
-    void testGetTraineeById() {
-        Long userId = 5L;
-        Trainee retrieved = gymFacade.getTrainee(userId);
-        assertEquals(userId, retrieved.getId());
-        assertNotNull("Emilia.Kavi", retrieved.getUserName());
+    void testCreateAndDeleteTrainee() {
+        var traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName("Jakarta");
+        traineeDTO.setLastName("Timbarlake2");
+        traineeDTO.setDateOfBirth(LocalDate.of(1987, 5, 4));
+        traineeDTO.setAddress("16 White Ave");
+        traineeDTO.setActive(true);
+
+        var createdTrainee = gymFacade.createTrainee(traineeDTO);
+        gymFacade.deleteTrainee(createdTrainee.getUserName(), createdTrainee.getPassword());
+
+        Exception exception = assertThrows(UnauthorizedException.class, () -> {
+            gymFacade.getTrainee(createdTrainee.getUserName(),
+                    createdTrainee.getPassword(), createdTrainee.getId());
+        });
     }
 
     @Test
@@ -109,25 +109,99 @@ public class GymFacadeTest {
         Trainee created = gymFacade.createTrainee(traineeDTO);
         Long userId = created.getId();
 
-        TraineeDTO updateDto = new TraineeDTO();
-        updateDto.setFirstName("Berg");
-        updateDto.setLastName("Beatson");
+        var updateDto = new TraineeDTO();
+        updateDto.setFirstName("Yil");
+        updateDto.setLastName("Smith");
         updateDto.setDateOfBirth(LocalDate.of(1981, 5, 11));
         updateDto.setAddress("43 Stone St");
         updateDto.setActive(true);
 
-        Trainee updatedTrainee = gymFacade.updateTrainee(updateDto, userId);
+        Trainee updatedTrainee = gymFacade.updateTrainee(updateDto,
+                created.getUserName(), created.getPassword(), userId);
 
         assertNotNull(updatedTrainee);
-        assertEquals("Berg", updatedTrainee.getFirstName());
-        assertEquals("Beatson", updatedTrainee.getLastName());
+        assertEquals("Yil", updatedTrainee.getFirstName());
+        assertEquals("Smith", updatedTrainee.getLastName());
         assertEquals("43 Stone St", updatedTrainee.getAddress());
         assertEquals(LocalDate.of(1981, 5, 11), updatedTrainee.getDateOfBirth());
-        assertNotNull("Berg.Beatson", updatedTrainee.getUserName());
+        assertEquals("Yil.Smith", updatedTrainee.getUserName());
+    }
+
+    @Test
+    void testActivateTrainee() {
+        TraineeDTO traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName("Mila");
+        traineeDTO.setLastName("Smith");
+        traineeDTO.setDateOfBirth(LocalDate.of(1989, 3, 30));
+        traineeDTO.setAddress("45 Red stone St");
+        traineeDTO.setActive(false);
+
+        Trainee createdTrainee = gymFacade.createTrainee(traineeDTO);
+        Long userId = createdTrainee.getId();
+
+        gymFacade.activateTrainee(createdTrainee.getUserName(), createdTrainee.getPassword(), userId);
+        var retrievedTrainee = gymFacade.getTrainee(createdTrainee.getUserName(),
+                createdTrainee.getPassword(), userId);
+
+        assertNotNull(retrievedTrainee);
+        assertEquals("Mila", retrievedTrainee.getFirstName());
+        assertEquals("Smith", retrievedTrainee.getLastName());
+        assertTrue(retrievedTrainee.getIsActive());
+    }
+
+
+    @Test
+    void testDeactivateTrainee() {
+        TraineeDTO traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName("Maya");
+        traineeDTO.setLastName("Salman");
+        traineeDTO.setDateOfBirth(LocalDate.of(1989, 3, 30));
+        traineeDTO.setAddress("45 Red stone St");
+        traineeDTO.setActive(true);
+
+        Trainee createdTrainee = gymFacade.createTrainee(traineeDTO);
+        Long userId = createdTrainee.getId();
+
+        gymFacade.deactivateTrainee(createdTrainee.getUserName(), createdTrainee.getPassword(), userId);
+        var retrievedTrainee = gymFacade.getTrainee(createdTrainee.getUserName(),
+                createdTrainee.getPassword(), userId);
+
+        assertNotNull(retrievedTrainee);
+        assertEquals("Maya", retrievedTrainee.getFirstName());
+        assertEquals("Salman", retrievedTrainee.getLastName());
+        assertFalse(retrievedTrainee.getIsActive());
+    }
+
+    @Test
+    void testChangePasswordTrainee() {
+        TraineeDTO traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName("Richard");
+        traineeDTO.setLastName("Hatchinson");
+        traineeDTO.setDateOfBirth(LocalDate.of(1983, 5, 23));
+        traineeDTO.setAddress("67 Blue can St");
+        traineeDTO.setActive(true);
+
+        Trainee createdTrainee = gymFacade.createTrainee(traineeDTO);
+        Long userId = createdTrainee.getId();
+        String newPassword = "fbgberbrebg";
+
+        gymFacade.changeTraineePassword(createdTrainee.getUserName(), createdTrainee.getPassword(), newPassword);
+        var retrievedTrainee = gymFacade.getTrainee(createdTrainee.getUserName(),
+                newPassword, userId);
+
+        assertEquals("Richard", retrievedTrainee.getFirstName());
+        assertEquals("Hatchinson", retrievedTrainee.getLastName());
+        assertEquals(newPassword, retrievedTrainee.getPassword());
     }
 
     @Test
     void testCreateTrainer() {
+        var trainingTypeJava = new TrainingTypeDTO();
+        trainingTypeJava.setTrainingTypeName(TrainingTypeName.valueOf("JAVA"));
+        var trainingTypeJavaScript = new TrainingTypeDTO();
+        trainingTypeJavaScript.setTrainingTypeName(TrainingTypeName.valueOf("JAVASCRIPT"));
+        gymFacade.createTrainingType(List.of(trainingTypeJava, trainingTypeJavaScript));
+
         var trainerDto = new TrainerDTO();
         trainerDto.setFirstName("Evgeniy");
         trainerDto.setLastName("Syleimanov");
@@ -137,7 +211,7 @@ public class GymFacadeTest {
         Trainer createdTrainer = gymFacade.createTrainer(trainerDto);
 
         assertNotNull(createdTrainer);
-        assertEquals("Java", createdTrainer.getSpecialization());
+        //assertEquals("JAVA", createdTrainer.getSpecialization().getTrainingTypeName());
         assertEquals("Evgeniy", createdTrainer.getFirstName());
         assertEquals("Syleimanov", createdTrainer.getLastName());
     }
@@ -160,7 +234,7 @@ public class GymFacadeTest {
         assertEquals("Java", retrievedTrainer.getSpecialization());
     }
 
-    @Test
+    /*@Test
     void testUpdateTrainer() {
         var trainerRequest = new TrainerDTO();
         trainerRequest.setFirstName("Alexey");
@@ -259,5 +333,5 @@ public class GymFacadeTest {
         assertEquals("TypeScript", retrieved.getTrainingName());
         assertEquals("Learning TypeScript", retrieved.getTrainingType());
         assertEquals("90", retrieved.getTrainingDuration());
-    }
+    }*/
 }

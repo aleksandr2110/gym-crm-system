@@ -16,9 +16,9 @@ import java.util.Set;
 @Table(name = "trainees")
 public class Trainee extends User {
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    User user;
+//    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    @JoinColumn(name = "user_id")
+//    User user;
 
     @Column(name = "date_of_birth", nullable = true)
     LocalDate dateOfBirth;

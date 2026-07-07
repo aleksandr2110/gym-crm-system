@@ -28,12 +28,14 @@ public class GymApplication {
         ApplicationContext context = new AnnotationConfigApplicationContext(GymApplication.class);
         FacadeGymCrmSystem facadeGymCrmSystem = context.getBean(FacadeGymCrmSystem.class);
         var traineeDTO = new TraineeDTO();
-        traineeDTO.setFirstName("Andriy");
+        traineeDTO.setFirstName("Anton");
         traineeDTO.setLastName("Artuh");
-        traineeDTO.setAddress("Ukraine sokol st 45");
-        traineeDTO.setDateOfBirth(LocalDate.of(1988, 11, 1));
+        traineeDTO.setAddress("Ukraine sokol st 89");
+        traineeDTO.setDateOfBirth(LocalDate.of(1986, 11, 4));
         traineeDTO.setActive(Boolean.TRUE);
         facadeGymCrmSystem.createTrainee(traineeDTO);
+
+
         /*TraineeService traineeService = context.getBean(TraineeService.class);
         Trainee trainee = traineeService.findById(2L);
         System.out.println("trainee with id " + trainee.toString());
