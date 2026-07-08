@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Slf4j
@@ -24,6 +23,7 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
 
     @Override
     public Trainer save(Trainer trainer) {
+        Trainer createdOptTrainee = null;
         if (trainer == null) {
             log.info("Attempt to save null trainer");
             throw new IllegalArgumentException("Attempt to save null trainer");
@@ -44,8 +44,9 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
                 log.info("Trainer updated with username: {}", trainer.getUserName());
             }
         }
+        createdOptTrainee = findByUsername(trainer.getUserName());
 
-        return trainer;
+        return createdOptTrainee;
     }
 
     @Override

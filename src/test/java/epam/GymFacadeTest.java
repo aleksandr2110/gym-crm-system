@@ -4,10 +4,12 @@ import epam.application.FacadeGymCrmSystem;
 import epam.config.TestConfig;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
+import epam.domain.Training;
 import epam.domain.TrainingTypeName;
 import epam.exception.UnauthorizedException;
 import epam.request.TraineeDTO;
 import epam.request.TrainerDTO;
+import epam.request.TrainingDTO;
 import epam.request.TrainingTypeDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +19,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -314,9 +319,10 @@ public class GymFacadeTest {
         assertEquals("Likiy", retrievedTrainer.getLastName());
         assertEquals(newPassword, retrievedTrainer.getPassword());
     }
-    /*@Test
+
+    @Test
     void testCreateTraining() {
-            var traineeDTO = new TraineeDTO();
+        var traineeDTO = new TraineeDTO();
         traineeDTO.setFirstName("Jemmy");
         traineeDTO.setLastName("Tee");
         traineeDTO.setDateOfBirth(LocalDate.of(1984, 1, 11));
@@ -324,42 +330,42 @@ public class GymFacadeTest {
         traineeDTO.setActive(true);
         var createdTrainee = gymFacade.createTrainee(traineeDTO);
 
-var trainingTypeJavaScript = new TrainingTypeDTO();
+        var trainingTypeJavaScript = new TrainingTypeDTO();
         trainingTypeJavaScript.setTrainingTypeName(TrainingTypeName.valueOf("JAVASCRIPT"));
+        gymFacade.createTrainingType(List.of(trainingTypeJavaScript));
 
-        var traineeRequest = new TraineeDTO();
-        traineeRequest.setFirstName("Sabrina");
-        traineeRequest.setLastName("Ogiy");
-        traineeRequest.setDateOfBirth(LocalDate.of(1991, 2, 2));
-        traineeRequest.setAddress("79 Nikolska st");
-        traineeRequest.setActive(true);
-        var trainee = gymFacade.createTrainee(traineeRequest);
-
-        var trainerRequest = new TrainerDTO();
-        trainerRequest.setFirstName("Konstantin");
-        trainerRequest.setLastName("Rubak");
-        trainerRequest.setSpecialization("TypeScript");
-        trainerRequest.setActive(true);
-        var trainer = gymFacade.createTrainer(trainerRequest);
+        var trainerDTO = new TrainerDTO();
+        trainerDTO.setFirstName("Sabrina");
+        trainerDTO.setLastName("May");
+        trainerDTO.setSpecialization("Javascript");
+        trainerDTO.setActive(true);
+        var createdTrainer = gymFacade.createTrainer(trainerDTO);
 
         var trainingRequest = new TrainingDTO();
-        trainingRequest.setTrainerId(trainer.getId());
-        trainingRequest.setTraineeIds(Arrays.asList(trainee.getId()));
-        trainingRequest.setTrainingName("TypeScript");
-        trainingRequest.setTrainingType("Learning TypeScript");
+        trainingRequest.setTrainerId(createdTrainer.getId());
+        trainingRequest.setTraineeIds(Arrays.asList(createdTrainee.getId()));
+        trainingRequest.setTrainingName("Learning Javascript");
+        trainingRequest.setTrainingType("Javascript");
         trainingRequest.setTrainingDate(LocalDateTime.of(2026, Month.MAY, 15, 12, 15, 00));
         trainingRequest.setTrainingDuration(60);
 
-        var training = gymFacade.createTraining(trainingRequest);
+        List<Training> trainings = gymFacade.createTraining(trainingRequest);
 
-        assertNotNull(training);
-        assertEquals("TypeScript", training.getTrainingName());
-        assertEquals("Learning TypeScript", training.getTrainingType());
-        assertEquals("60", training.getTrainingDuration());
+        assertNotNull(trainings);
+        assertEquals("Learning Javascript", trainings.get(0).getTrainingName());
+        assertEquals("Javascript", trainings.get(0).getTrainingType().getTrainingTypeName().getName());
+        assertEquals(60, trainings.get(0).getTrainingDuration());
     }
 
-    @Test
+    /*@Test
     void testGetTraining() {
+    //        var trainerRequest = new TrainerDTO();
+//        trainerRequest.setFirstName("Konstantin");
+//        trainerRequest.setLastName("Rubak");
+//        trainerRequest.setSpecialization("TypeScript");
+//        trainerRequest.setActive(true);
+//        var trainer = gymFacade.createTrainer(trainerRequest);
+
         var trainerDto = new TrainerDTO();
         trainerDto.setFirstName("Kelly");
         trainerDto.setLastName("Gregor");

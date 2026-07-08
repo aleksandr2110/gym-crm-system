@@ -7,17 +7,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Slf4j
 @Repository("traineeRepository")
-//@Qualifier("traineeRepository")
 public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
     private final EntityManager entityManager;
@@ -45,10 +40,10 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
             if (trainee.getId() == null) {
                 entityManager.persist(trainee);
-                log.info("Created trainee with username: {}", trainee.getUserName()); // getUser().
+                log.info("Created trainee with username: {}", trainee.getUserName());
             } else {
-                entityManager.merge(trainee); // createdTrainee =
-                log.info("Updated trainee with username: {}", trainee.getUserName()); // getUser().
+                entityManager.merge(trainee);
+                log.info("Updated trainee with username: {}", trainee.getUserName());
             }
             createdOptTrainee = findByUsername(trainee.getUserName());
         }

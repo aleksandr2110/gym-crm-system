@@ -39,13 +39,11 @@ public class TrainerServiceImpl implements TrainerService {
         var trainingType = trainingTypeService.findByName(trainer.getSpecialization()
                         .getTrainingTypeName().name());
         trainer.setSpecialization(trainingType);
-        //trainingType.setTrainers(List.of(trainer));
 
         List<Trainee> traineeList = new ArrayList<>();
         for (Trainee trainee: trainer.getTrainees()) {
             var savedTrainee = traineeRepository.findById(trainee.getId());
             traineeList.add(savedTrainee);
-            //savedTrainee.setTrainings(Set.of(trainingType));
         }
         trainer.setTrainees(traineeList);
 

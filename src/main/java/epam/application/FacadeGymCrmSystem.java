@@ -191,10 +191,18 @@ public class FacadeGymCrmSystem {
         trainerService.changePassword(username, newPassword);
     }
 
-    public Training createTraining(TrainingDTO trainingDTO) {
+    public List<Training> createTraining(TrainingDTO trainingDTO) {
         log.info("Creating training {}", trainingDTO.toString());
         var training = trainingMapper.toModel(trainingDTO);
-        return trainingService.save(training);
+        training.setTrainer(trainerService.findById(trainingDTO.getTrainerId()));
+
+        for (Long traineeId : trainingDTO.getTraineeIds()) {
+            var trainee = traineeService.findById(traineeId);
+            training.setTrainee(trainee);
+            trainingService.save(training);
+        }
+
+        return trainingService.getTrainingByTrainingTypeName(training.getTrainingType().getTrainingTypeName().name());
     }
 
     public Training findById(Long id) {

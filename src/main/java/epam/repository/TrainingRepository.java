@@ -3,7 +3,10 @@ package epam.repository;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.domain.Training;
+import epam.domain.TrainingTypeName;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -23,15 +26,14 @@ public class TrainingRepository {
         this.entityManager = entityManager;
     }
 
-    public Training save(Training training) {
+    public void save(Training training) {
         if (training.getId() == null) {
             entityManager.persist(training);
             log.info("Training created: {}", training.getTrainingName());
         } else {
-            training = entityManager.merge(training);
+            entityManager.merge(training);
             log.info("Training updated: {}", training.getTrainingName());
         }
-        return training;
     }
 
     public Training findTrainingById(Long id) {
@@ -41,6 +43,17 @@ public class TrainingRepository {
         }
 
         return training;
+    }
+    public List<Training> getTrainingByTrainingTypeName(String trainingTypeName) {
+        try {
+            Query query = entityManager.createQuery(
+                    "SELECT t FROM Training t WHERE t.trainingType.trainingTypeName = :trainingTypeName", Training.class);
+            query.setParameter("trainingTypeName", TrainingTypeName.getByName(trainingTypeName));
+            return (List<Training>) query.getResultList();
+        } catch (NoResultException e) {
+            log.warn("Trainer not found with training type name: {}", trainingTypeName);
+            return null;
+        }
     }
 
     public List<Training> findTraineeTrainingsByUserNameAndDate(String traineeUsername,

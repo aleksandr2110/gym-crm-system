@@ -28,8 +28,8 @@ public class TrainingTypeRepository {
     }
 
     public TrainingType findByName(String name) {
-        List<TrainingType> list = findAll();
-        System.out.println("list " + list.toString());
+        //List<TrainingType> list = findAll();
+        //System.out.println("list " + list.toString());
         try {
             Query query = entityManager.createQuery(
                     "FROM TrainingType t WHERE t.trainingTypeName = :name",

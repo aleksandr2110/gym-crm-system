@@ -33,21 +33,26 @@ public class TrainingServiceImpl implements TrainingService {
         this.trainingTypeRepository = trainingTypeRepository;
     }
 
+    @ExecutionTime
     @Transactional
     @Override
-    @ExecutionTime
-    public Training save(Training trainingRequest) {
+    public void save(Training trainingRequest) {
         var training = getTraining(trainingRequest);
         training.setTrainingName(trainingRequest.getTrainingName());
         training.setTrainingDate(trainingRequest.getTrainingDate());
         training.setTrainingDuration(trainingRequest.getTrainingDuration());
 
-        return trainingRepository.save(training);
+        trainingRepository.save(training);
     }
 
     @Override
     public Training findTrainingById(Long id) {
         return trainingRepository.findTrainingById(id);
+    }
+
+    @Override
+    public List<Training> getTrainingByTrainingTypeName(String trainingTypeName) {
+        return trainingRepository.getTrainingByTrainingTypeName(trainingTypeName);
     }
 
     @Override
@@ -84,7 +89,7 @@ public class TrainingServiceImpl implements TrainingService {
                     + trainingRequest.getTrainer().getUserName());
         }
         training.setTrainer(trainer);
-        training.setTrainingType(trainingTypeRepository.findByName(trainingRequest.getTrainingType().toString()));
+        training.setTrainingType(trainingTypeRepository.findByName(trainingRequest.getTrainingType().getTrainingTypeName().name()));
 
         return training;
     }

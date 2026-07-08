@@ -7,8 +7,9 @@ import java.util.List;
 
 public interface TrainingService {
 
-    Training save(Training training);
+    void save(Training training);
     Training findTrainingById(Long id);
+    List<Training> getTrainingByTrainingTypeName(String trainingTypeName);
     List<Training> selectTraineeTrainings(String traineeUsername, LocalDate fromDate, LocalDate toDate, String trainingType);
     List<Training> selectTrainerTrainings(String trainerUsername, LocalDate fromDate, LocalDate toDate);
 }
