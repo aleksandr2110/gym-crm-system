@@ -4,11 +4,9 @@ import epam.annotation.ExecutionTime;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.domain.Training;
-import epam.domain.TrainingType;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
-import epam.repository.TrainingTypeRepository;
 import epam.service.TrainerService;
 import epam.service.TrainingTypeService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,13 +37,15 @@ public class TrainerServiceImpl implements TrainerService {
     public Trainer save(Trainer trainer) {
 
         var trainingType = trainingTypeService.findByName(trainer.getSpecialization()
-                .toString().toUpperCase());
+                        .getTrainingTypeName().name());
         trainer.setSpecialization(trainingType);
+        //trainingType.setTrainers(List.of(trainer));
 
         List<Trainee> traineeList = new ArrayList<>();
         for (Trainee trainee: trainer.getTrainees()) {
             var savedTrainee = traineeRepository.findById(trainee.getId());
             traineeList.add(savedTrainee);
+            //savedTrainee.setTrainings(Set.of(trainingType));
         }
         trainer.setTrainees(traineeList);
 
@@ -89,8 +89,8 @@ public class TrainerServiceImpl implements TrainerService {
 
     @ExecutionTime
     @Override
-    public Trainer updateProfile(Trainer trainer) {
-        Trainer currentTrainer = trainerRepository.findById(trainer.getId());
+    public Trainer updateProfile(Trainer trainer, Long userId) {
+        Trainer currentTrainer = trainerRepository.findById(userId);
         if (currentTrainer == null) {
             throw new IllegalArgumentException("Trainee with id: " + trainer.getId() + " not found!");
         }
@@ -102,9 +102,8 @@ public class TrainerServiceImpl implements TrainerService {
         currentTrainer.setPassword(trainer.getPassword());
         currentTrainer.setTrainings(trainer.getTrainings());
         currentTrainer.setIsActive(trainer.getIsActive());
-        //currentTrainer.set
 
-        return trainerRepository.updateProfile(trainer);
+        return trainerRepository.updateProfile(currentTrainer);
     }
 
     @Override
@@ -118,7 +117,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public boolean authenticate(String username, String password) {
+    public boolean authenticateTrainer(String username, String password) {
         return trainerRepository.authenticate(username, password);
     }
 

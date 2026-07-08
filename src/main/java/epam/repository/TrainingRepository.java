@@ -37,7 +37,7 @@ public class TrainingRepository {
     public Training findTrainingById(Long id) {
         var training = entityManager.find(Training.class, id);
         if (training == null) {
-            log.warn("Trainee not found with id: {}", id);
+            log.warn("Training not found with id: {}", id);
         }
 
         return training;

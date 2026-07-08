@@ -4,6 +4,7 @@ import epam.annotation.ExecutionTime;
 import epam.domain.Trainee;
 import epam.repository.TraineeRepository;
 import epam.service.TraineeService;
+import epam.util.UsernameAndPasswordGenerator;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,6 +64,11 @@ public class TraineeServiceImpl implements TraineeService {
             throw new IllegalArgumentException("User with id: " + userId + " not found!");
         }
 
+        currentTrainee.setFirstName(trainee.getFirstName());
+        currentTrainee.setLastName(trainee.getLastName());
+        currentTrainee.setUserName(UsernameAndPasswordGenerator.createUsername(
+                trainee.getFirstName(),
+                trainee.getLastName()));
         currentTrainee.setAddress(trainee.getAddress());
         currentTrainee.setDateOfBirth(trainee.getDateOfBirth());
         currentTrainee.setIsActive(trainee.getIsActive());

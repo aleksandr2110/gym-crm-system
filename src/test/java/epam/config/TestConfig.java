@@ -5,12 +5,17 @@ import jakarta.persistence.EntityManagerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.SharedEntityManagerCreator;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
@@ -29,10 +34,32 @@ public class TestConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setPersistenceXmlLocation("classpath:META-INF/persistence.xml");
-        em.setPersistenceUnitName("test");
+
+        em.setDataSource(dataSource());
+        em.setPackagesToScan("epam");
+
         em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+
+        Properties jpaProps = new Properties();
+        jpaProps.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
+        jpaProps.put("hibernate.hbm2ddl.auto", "create-drop");
+        jpaProps.put("hibernate.show_sql", "true");
+        em.setJpaProperties(jpaProps);
+
         return em;
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+        return builder
+                .setType(EmbeddedDatabaseType.H2)
+                .build();
+    }
+
+    @Bean
+    public EntityManager entityManager(EntityManagerFactory entityManagerFactory) {
+        return SharedEntityManagerCreator.createSharedEntityManager(entityManagerFactory);
     }
 
     @Bean
@@ -40,10 +67,5 @@ public class TestConfig {
         JpaTransactionManager tm = new JpaTransactionManager();
         tm.setEntityManagerFactory(entityManagerFactory);
         return tm;
-    }
-
-    @Bean
-    public EntityManager entityManager(EntityManagerFactory entityManagerFactory) {
-        return SharedEntityManagerCreator.createSharedEntityManager(entityManagerFactory);
     }
 }

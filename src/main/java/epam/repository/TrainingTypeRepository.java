@@ -1,6 +1,7 @@
 package epam.repository;
 
 import epam.domain.TrainingType;
+import epam.domain.TrainingTypeName;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
@@ -21,16 +22,19 @@ public class TrainingTypeRepository {
 
     public void saveTrainingType(List<TrainingType> trainingList) {
         for (TrainingType training: trainingList) {
+            System.out.println("add " + training.toString());
             entityManager.persist(training);
         }
     }
 
     public TrainingType findByName(String name) {
+        List<TrainingType> list = findAll();
+        System.out.println("list " + list.toString());
         try {
             Query query = entityManager.createQuery(
-                    "SELECT t FROM TrainingType t WHERE t.trainingTypeName = :name",
+                    "FROM TrainingType t WHERE t.trainingTypeName = :name",
                     TrainingType.class);
-            query.setParameter("name", name);
+            query.setParameter("name", TrainingTypeName.getByName(name));
             return (TrainingType) query.getSingleResult();
         } catch (NoResultException e) {
             log.warn("TrainingType not found with name: {}", name);

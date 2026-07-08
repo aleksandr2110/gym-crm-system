@@ -38,10 +38,10 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
             trainer.setUserName(checkEqualsUsername(trainer.getUserName()));
             if (trainer.getId() == null) {
                 entityManager.persist(trainer);
-                log.info("Trainer created with username: {}", trainer.getUser().getUserName());
+                log.info("Trainer created with username: {}", trainer.getUserName());
             } else {
                 trainer = entityManager.merge(trainer);
-                log.info("Trainer updated with username: {}", trainer.getUser().getUserName());
+                log.info("Trainer updated with username: {}", trainer.getUserName());
             }
         }
 
@@ -62,8 +62,8 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
     public Trainer findByUsername(String userName) {
         try {
             Query query = entityManager.createQuery(
-                    "SELECT t FROM " +  Trainer.class +
-                            " t WHERE t.user.userName = :username", Trainer.class);
+                    "FROM Trainer "  +
+                            " t WHERE t.userName = :username", Trainer.class);
             query.setParameter("username", userName);
             return (Trainer) query.getSingleResult();
         } catch (NoResultException e) {
@@ -80,7 +80,7 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
             throw new IllegalArgumentException("Trainer not found with id: " + id);
         }
 
-        entity.getUser().setPassword(newPassword);
+        entity.setPassword(newPassword);
         entityManager.merge(entity);
         log.info("Password changed for trainer with id: {}",  id);
     }
@@ -93,7 +93,7 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
             throw new IllegalArgumentException("Trainer not found with username: " + username);
         }
 
-        entity.getUser().setPassword(newPassword);
+        entity.setPassword(newPassword);
         entityManager.merge(entity);
         log.info("Password changed for trainer with username {}:", username);
     }
@@ -112,9 +112,9 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
         }
 
         if (!entity.getIsActive()) {
-            entity.getUser().setIsActive(true);
+            entity.setIsActive(true);
         } else {
-            entity.getUser().setIsActive(false);
+            entity.setIsActive(false);
         }
 
         entityManager.merge(entity);
@@ -130,9 +130,9 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
         }
 
         if (entity.getIsActive()) {
-            entity.getUser().setIsActive(false);
+            entity.setIsActive(false);
         } else {
-            entity.getUser().setIsActive(true);
+            entity.setIsActive(true);
         }
 
         entityManager.merge(entity);
@@ -140,13 +140,12 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
     }
 
     @Override
-    public boolean authenticate(String username, String password) {
+    public boolean authenticate(String userName, String password) {
         try {
             Query query = entityManager.createQuery(
-                    "SELECT COUNT(t) FROM " + Trainer.class +
-                            " t WHERE t.user.userName = :username AND t.user.password = :password",
+                    "SELECT COUNT(t) FROM Trainer t WHERE t.userName = :userName AND t.password = :password",
                     Long.class);
-            query.setParameter("userName", username);
+            query.setParameter("userName", userName);
             query.setParameter("password", password);
             return (Long) query.getSingleResult() > 0;
         } catch (IllegalArgumentException e) {

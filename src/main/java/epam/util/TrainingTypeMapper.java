@@ -2,7 +2,9 @@ package epam.util;
 
 import epam.domain.TrainingType;
 import epam.request.TrainingTypeDTO;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TrainingTypeMapper {
 
     public TrainingType toModel(TrainingTypeDTO trainingTypeDto) { {

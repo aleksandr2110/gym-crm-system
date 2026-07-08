@@ -1,9 +1,6 @@
 package epam;
 
 import epam.application.FacadeGymCrmSystem;
-import epam.config.AppConfig;
-import epam.config.DatabaseConfig;
-import epam.config.JpaConfigTest;
 import epam.config.TestConfig;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
@@ -12,14 +9,12 @@ import epam.exception.UnauthorizedException;
 import epam.request.TraineeDTO;
 import epam.request.TrainerDTO;
 import epam.request.TrainingTypeDTO;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.transaction.annotation.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,12 +22,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {TestConfig.class}) // JpaConfigTest , AppConfig.class
+@ContextConfiguration(classes = {TestConfig.class})
 @Transactional
 public class GymFacadeTest {
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Autowired
     private FacadeGymCrmSystem gymFacade;
@@ -110,7 +102,7 @@ public class GymFacadeTest {
         Long userId = created.getId();
 
         var updateDto = new TraineeDTO();
-        updateDto.setFirstName("Yil");
+        updateDto.setFirstName("Yuliya");
         updateDto.setLastName("Smith");
         updateDto.setDateOfBirth(LocalDate.of(1981, 5, 11));
         updateDto.setAddress("43 Stone St");
@@ -120,11 +112,11 @@ public class GymFacadeTest {
                 created.getUserName(), created.getPassword(), userId);
 
         assertNotNull(updatedTrainee);
-        assertEquals("Yil", updatedTrainee.getFirstName());
+        assertEquals("Yuliya", updatedTrainee.getFirstName());
         assertEquals("Smith", updatedTrainee.getLastName());
         assertEquals("43 Stone St", updatedTrainee.getAddress());
         assertEquals(LocalDate.of(1981, 5, 11), updatedTrainee.getDateOfBirth());
-        assertEquals("Yil.Smith", updatedTrainee.getUserName());
+        assertEquals("Yuliya.Smith", updatedTrainee.getUserName());
     }
 
     @Test
@@ -132,7 +124,7 @@ public class GymFacadeTest {
         TraineeDTO traineeDTO = new TraineeDTO();
         traineeDTO.setFirstName("Mila");
         traineeDTO.setLastName("Smith");
-        traineeDTO.setDateOfBirth(LocalDate.of(1989, 3, 30));
+        traineeDTO.setDateOfBirth(LocalDate.of(1981, 5, 11));
         traineeDTO.setAddress("45 Red stone St");
         traineeDTO.setActive(false);
 
@@ -198,9 +190,8 @@ public class GymFacadeTest {
     void testCreateTrainer() {
         var trainingTypeJava = new TrainingTypeDTO();
         trainingTypeJava.setTrainingTypeName(TrainingTypeName.valueOf("JAVA"));
-        var trainingTypeJavaScript = new TrainingTypeDTO();
-        trainingTypeJavaScript.setTrainingTypeName(TrainingTypeName.valueOf("JAVASCRIPT"));
-        gymFacade.createTrainingType(List.of(trainingTypeJava, trainingTypeJavaScript));
+
+        gymFacade.createTrainingType(List.of(trainingTypeJava));
 
         var trainerDto = new TrainerDTO();
         trainerDto.setFirstName("Evgeniy");
@@ -211,56 +202,131 @@ public class GymFacadeTest {
         Trainer createdTrainer = gymFacade.createTrainer(trainerDto);
 
         assertNotNull(createdTrainer);
-        //assertEquals("JAVA", createdTrainer.getSpecialization().getTrainingTypeName());
+        assertEquals("Java", createdTrainer.getSpecialization().getTrainingTypeName().getName());
         assertEquals("Evgeniy", createdTrainer.getFirstName());
         assertEquals("Syleimanov", createdTrainer.getLastName());
     }
 
     @Test
     void testGetTrainer() {
+        var trainingTypeC = new TrainingTypeDTO();
+        trainingTypeC.setTrainingTypeName(TrainingTypeName.valueOf("C"));
+        gymFacade.createTrainingType(List.of(trainingTypeC));
+
         TrainerDTO trainerDto = new TrainerDTO();
         trainerDto.setFirstName("David");
         trainerDto.setLastName("Gosling");
-        trainerDto.setSpecialization("Java");
+        trainerDto.setSpecialization("C");
         trainerDto.setActive(true);
 
-        Trainer created = gymFacade.createTrainer(trainerDto);
-        Long userId = created.getId();
+        Trainer createdTrainer = gymFacade.createTrainer(trainerDto);
+        Long userId = createdTrainer.getId();
 
-        Trainer retrievedTrainer = gymFacade.getTrainer(userId);
+        Trainer retrievedTrainer = gymFacade.getTrainer(createdTrainer.getUserName(),
+                createdTrainer.getPassword(), userId);
 
         assertNotNull(retrievedTrainer);
         assertEquals(userId, retrievedTrainer.getId());
-        assertEquals("Java", retrievedTrainer.getSpecialization());
+        assertEquals("C", retrievedTrainer.getSpecialization().getTrainingTypeName().getName());
+        assertEquals("David", createdTrainer.getFirstName());
+        assertEquals("Gosling", createdTrainer.getLastName());
     }
 
-    /*@Test
+    @Test
     void testUpdateTrainer() {
-        var trainerRequest = new TrainerDTO();
-        trainerRequest.setFirstName("Alexey");
-        trainerRequest.setLastName("Litovchenko");
-        trainerRequest.setSpecialization("C++");
-        trainerRequest.setActive(true);
+        var trainingTypePython = new TrainingTypeDTO();
+        trainingTypePython.setTrainingTypeName(TrainingTypeName.valueOf("PYTHON"));
+        gymFacade.createTrainingType(List.of(trainingTypePython));
 
-        Trainer created = gymFacade.createTrainer(trainerRequest);
-        Long userId = created.getId();
+        TrainerDTO trainerDto = new TrainerDTO();
+        trainerDto.setFirstName("Alexey");
+        trainerDto.setLastName("Litovchenko");
+        trainerDto.setSpecialization("Python");
+        trainerDto.setActive(true);
 
-        var updateRequest = new TrainerDTO();
-        updateRequest.setFirstName("Jeremy");
-        updateRequest.setLastName("Man");
-        updateRequest.setSpecialization("Python");
-        updateRequest.setActive(true);
+        Trainer createdTrainer = gymFacade.createTrainer(trainerDto);
+        Long userId = createdTrainer.getId();
 
-        Trainer updated = gymFacade.updateTrainer(updateRequest, userId);
+        var updateTrainerDTO = new TrainerDTO();
+        updateTrainerDTO.setFirstName("Jeremy");
+        updateTrainerDTO.setLastName("Man");
+        updateTrainerDTO.setSpecialization("Python");
+        updateTrainerDTO.setActive(true);
+
+        Trainer updated = gymFacade.updateTrainer(createdTrainer.getUserName(),
+                createdTrainer.getPassword(),updateTrainerDTO, userId);
 
         assertNotNull(updated);
         assertEquals("Jeremy", updated.getFirstName());
         assertEquals("Man", updated.getLastName());
-        assertEquals("Python", updated.getSpecialization());
+        assertEquals("Python", updated.getSpecialization().getTrainingTypeName().getName());
     }
 
     @Test
+    void testActivateTrainer() {
+        var trainingTypeAngular = new TrainingTypeDTO();
+        trainingTypeAngular.setTrainingTypeName(TrainingTypeName.valueOf("ANGULAR"));
+        gymFacade.createTrainingType(List.of(trainingTypeAngular));
+
+        TrainerDTO trainerDto = new TrainerDTO();
+        trainerDto.setFirstName("Alexey");
+        trainerDto.setLastName("Litovchenko");
+        trainerDto.setSpecialization("Angular");
+        trainerDto.setActive(false);
+
+        Trainer createdTrainer = gymFacade.createTrainer(trainerDto);
+        Long userId = createdTrainer.getId();
+
+        gymFacade.activateTrainer(createdTrainer.getUserName(), createdTrainer.getPassword(), userId);
+
+        var retrievedTrainer = gymFacade.getTrainer(createdTrainer.getUserName(),
+                createdTrainer.getPassword(), userId);
+
+        assertNotNull(retrievedTrainer);
+        assertEquals("Alexey", retrievedTrainer.getFirstName());
+        assertEquals("Litovchenko", retrievedTrainer.getLastName());
+        assertTrue(retrievedTrainer.getIsActive());
+    }
+
+    @Test
+    void testChangePasswordTrainer() {
+        var trainingTypeReact = new TrainingTypeDTO();
+        trainingTypeReact.setTrainingTypeName(TrainingTypeName.valueOf("REACT"));
+        gymFacade.createTrainingType(List.of(trainingTypeReact));
+
+        TrainerDTO trainerDto = new TrainerDTO();
+        trainerDto.setFirstName("Anton");
+        trainerDto.setLastName("Likiy");
+        trainerDto.setSpecialization("React");
+        trainerDto.setActive(true);
+
+        Trainer createdTrainer = gymFacade.createTrainer(trainerDto);
+        String newPassword = "fbgberberg434";
+
+        gymFacade.changeTrainerPassword(createdTrainer.getUserName(),
+                createdTrainer.getPassword(), newPassword);
+        Long userId = createdTrainer.getId();
+
+        var retrievedTrainer = gymFacade.getTrainer(createdTrainer.getUserName(),
+                newPassword, userId);
+
+        assertEquals("Anton", retrievedTrainer.getFirstName());
+        assertEquals("Likiy", retrievedTrainer.getLastName());
+        assertEquals(newPassword, retrievedTrainer.getPassword());
+    }
+    /*@Test
     void testCreateTraining() {
+            var traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName("Jemmy");
+        traineeDTO.setLastName("Tee");
+        traineeDTO.setDateOfBirth(LocalDate.of(1984, 1, 11));
+        traineeDTO.setAddress("53 Light Ave");
+        traineeDTO.setActive(true);
+        var createdTrainee = gymFacade.createTrainee(traineeDTO);
+
+var trainingTypeJavaScript = new TrainingTypeDTO();
+        trainingTypeJavaScript.setTrainingTypeName(TrainingTypeName.valueOf("JAVASCRIPT"));
+
         var traineeRequest = new TraineeDTO();
         traineeRequest.setFirstName("Sabrina");
         traineeRequest.setLastName("Ogiy");

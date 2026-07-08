@@ -1,11 +1,13 @@
 package epam;
 
 import epam.application.FacadeGymCrmSystem;
-import epam.config.AppConfig;
 import epam.config.TestConfig;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
+import epam.service.TraineeService;
+import epam.service.TrainerService;
+import epam.service.TrainingService;
 import epam.service.impl.TraineeServiceImpl;
 import epam.service.impl.TrainerServiceImpl;
 import epam.service.impl.TrainingServiceImpl;
@@ -40,9 +42,9 @@ public class AllBeansTest {
 
     @Test
     void testAllServiceBeansExist() {
-        assertNotNull(applicationContext.getBean(TraineeServiceImpl.class));
-        assertNotNull(applicationContext.getBean(TrainerServiceImpl.class));
-        assertNotNull(applicationContext.getBean(TrainingServiceImpl.class));
+        assertNotNull(applicationContext.getBean(TraineeService.class));
+        assertNotNull(applicationContext.getBean(TrainerService.class));
+        assertNotNull(applicationContext.getBean(TrainingService.class));
     }
 
     @Test

@@ -136,19 +136,59 @@ public class FacadeGymCrmSystem {
 
     public Trainer createTrainer(TrainerDTO trainerDto) {
         log.info("Creating trainer {} {}", trainerDto.getFirstName(), trainerDto.getLastName());
-        var trainer =  trainerMapper.toModel(trainerDto);
+        var trainer = trainerMapper.toModel(trainerDto);
         return trainerService.save(trainer);
     }
 
-    public Trainer updateTrainer(TrainerDTO trainerDto, Long userId) {
-        logger.info("Updating trainer with id " + userId);
-        var trainer =  trainerMapper.toModel(trainerDto);
-        return trainerService.updateProfile(trainer);
+    public boolean authenticateTrainer(String username, String password) {
+        log.info("Authenticating trainee {}", username);
+        return trainerService.authenticateTrainer(username, password);
     }
 
-    public Trainer getTrainer(Long userId) {
-        logger.info("Facade: Getting trainer with userId " + userId);
+    public Trainer getTrainer(String userName, String password, Long userId) {
+        log.info("Getting trainer with userId " + userId);
+        if (!authenticateTrainer(userName, password)) {
+            log.warn("Unauthorized access denied for user name {}", userName);
+            throw new UnauthorizedException("User is not authenticated");
+        }
         return trainerService.findById(userId);
+    }
+
+    public Trainer updateTrainer(String userName, String password, TrainerDTO trainerDto, Long userId) {
+        logger.info("Updating trainer with id " + userId);
+        if (!authenticateTrainer(userName, password)) {
+            log.warn("Unauthorized access denied for user name {}", userName);
+            throw new UnauthorizedException("User is not authenticated");
+        }
+        var trainer =  trainerMapper.toModel(trainerDto);
+        return trainerService.updateProfile(trainer, userId);
+    }
+
+    public void activateTrainer(String username, String password, Long id) {
+        log.info("Activating trainer with user name {}", username);
+        if (!authenticateTrainer(username, password)) {
+            log.warn("Unauthorized access denied for user name {}", username);
+            throw new UnauthorizedException("User is not authenticated");
+        }
+        trainerService.activate(id);
+    }
+
+    public void deactivateTrainer(String username, String password, Long id) {
+        log.info("Deactivating trainer with user name {}", username);
+        if (!authenticateTrainee(username, password)) {
+            log.warn("Unauthorized access denied for user name {}", username);
+            throw new UnauthorizedException("User is not authenticated");
+        }
+        trainerService.deactivate(id);
+    }
+
+    public void changeTrainerPassword(String username, String password, String newPassword) {
+        log.info("Changing password trainee with user name {}", username);
+        if (!authenticateTrainer(username, password)) {
+            log.warn("Unauthorized access denied for user name {}", username);
+            throw new UnauthorizedException("User is not authenticated");
+        }
+        trainerService.changePassword(username, newPassword);
     }
 
     public Training createTraining(TrainingDTO trainingDTO) {
