@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -56,20 +57,16 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public List<Training> selectTraineeTrainings(String traineeUsername, LocalDate fromDate,
-                                                 LocalDate toDate, String trainingType) {
-        List<Training> trainings = trainingRepository.findTraineeTrainingsByUserNameAndDate(traineeUsername,
+    public List<Training> selectTraineeTrainings(String traineeUsername, LocalDateTime fromDate,
+                                                 LocalDateTime toDate, String trainingType) {
+        return trainingRepository.findTraineeTrainingsByUserNameAndDate(traineeUsername,
                 fromDate, toDate, trainingType);
-
-        return trainings;
     }
 
     @Override
-    public List<Training> selectTrainerTrainings(String trainerUsername, LocalDate fromDate,
-                                                 LocalDate toDate) {
-        List<Training> trainings = trainingRepository.findTrainerTrainingsByUserNameAndDate(trainerUsername, fromDate, toDate);
-
-        return trainings;
+    public List<Training> selectTrainerTrainings(String trainerUsername, LocalDateTime fromDate,
+                                                 LocalDateTime toDate) {
+        return trainingRepository.findTrainerTrainingsByUserNameAndDate(trainerUsername, fromDate, toDate);
     }
 
     private Training getTraining(Training trainingRequest) {

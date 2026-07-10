@@ -22,14 +22,11 @@ public class TrainingTypeRepository {
 
     public void saveTrainingType(List<TrainingType> trainingList) {
         for (TrainingType training: trainingList) {
-            System.out.println("add " + training.toString());
             entityManager.persist(training);
         }
     }
 
     public TrainingType findByName(String name) {
-        //List<TrainingType> list = findAll();
-        //System.out.println("list " + list.toString());
         try {
             Query query = entityManager.createQuery(
                     "FROM TrainingType t WHERE t.trainingTypeName = :name",

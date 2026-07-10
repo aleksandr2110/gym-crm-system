@@ -321,7 +321,7 @@ public class GymFacadeTest {
     }
 
     @Test
-    void testCreateTraining() {
+    void testAddTraining() {
         var traineeDTO = new TraineeDTO();
         traineeDTO.setFirstName("Jemmy");
         traineeDTO.setLastName("Tee");
@@ -357,14 +357,11 @@ public class GymFacadeTest {
         assertEquals(60, trainings.get(0).getTrainingDuration());
     }
 
-    /*@Test
-    void testGetTraining() {
-    //        var trainerRequest = new TrainerDTO();
-//        trainerRequest.setFirstName("Konstantin");
-//        trainerRequest.setLastName("Rubak");
-//        trainerRequest.setSpecialization("TypeScript");
-//        trainerRequest.setActive(true);
-//        var trainer = gymFacade.createTrainer(trainerRequest);
+    @Test
+    void testGetTrainingsListByTraineeUsername() {
+        var trainingTypeTypeScript = new TrainingTypeDTO();
+        trainingTypeTypeScript.setTrainingTypeName(TrainingTypeName.valueOf("TYPESCRIPT"));
+        gymFacade.createTrainingType(List.of(trainingTypeTypeScript));
 
         var trainerDto = new TrainerDTO();
         trainerDto.setFirstName("Kelly");
@@ -373,37 +370,50 @@ public class GymFacadeTest {
         trainerDto.setActive(true);
         Trainer trainer = gymFacade.createTrainer(trainerDto);
 
-        var traineeRequest = new TraineeDTO();
-        traineeRequest.setFirstName("Roman");
-        traineeRequest.setLastName("Prokofev");
-        traineeRequest.setDateOfBirth(LocalDate.of(1988, 11, 1));
-        traineeRequest.setAddress("77 Manyilo st");
-        traineeRequest.setActive(true);
-        Trainee trainee = gymFacade.createTrainee(traineeRequest);
+        var traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName("Roman");
+        traineeDTO.setLastName("Prokofev");
+        traineeDTO.setDateOfBirth(LocalDate.of(1988, 11, 1));
+        traineeDTO.setAddress("77 Manyilo st");
+        traineeDTO.setActive(true);
+        Trainee trainee = gymFacade.createTrainee(traineeDTO);
 
-        var traineeRequest2 = new TraineeDTO();
-        traineeRequest2.setFirstName("Anton");
-        traineeRequest2.setLastName("Krunickiy");
-        traineeRequest2.setDateOfBirth(LocalDate.of(1986, 1, 13));
-        traineeRequest2.setAddress("23 Mostova st");
-        traineeRequest2.setActive(true);
-        Trainee trainee2 = gymFacade.createTrainee(traineeRequest2);
+        var traineeDTO2 = new TraineeDTO();
+        traineeDTO2.setFirstName("Anton");
+        traineeDTO2.setLastName("Krunickiy");
+        traineeDTO2.setDateOfBirth(LocalDate.of(1986, 1, 13));
+        traineeDTO2.setAddress("23 Mostova st");
+        traineeDTO2.setActive(true);
+        Trainee trainee2 = gymFacade.createTrainee(traineeDTO2);
 
         var trainingRequest = new TrainingDTO();
         trainingRequest.setTrainerId(trainer.getId());
         trainingRequest.setTraineeIds(Arrays.asList(trainee.getId(), trainee2.getId()));
-        trainingRequest.setTrainingName("TypeScript");
-        trainingRequest.setTrainingType("Learning TypeScript");
+        trainingRequest.setTrainingName("Learning TypeScript");
+        trainingRequest.setTrainingType("TypeScript");
         trainingRequest.setTrainingDate(LocalDateTime.of(2026, Month.MAY, 15, 12, 15, 00));
         trainingRequest.setTrainingDuration(90);
 
-        var training = gymFacade.createTraining(trainingRequest);
+        List<Training> tranings = gymFacade.createTraining(trainingRequest);
+        System.out.println("training " + tranings.toString());
+        //assertEquals("Learning TypeScript", tranings.get(0).getTrainingName());
 
-        Training retrieved = gymFacade.findById(training.getId());
+        List<Training> trainings = gymFacade.getTraineeTrainingByUserNameDateAndTrainingType(trainee.getUserName(),
+                LocalDateTime.of(2026, 5, 10, 12, 00),
+                LocalDateTime.of(2026, 5, 20, 12, 00),
+                trainingRequest.getTrainingType());
+        System.out.println("list " + trainings.size());
+        //Training retrieved = gymFacade.findById(training.getId());
 
-        assertNotNull(retrieved);
-        assertEquals("TypeScript", retrieved.getTrainingName());
-        assertEquals("Learning TypeScript", retrieved.getTrainingType());
-        assertEquals("90", retrieved.getTrainingDuration());
-    }*/
+        assertEquals("Roman.Prokofev", trainings.get(0).getTrainee().getUserName());
+        assertEquals(2, tranings.size());
+        //assertEquals("90", retrieved.getTrainingDuration());
+    }
+
+    //        var trainerRequest = new TrainerDTO();
+//        trainerRequest.setFirstName("Konstantin");
+//        trainerRequest.setLastName("Rubak");
+//        trainerRequest.setSpecialization("TypeScript");
+//        trainerRequest.setActive(true);
+//        var trainer = gymFacade.createTrainer(trainerRequest);
 }

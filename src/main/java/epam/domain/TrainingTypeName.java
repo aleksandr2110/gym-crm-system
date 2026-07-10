@@ -3,7 +3,7 @@ package epam.domain;
 public enum TrainingTypeName {
 
     JAVA("Java"), C("C"), PYTHON("Python"), ANGULAR("Angular"), REACT("React"),
-    JAVASCRIPT("Javascript"), TYPESCRIPT("Typescript");
+    JAVASCRIPT("Javascript"), TYPESCRIPT("Typescript"), BA("Business Analyst");
 
     private final String name;
 
@@ -23,7 +23,8 @@ public enum TrainingTypeName {
             case "ANGULAR" -> TrainingTypeName.ANGULAR;
             case "REACT" -> TrainingTypeName.REACT;
             case "JAVASCRIPT" -> TrainingTypeName.JAVASCRIPT;
-            default -> TrainingTypeName.TYPESCRIPT;
+            case "TYPESCRIPT" -> TrainingTypeName.TYPESCRIPT;
+            default -> TrainingTypeName.BA;
         };
         return trainingTypeName;
     }

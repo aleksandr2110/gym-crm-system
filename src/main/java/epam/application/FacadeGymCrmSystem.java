@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -63,17 +64,9 @@ public class FacadeGymCrmSystem {
         return traineeService.save(trainee);
     }
 
-    public boolean authenticateTrainee(String username, String password) {
-        log.info("Authenticating trainee {}", username);
-        return traineeService.authenticateTrainee(username, password);
-    }
-
     public Trainee updateTrainee(TraineeDTO traineeDTO, String username, String password, Long userId) {
         log.info("Updating trainee with username {} {}", username, password);
-        if (!authenticateTrainee(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainee", username, password);
         var trainee = traineeMapper.toModel(traineeDTO);
 
         return traineeService.updateProfile(trainee, userId);
@@ -81,46 +74,31 @@ public class FacadeGymCrmSystem {
 
     public Trainee getTrainee(String username, String password, Long userId) {
         log.info("Getting trainee with userId {}", userId);
-        if (!authenticateTrainee(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainee", username, password);
         return traineeService.findById(userId);
     }
 
     public void deleteTrainee(String username, String password) {
         log.info("Deleting trainee with user name {}", username);
-        if (!authenticateTrainee(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainee", username, password);
         traineeService.deleteProfile(username);
     }
 
     public void activateTrainee(String username, String password, Long id) {
         log.info("Activating trainee with user name {}", username);
-        if (!authenticateTrainee(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainee", username, password);
         traineeService.activate(id);
     }
 
     public void deactivateTrainee(String username, String password, Long id) {
         log.info("Deactivating trainee with user name {}", username);
-        if (!authenticateTrainee(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainee", username, password);
         traineeService.deactivate(id);
     }
 
     public void changeTraineePassword(String username, String password, String newPassword) {
         log.info("Changing password trainee with user name {}", username);
-        if (!authenticateTrainee(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainee", username, password);
         traineeService.changePassword(username, newPassword);
     }
 
@@ -140,54 +118,58 @@ public class FacadeGymCrmSystem {
         return trainerService.save(trainer);
     }
 
-    public boolean authenticateTrainer(String username, String password) {
+    public boolean authenticateTrainee(String username, String password) {
         log.info("Authenticating trainee {}", username);
+        return traineeService.authenticateTrainee(username, password);
+    }
+
+    public boolean authenticateTrainer(String username, String password) {
+        log.info("Authenticating trainer {}", username);
         return trainerService.authenticateTrainer(username, password);
     }
 
-    public Trainer getTrainer(String userName, String password, Long userId) {
-        log.info("Getting trainer with userId " + userId);
-        if (!authenticateTrainer(userName, password)) {
-            log.warn("Unauthorized access denied for user name {}", userName);
-            throw new UnauthorizedException("User is not authenticated");
+    public void authentication(String role, String username, String password) {
+        if (role.equals("trainee")) {
+            if (!authenticateTrainee(username, password)) {
+                log.warn("Unauthorized access denied for user name {}", username);
+                throw new UnauthorizedException("User is not authenticated");
+            }
+        } else {
+            if (!authenticateTrainer(username, password)) {
+                log.warn("Unauthorized access denied for user name {}", username);
+                throw new UnauthorizedException("User is not authenticated");
+            }
         }
+    }
+
+    public Trainer getTrainer(String username, String password, Long userId) {
+        log.info("Getting trainer with userId " + userId);
+        authentication("trainer", username, password);
         return trainerService.findById(userId);
     }
 
-    public Trainer updateTrainer(String userName, String password, TrainerDTO trainerDto, Long userId) {
+    public Trainer updateTrainer(String username, String password, TrainerDTO trainerDto, Long userId) {
         logger.info("Updating trainer with id " + userId);
-        if (!authenticateTrainer(userName, password)) {
-            log.warn("Unauthorized access denied for user name {}", userName);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainer", username, password);
         var trainer =  trainerMapper.toModel(trainerDto);
         return trainerService.updateProfile(trainer, userId);
     }
 
     public void activateTrainer(String username, String password, Long id) {
         log.info("Activating trainer with user name {}", username);
-        if (!authenticateTrainer(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainer", username, password);
         trainerService.activate(id);
     }
 
     public void deactivateTrainer(String username, String password, Long id) {
         log.info("Deactivating trainer with user name {}", username);
-        if (!authenticateTrainee(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainer", username, password);
         trainerService.deactivate(id);
     }
 
     public void changeTrainerPassword(String username, String password, String newPassword) {
         log.info("Changing password trainee with user name {}", username);
-        if (!authenticateTrainer(username, password)) {
-            log.warn("Unauthorized access denied for user name {}", username);
-            throw new UnauthorizedException("User is not authenticated");
-        }
+        authentication("trainer", username, password);
         trainerService.changePassword(username, newPassword);
     }
 
@@ -210,14 +192,14 @@ public class FacadeGymCrmSystem {
         return trainingService.findTrainingById(id);
     }
 
-    public List<Training> getTraineeTrainingByUserNameDateAndTrainingType(String traineeUsername, LocalDate fromDate,
-                                              LocalDate toDate, String trainingType) {
+    public List<Training> getTraineeTrainingByUserNameDateAndTrainingType(String traineeUsername, LocalDateTime fromDate,
+                                                                          LocalDateTime toDate, String trainingType) {
         log.info("Getting trainings for trainee {} from {} to {}", traineeUsername, fromDate, toDate);
         return trainingService.selectTraineeTrainings(traineeUsername, fromDate, toDate, trainingType);
     }
 
-    public List<Training> getTrainerTrainingsByUserNameDateAndTrainingType(String trainerUsername, LocalDate fromDate,
-                                                                           LocalDate toDate) {
+    public List<Training> getTrainerTrainingsByUserNameDateAndTrainingType(String trainerUsername, LocalDateTime fromDate,
+                                                                           LocalDateTime toDate) {
         log.info("Getting trainings for trainer {} from {} to {}", trainerUsername, fromDate, toDate);
         return trainingService.selectTrainerTrainings(trainerUsername, fromDate, toDate);
     }

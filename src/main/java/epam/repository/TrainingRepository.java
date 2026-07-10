@@ -11,7 +11,7 @@ import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -57,47 +57,64 @@ public class TrainingRepository {
     }
 
     public List<Training> findTraineeTrainingsByUserNameAndDate(String traineeUsername,
-                                                                LocalDate fromDate,
-                                               LocalDate toDate, String trainingType) {
+                                                                LocalDateTime fromDate,
+                                               LocalDateTime toDate, String trainingType) {
         return buildTrainingsQuery(training -> {
             Join<Training, Trainee> trainee = training.join("trainee");
-            return trainee.get("user").get("userName"); // trainee
+            //return trainee.get("user").get("userName"); // trainee
+            return trainee.get("userName");
         }, traineeUsername, fromDate, toDate, trainingType);
     }
 
-    public List<Training> findTrainerTrainingsByUserNameAndDate(String trainerUsername, LocalDate fromDate, LocalDate toDate) {
+    public List<Training> findTrainerTrainingsByUserNameAndDate(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate) {
         return buildTrainingsQuery(training -> {
             Join<Training, Trainer> trainer = training.join("trainer");
-            return trainer.get("user").get("userName");
+            //return trainer.get("user").get("userName");
+            return trainer.get("userName");
         }, trainerUsername, fromDate, toDate, null);
     }
 
     private List<Training> buildTrainingsQuery(Function<Root<Training>, Expression<String>> usernameGetter,
-                                               String userName, LocalDate fromDate,
-                                               LocalDate toDate, String trainingType) {
+                                               String userName, LocalDateTime fromDate,
+                                               LocalDateTime toDate, String trainingType) {
+
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Training> query = cb.createQuery(Training.class);
         Root<Training> training = query.from(Training.class);
 
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(usernameGetter.apply(training), userName));
-        addDatePredicates(cb, training, fromDate, toDate, predicates, trainingType);
+        System.out.println("Function root " + usernameGetter.apply(training).toString());
+        System.out.println("predicate " + predicates.toArray().length);
+        predicates = addDatePredicates(cb, training, fromDate, toDate, predicates, trainingType);
 
-        query.where(cb.and(predicates.toArray(new Predicate[0])));
-        return entityManager.createQuery(query).getResultList();
+        //query.select(training).where(cb.equal(usernameGetter.apply(training), userName)); // works
+
+        // Apply array to where clause using conjunction (AND)
+        query.select(training).where(cb.and(predicates.toArray(new Predicate[0])));
+        Query squery = entityManager.createQuery(query);
+        return squery.getResultList();
+
+//        query.where(cb.and(predicates.toArray(new Predicate[0])));
+//        return entityManager.createQuery(query).getResultList();
     }
 
-    private void addDatePredicates(CriteriaBuilder cb, Root<Training> training,
-                                   LocalDate fromDate, LocalDate toDate, List<Predicate> predicates,
+    private List<Predicate> addDatePredicates(CriteriaBuilder cb, Root<Training> training,
+                                   LocalDateTime fromDate, LocalDateTime toDate, List<Predicate> predicates,
                                    String trainingType) {
         if (fromDate != null) {
             predicates.add(cb.greaterThanOrEqualTo(training.get("trainingDate"), fromDate));
+            System.out.println("predicate from date " + predicates.toArray().length);
         }
         if (toDate != null) {
             predicates.add(cb.lessThanOrEqualTo(training.get("trainingDate"), toDate));
+            System.out.println("predicate to date " + predicates.toArray().length);
         }
         if (trainingType != null && !trainingType.isBlank()) {
-            predicates.add(cb.equal(training.get("trainingType").get("trainingTypeName"), trainingType));
+            predicates.add(cb.equal(training.get("trainingType").get("trainingTypeName"),
+                    TrainingTypeName.getByName(trainingType)));
+            System.out.println("predicate get " + predicates.toArray().length);
         }
+        return predicates;
     }
 }

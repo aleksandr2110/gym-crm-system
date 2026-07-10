@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Slf4j
 @Repository("traineeRepository")
 public class TraineeRepository implements EntityRepository<Trainee, Long> {
@@ -115,35 +117,19 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
     }
 
     public void activate(Long id) {
-        var entity = findById(id);
-        if (entity == null) {
-            log.warn("Trainee not found for activation with id: {}", id);
-            throw new IllegalArgumentException("Trainee not found with id: " + id);
-        }
-
-        if (!entity.getIsActive()) {
-            entity.setIsActive(true);
-        } else {
-            entity.setIsActive(false);
-        }
-
+        Optional<Trainee> optionalTrainee = Optional.of(findById(id));
+        var entity = optionalTrainee.orElseThrow(()
+                -> new IllegalArgumentException("Trainee not found with id: " + id));
+        entity.setIsActive(!entity.getIsActive());
         entityManager.merge(entity);
         log.info("Trainee activated with id: {}", id);
     }
 
     public void deactivate(Long id) {
-        var entity = findById(id);
-        if (entity == null) {
-            log.warn("Trainee not found for deactivation with id: {}", id);
-            throw new IllegalArgumentException("Trainee not found with id: " + id);
-        }
-
-        if (entity.getIsActive()) {
-            entity.setIsActive(false);
-        } else {
-            entity.setIsActive(true);
-        }
-
+        Optional<Trainee> optionalTrainee = Optional.of(findById(id));
+        var entity = optionalTrainee.orElseThrow(()
+                -> new IllegalArgumentException("Trainee not found with id: " + id));
+        entity.setIsActive(!entity.getIsActive());
         entityManager.merge(entity);
         log.info("Trainee deactivated with id: {}", id);
     }
@@ -172,10 +158,7 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
         }
 
         entityManager.remove(entity);
-        var deletedEntity = findByUsername(username);
-        if (deletedEntity == null) {
-            log.info("Trainee deleted with username: {}", username);
-        }
+        log.info("Trainee deleted with username: {}", username);
     }
 
     private String checkEqualsUsername(String baseUsername) {

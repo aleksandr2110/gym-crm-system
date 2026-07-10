@@ -1,5 +1,6 @@
 package epam.repository;
 
+import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.util.UsernameAndPasswordGenerator;
 import jakarta.persistence.EntityManager;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -106,36 +108,20 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
 
     @Override
     public void activate(Long id) {
-        var entity = findById(id);
-        if (entity == null) {
-            log.warn("Trainer not found for activation with id: {}", id);
-            throw new IllegalArgumentException("Trainer not found with id: " + id);
-        }
-
-        if (!entity.getIsActive()) {
-            entity.setIsActive(true);
-        } else {
-            entity.setIsActive(false);
-        }
-
+        Optional<Trainer> optionalTrainer = Optional.of(findById(id));
+        var entity = optionalTrainer.orElseThrow(()
+                -> new IllegalArgumentException("Trainer not found with id: " + id));
+        entity.setIsActive(!entity.getIsActive());
         entityManager.merge(entity);
         log.info("Trainer activated with id: {}", id);
     }
 
     @Override
     public void deactivate(Long id) {
-        var entity = findById(id);
-        if (entity == null) {
-            log.warn("Trainer not found for deactivation with id: {}", id);
-            throw new IllegalArgumentException("Trainer not found with id: " + id);
-        }
-
-        if (entity.getIsActive()) {
-            entity.setIsActive(false);
-        } else {
-            entity.setIsActive(true);
-        }
-
+        Optional<Trainer> optionalTrainer = Optional.of(findById(id));
+        var entity = optionalTrainer.orElseThrow(()
+                -> new IllegalArgumentException("Trainee not found with id: " + id));
+        entity.setIsActive(!entity.getIsActive());
         entityManager.merge(entity);
         log.info("Trainer deactivated with id: {}", id);
     }
