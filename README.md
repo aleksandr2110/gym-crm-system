@@ -1,4 +1,4 @@
-![schema.jpg](../../Downloads/schema.jpg)
+<img width="896" height="511" alt="schema" src="https://github.com/user-attachments/assets/39eb01ff-e3f9-4d10-8ac2-35e90f4fd39e" />
 1. Create Trainer profile.
 2. Create Trainee profile.
 3. Trainee username and password matching.
