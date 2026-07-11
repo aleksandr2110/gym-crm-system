@@ -3,7 +3,6 @@ package epam.repository;
 import epam.domain.Trainer;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface EntityRepository<T, ID> {
 

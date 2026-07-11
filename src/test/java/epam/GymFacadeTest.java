@@ -7,6 +7,7 @@ import epam.domain.Trainer;
 import epam.domain.Training;
 import epam.domain.TrainingTypeName;
 import epam.exception.UnauthorizedException;
+import epam.repository.TrainingRepository;
 import epam.request.TraineeDTO;
 import epam.request.TrainerDTO;
 import epam.request.TrainingDTO;
@@ -33,6 +34,8 @@ public class GymFacadeTest {
 
     @Autowired
     private FacadeGymCrmSystem gymFacade;
+    @Autowired
+    private TrainingRepository trainingRepository;
 
     @Test
     void testCreateTrainee() {
@@ -390,30 +393,142 @@ public class GymFacadeTest {
         trainingRequest.setTrainerId(trainer.getId());
         trainingRequest.setTraineeIds(Arrays.asList(trainee.getId(), trainee2.getId()));
         trainingRequest.setTrainingName("Learning TypeScript");
-        trainingRequest.setTrainingType("TypeScript");
-        trainingRequest.setTrainingDate(LocalDateTime.of(2026, Month.MAY, 15, 12, 15, 00));
+        trainingRequest.setTrainingType("TYPESCRIPT");
+        trainingRequest.setTrainingDate(LocalDateTime.of(2026, 5, 15, 12, 15, 00));
         trainingRequest.setTrainingDuration(90);
 
-        List<Training> tranings = gymFacade.createTraining(trainingRequest);
-        System.out.println("training " + tranings.toString());
-        //assertEquals("Learning TypeScript", tranings.get(0).getTrainingName());
+        gymFacade.createTraining(trainingRequest);
+
+        var trainingRequest2 = new TrainingDTO();
+        trainingRequest2.setTrainerId(trainer.getId());
+        trainingRequest2.setTraineeIds(Arrays.asList(trainee.getId(), trainee2.getId()));
+        trainingRequest2.setTrainingName("Practicing TypeScript");
+        trainingRequest2.setTrainingType("TYPESCRIPT");
+        trainingRequest2.setTrainingDate(LocalDateTime.of(2026, 5, 17, 12, 15, 00));
+        trainingRequest2.setTrainingDuration(90);
+
+        gymFacade.createTraining(trainingRequest2); // trainingRepository.findTraineeTrainingsByUserNameAndDate
 
         List<Training> trainings = gymFacade.getTraineeTrainingByUserNameDateAndTrainingType(trainee.getUserName(),
-                LocalDateTime.of(2026, 5, 10, 12, 00),
-                LocalDateTime.of(2026, 5, 20, 12, 00),
+                LocalDateTime.of(2026, 5, 15, 12, 15, 00),
+                LocalDateTime.of(2026, 5, 20, 12, 00, 00),
                 trainingRequest.getTrainingType());
-        System.out.println("list " + trainings.size());
-        //Training retrieved = gymFacade.findById(training.getId());
 
         assertEquals("Roman.Prokofev", trainings.get(0).getTrainee().getUserName());
-        assertEquals(2, tranings.size());
-        //assertEquals("90", retrieved.getTrainingDuration());
+        assertEquals("Learning TypeScript", trainings.get(0).getTrainingName());
+        assertEquals("Practicing TypeScript", trainings.get(1).getTrainingName());
+        assertEquals(2, trainings.size());
     }
 
-    //        var trainerRequest = new TrainerDTO();
-//        trainerRequest.setFirstName("Konstantin");
-//        trainerRequest.setLastName("Rubak");
-//        trainerRequest.setSpecialization("TypeScript");
-//        trainerRequest.setActive(true);
-//        var trainer = gymFacade.createTrainer(trainerRequest);
+    @Test
+    void testGetTrainingsListByTrainerUsername() {
+        var trainingTypePhp = new TrainingTypeDTO();
+        trainingTypePhp.setTrainingTypeName(TrainingTypeName.valueOf("PHP"));
+        gymFacade.createTrainingType(List.of(trainingTypePhp));
+
+        var trainerDto = new TrainerDTO();
+        trainerDto.setFirstName("Jeff");
+        trainerDto.setLastName("Ex");
+        trainerDto.setSpecialization("Php");
+        trainerDto.setActive(true);
+        Trainer trainer = gymFacade.createTrainer(trainerDto);
+
+        var traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName("Marina");
+        traineeDTO.setLastName("Stashenko");
+        traineeDTO.setDateOfBirth(LocalDate.of(1990, 9, 14));
+        traineeDTO.setAddress("98 Red Stone st");
+        traineeDTO.setActive(true);
+        Trainee trainee = gymFacade.createTrainee(traineeDTO);
+
+        var traineeDTO2 = new TraineeDTO();
+        traineeDTO2.setFirstName("Alex");
+        traineeDTO2.setLastName("Motovilov");
+        traineeDTO2.setDateOfBirth(LocalDate.of(1991, 3, 23));
+        traineeDTO2.setAddress("56 Sun st");
+        traineeDTO2.setActive(true);
+        Trainee trainee2 = gymFacade.createTrainee(traineeDTO2);
+
+        var trainingRequest = new TrainingDTO();
+        trainingRequest.setTrainerId(trainer.getId());
+        trainingRequest.setTraineeIds(Arrays.asList(trainee.getId(), trainee2.getId()));
+        trainingRequest.setTrainingName("Learning Php");
+        trainingRequest.setTrainingType("PHP");
+        trainingRequest.setTrainingDate(LocalDateTime.of(2026, 7, 17, 15, 30, 00));
+        trainingRequest.setTrainingDuration(60);
+        gymFacade.createTraining(trainingRequest);
+
+        var trainingRequest2 = new TrainingDTO();
+        trainingRequest2.setTrainerId(trainer.getId());
+        trainingRequest2.setTraineeIds(Arrays.asList(trainee.getId(), trainee2.getId()));
+        trainingRequest2.setTrainingName("Practicing Php");
+        trainingRequest2.setTrainingType("PHP");
+        trainingRequest2.setTrainingDate(LocalDateTime.of(2026, 7, 18, 13, 30, 00));
+        trainingRequest2.setTrainingDuration(90);
+        gymFacade.createTraining(trainingRequest2); // getTraineeTrainingByUserNameDateAndTrainingType
+
+        List<Training> trainings = gymFacade.getTrainerTrainingsByUserNameDateAndTrainingType(trainer.getUserName(),
+                LocalDateTime.of(2026, 7, 15, 12, 00, 00),
+                LocalDateTime.of(2026, 7, 20, 12, 00, 00));
+
+        assertEquals("Jeff.Ex", trainings.get(0).getTrainer().getUserName());
+        assertEquals("Learning Php", trainings.get(0).getTrainingName());
+        assertEquals("Practicing Php", trainings.get(3).getTrainingName());
+        assertEquals(4, trainings.size());
+    }
+
+    @Test
+    void deleteTraineeProfile() {
+        var trainingTypeBa = new TrainingTypeDTO();
+        trainingTypeBa.setTrainingTypeName(TrainingTypeName.valueOf("BA"));
+        gymFacade.createTrainingType(List.of(trainingTypeBa));
+
+        var trainerRequest = new TrainerDTO();
+        trainerRequest.setFirstName("Semen");
+        trainerRequest.setLastName("Antonuk");
+        trainerRequest.setSpecialization("BA");
+        trainerRequest.setActive(true);
+        var trainer = gymFacade.createTrainer(trainerRequest);
+
+        var traineeDTO = new TraineeDTO();
+        traineeDTO.setFirstName("Nataliya");
+        traineeDTO.setLastName("Kostuk");
+        traineeDTO.setDateOfBirth(LocalDate.of(1993, 8, 21));
+        traineeDTO.setAddress("71 Sun st");
+        traineeDTO.setActive(true);
+        Trainee trainee = gymFacade.createTrainee(traineeDTO);
+
+        var traineeDTO2 = new TraineeDTO();
+        traineeDTO2.setFirstName("Valentin");
+        traineeDTO2.setLastName("Shevchuk");
+        traineeDTO2.setDateOfBirth(LocalDate.of(1995, 2, 28));
+        traineeDTO2.setAddress("22/1 post st");
+        traineeDTO2.setActive(true);
+        Trainee trainee2 = gymFacade.createTrainee(traineeDTO2);
+
+        var traineeDTO3 = new TraineeDTO();
+        traineeDTO3.setFirstName("Vera");
+        traineeDTO3.setLastName("Kovshar");
+        traineeDTO3.setDateOfBirth(LocalDate.of(1996, 7, 18));
+        traineeDTO3.setAddress("22/1 post st");
+        traineeDTO3.setActive(true);
+        Trainee trainee3 = gymFacade.createTrainee(traineeDTO3);
+
+        var trainingRequest = new TrainingDTO();
+        trainingRequest.setTrainerId(trainer.getId());
+        trainingRequest.setTraineeIds(Arrays.asList(trainee.getId(), trainee2.getId(), trainee3.getId()));
+        trainingRequest.setTrainingName("Learning BA");
+        trainingRequest.setTrainingType("BA");
+        trainingRequest.setTrainingDate(LocalDateTime.of(2026, 8, 17, 15, 30, 00));
+        trainingRequest.setTrainingDuration(60);
+        List<Training> createdTraining = gymFacade.createTraining(trainingRequest);
+
+        gymFacade.deleteTrainee(trainee3.getUserName(), trainee3.getPassword());
+        List<Training> updatedTrainings = gymFacade.getTrainingByTrainingTypeName(trainingRequest.getTrainingType());
+
+        assertEquals(3, createdTraining.size());
+        assertEquals(2, updatedTrainings.size());
+    }
+
+
 }

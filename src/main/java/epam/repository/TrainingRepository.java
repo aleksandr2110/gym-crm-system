@@ -58,18 +58,19 @@ public class TrainingRepository {
 
     public List<Training> findTraineeTrainingsByUserNameAndDate(String traineeUsername,
                                                                 LocalDateTime fromDate,
-                                               LocalDateTime toDate, String trainingType) {
+                                                                LocalDateTime toDate,
+                                                                String trainingType) {
         return buildTrainingsQuery(training -> {
             Join<Training, Trainee> trainee = training.join("trainee");
-            //return trainee.get("user").get("userName"); // trainee
             return trainee.get("userName");
         }, traineeUsername, fromDate, toDate, trainingType);
     }
 
-    public List<Training> findTrainerTrainingsByUserNameAndDate(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate) {
+    public List<Training> findTrainerTrainingsByUserNameAndDate(String trainerUsername,
+                                                                LocalDateTime fromDate,
+                                                                LocalDateTime toDate) {
         return buildTrainingsQuery(training -> {
             Join<Training, Trainer> trainer = training.join("trainer");
-            //return trainer.get("user").get("userName");
             return trainer.get("userName");
         }, trainerUsername, fromDate, toDate, null);
     }
@@ -84,19 +85,11 @@ public class TrainingRepository {
 
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(usernameGetter.apply(training), userName));
-        System.out.println("Function root " + usernameGetter.apply(training).toString());
-        System.out.println("predicate " + predicates.toArray().length);
         predicates = addDatePredicates(cb, training, fromDate, toDate, predicates, trainingType);
 
-        //query.select(training).where(cb.equal(usernameGetter.apply(training), userName)); // works
-
-        // Apply array to where clause using conjunction (AND)
         query.select(training).where(cb.and(predicates.toArray(new Predicate[0])));
         Query squery = entityManager.createQuery(query);
         return squery.getResultList();
-
-//        query.where(cb.and(predicates.toArray(new Predicate[0])));
-//        return entityManager.createQuery(query).getResultList();
     }
 
     private List<Predicate> addDatePredicates(CriteriaBuilder cb, Root<Training> training,
@@ -104,17 +97,28 @@ public class TrainingRepository {
                                    String trainingType) {
         if (fromDate != null) {
             predicates.add(cb.greaterThanOrEqualTo(training.get("trainingDate"), fromDate));
-            System.out.println("predicate from date " + predicates.toArray().length);
         }
         if (toDate != null) {
             predicates.add(cb.lessThanOrEqualTo(training.get("trainingDate"), toDate));
-            System.out.println("predicate to date " + predicates.toArray().length);
         }
         if (trainingType != null && !trainingType.isBlank()) {
             predicates.add(cb.equal(training.get("trainingType").get("trainingTypeName"),
                     TrainingTypeName.getByName(trainingType)));
-            System.out.println("predicate get " + predicates.toArray().length);
         }
         return predicates;
+    }
+
+    public List<Training> test(String traineeUsername,
+                               LocalDateTime start,
+                               LocalDateTime end, String trainingType) {
+        CriteriaBuilder cr = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Training> query = cr.createQuery(Training.class);
+        var root = query.from(Training.class);
+
+        root.fetch("trainee", JoinType.INNER);
+        query.where(cr.between(root.get("trainingDate"), start, end),
+                (cr.equal(root.get("trainee").get("userName"), traineeUsername)),
+                cr.equal(root.get("trainingType").get("trainingTypeName"), TrainingTypeName.valueOf(trainingType))); // getByName
+        return entityManager.createQuery(query).getResultList();
     }
 }

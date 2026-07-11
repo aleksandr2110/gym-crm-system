@@ -21,11 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 @Slf4j
 @Component
@@ -39,8 +37,6 @@ public class FacadeGymCrmSystem {
     private final TrainingMapper trainingMapper;
     private final TrainingTypeMapper trainingTypeMapper;
     private final TrainingTypeService trainingTypeService;
-
-    private static final Logger logger = Logger.getLogger(FacadeGymCrmSystem.class.getName());
 
     @Autowired
     public FacadeGymCrmSystem(TrainerService trainerService, TraineeService traineeService,
@@ -131,13 +127,11 @@ public class FacadeGymCrmSystem {
     public void authentication(String role, String username, String password) {
         if (role.equals("trainee")) {
             if (!authenticateTrainee(username, password)) {
-                log.warn("Unauthorized access denied for user name {}", username);
-                throw new UnauthorizedException("User is not authenticated");
+                throw new UnauthorizedException("User is not authenticated: " + username);
             }
         } else {
             if (!authenticateTrainer(username, password)) {
-                log.warn("Unauthorized access denied for user name {}", username);
-                throw new UnauthorizedException("User is not authenticated");
+                throw new UnauthorizedException("User is not authenticated: " + username);
             }
         }
     }
@@ -149,7 +143,7 @@ public class FacadeGymCrmSystem {
     }
 
     public Trainer updateTrainer(String username, String password, TrainerDTO trainerDto, Long userId) {
-        logger.info("Updating trainer with id " + userId);
+        log.info("Updating trainer with id " + userId);
         authentication("trainer", username, password);
         var trainer =  trainerMapper.toModel(trainerDto);
         return trainerService.updateProfile(trainer, userId);
@@ -190,6 +184,11 @@ public class FacadeGymCrmSystem {
     public Training findById(Long id) {
         log.info("Find training by id {}", id);
         return trainingService.findTrainingById(id);
+    }
+
+    public List<Training> getTrainingByTrainingTypeName(String trainingTypeName) {
+        log.info("Find training by training type name {}", trainingTypeName);
+        return trainingService.getTrainingByTrainingTypeName(trainingTypeName);
     }
 
     public List<Training> getTraineeTrainingByUserNameDateAndTrainingType(String traineeUsername, LocalDateTime fromDate,
