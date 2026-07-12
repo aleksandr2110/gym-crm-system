@@ -19,7 +19,7 @@ name).
 16. Add training.
 17. Get trainers list that not assigned on trainee by trainee's username.
 18. Update Tranee's trainers list
-    Notes :
+   Pay attention :
 1. During Create Trainer/Trainee profile username and password should be generated as
    described in previous module.
 2. All functions except Create Trainer/Trainee profile. Should be executed only after

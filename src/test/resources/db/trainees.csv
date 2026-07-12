@@ -1,0 +1,3 @@
+"id","first_name","last_name","username","password","is_active","date_of_birth","address"
+"1","Alice","Brown","Alice.Brown","beevere89er",TRUE,"1996-07-11","789 Pine Rd"
+"2","Charlie","Davis","Charlie.Davis","beererwer",TRUE,"1994-03-21","43 Oak Ave"

@@ -5,7 +5,6 @@ import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
 import epam.repository.TrainingTypeRepository;
-import epam.request.TrainingDTO;
 import epam.service.impl.TrainingServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,12 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TrainingServiceImplTest {
@@ -39,58 +39,84 @@ public class TrainingServiceImplTest {
     @Test
     void shouldSaveTraining() {
         //GIVEN
-        /*Long userId = 1L;
+        Long userId = 1L;
 
         var trainee = new Trainee();
         trainee.setId(userId);
+        trainee.setUserName("Viliam");
 
         var trainingType = new TrainingType();
         trainingType.setTrainingTypeName(TrainingTypeName.getByName("Java"));
 
+        var trainer = new Trainer();
+        trainer.setUserName("Dmitriy.Gordon");
+
         var training = new Training();
-        training.setId(userId);
         training.setTrainingType(trainingType);
+        training.setTrainer(trainer);
+        training.setTrainee(trainee);
         training.setTrainingDate(LocalDateTime.of(2026, Month.OCTOBER, 13, 12, 15, 00));
         training.setTrainingDuration(45);
         training.setTrainingName("TypeScript");
-
-        var trainingRequest = new TrainingDTO();
-        trainingRequest.setTrainerId(1L);
-        trainingRequest.setTraineeIds(Arrays.asList(1L, 2L));
-
-        var trainer = new Trainer();
 
         //WHEN
         when(traineeRepository.findByUsername(any())).thenReturn(trainee);
         when(trainerRepository.findByUsername(any())).thenReturn(trainer);
         when(trainingTypeRepository.findByName(any())).thenReturn(trainingType);
-        when(trainingRepository.save(any())).thenReturn(training);
-        var createdTraining = trainingService.create(training,
-                trainingRequest.getTrainerId(), trainingRequest.getTraineeIds());
+        doNothing().when(trainingRepository).save(training);
+        trainingService.save(training);
 
         //THEN
-        assertNotNull(createdTraining);
-        assertEquals(training.getTrainingDate(), createdTraining.getTrainingDate());
-        assertEquals(training.getTrainingType(), createdTraining.getTrainingType());
-        assertEquals(training.getTrainingDuration(), createdTraining.getTrainingDuration()); */
+        verify(trainingRepository, times(1)).save(any());
     }
 
-    /*@Test
+    @Test
     void shouldSelectTrainingById() {
         //GIVEN
         Long userId = 2L;
+
+        var trainingType = new TrainingType();
+        trainingType.setTrainingTypeName(TrainingTypeName.getByName("JavaScript"));
+
         Training training = new Training();
-        training.setTrainingType("C#");
-        training.setTrainingDate(LocalDateTime.of(2027, Month.OCTOBER, 13, 12, 15, 00));
-        training.setTrainingDuration("60");
+        training.setTrainingName("Learning JavaScript");
+        training.setTrainingType(trainingType);
+        training.setTrainingDate(LocalDateTime.of(2026, 10, 13, 12, 15, 00));
+        training.setTrainingDuration(60);
 
         //WHEN
-        when(trainingRepository.select(userId)).thenReturn(training);
-        var createdTraining = trainingService.select(userId);
+        when(trainingRepository.findTrainingById(userId)).thenReturn(training);
+        var createdTraining = trainingService.findTrainingById(userId);
 
         //THEN
         assertNotNull(createdTraining);
+        assertEquals(training.getTrainingName(), createdTraining.getTrainingName());
         assertEquals(training.getTrainingDate(), createdTraining.getTrainingDate());
         assertEquals(training.getTrainingDuration(), createdTraining.getTrainingDuration());
-    }*/
+    }
+
+    @Test
+    void shouldSelectTrainingByTrainingTypeName() {
+        //GIVEN
+        var trainingType = new TrainingType();
+        trainingType.setTrainingTypeName(TrainingTypeName.getByName("JavaScript"));
+
+        Training training = new Training();
+        training.setTrainingName("Learning JavaScript");
+        training.setTrainingType(trainingType);
+        training.setTrainingDate(LocalDateTime.of(2026, 10, 15, 12, 15, 00));
+        training.setTrainingDuration(50);
+        List<Training> trainingList = new ArrayList<>();
+        trainingList.add(training);
+
+        //WHEN
+        when(trainingRepository.getTrainingByTrainingTypeName(
+                TrainingTypeName.getByName("JavaScript").name())).thenReturn(trainingList);
+        List<Training> createdTrainingList = trainingService.getTrainingByTrainingTypeName(
+                TrainingTypeName.getByName("JavaScript").name());
+
+        //THEN
+        assertEquals(trainingList.size(), createdTrainingList.size());
+        assertEquals(trainingList.get(0).getTrainingName(), createdTrainingList.get(0).getTrainingName());
+    }
 }

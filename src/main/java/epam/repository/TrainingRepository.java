@@ -108,17 +108,9 @@ public class TrainingRepository {
         return predicates;
     }
 
-    public List<Training> test(String traineeUsername,
-                               LocalDateTime start,
-                               LocalDateTime end, String trainingType) {
-        CriteriaBuilder cr = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Training> query = cr.createQuery(Training.class);
-        var root = query.from(Training.class);
-
-        root.fetch("trainee", JoinType.INNER);
-        query.where(cr.between(root.get("trainingDate"), start, end),
-                (cr.equal(root.get("trainee").get("userName"), traineeUsername)),
-                cr.equal(root.get("trainingType").get("trainingTypeName"), TrainingTypeName.valueOf(trainingType))); // getByName
-        return entityManager.createQuery(query).getResultList();
+    public List<Training> findAll() {
+        Query query = entityManager.createQuery(
+                "SELECT t FROM Training t", Training.class);
+        return query.getResultList();
     }
 }

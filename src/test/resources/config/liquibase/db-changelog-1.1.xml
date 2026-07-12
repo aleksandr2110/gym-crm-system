@@ -19,25 +19,41 @@
         <addForeignKeyConstraint constraintName="fk_trainer_and_training_type"
                                  baseTableName="trainers"
                                  baseColumnNames="specialization_id"
-                                 referencedTableName="training_type"
+                                 referencedTableName="training_types"
                                  referencedColumnNames="id" />
 
     </changeSet>
 
     <changeSet id="add-fk-between-trainee-and-training" author="Oleksandr@DevDB">
         <addForeignKeyConstraint constraintName="fk_trainee_training"
-                                 baseTableName="trainees"
-                                 baseColumnNames="id"
-                                 referencedTableName="trainings"
-                                 referencedColumnNames="trainee_id" />
+                                 baseTableName="trainings"
+                                 baseColumnNames="trainee_id"
+                                 referencedTableName="trainees"
+                                 referencedColumnNames="id" />
     </changeSet>
 
     <changeSet id="add-fk-between-trainer-and-training" author="Oleksandr@DevDB">
          <addForeignKeyConstraint constraintName="fk_trainer_training"
-                                baseTableName="trainees"
-                                baseColumnNames="id"
-                                referencedTableName="trainings"
-                                referencedColumnNames="trainer_id" />
+                                baseTableName="trainings"
+                                baseColumnNames="trainer_id"
+                                referencedTableName="trainers"
+                                referencedColumnNames="id" />
+    </changeSet>
+
+    <changeSet id="add-fk-between-trainer-and-trainee" author="Oleksandr@DevDB">
+    <addForeignKeyConstraint constraintName="fk_trainer_trainee"
+                             baseTableName="trainers_trainees"
+                             baseColumnNames="trainer_id"
+                             referencedTableName="trainers"
+                             referencedColumnNames="id" />
+    </changeSet>
+
+    <changeSet id="add-fk-between-trainee-and-trainer" author="Oleksandr@DevDB">
+        <addForeignKeyConstraint constraintName="fk_trainee_trainer"
+                                 baseTableName="trainers_trainees"
+                                 baseColumnNames="trainee_id"
+                                 referencedTableName="trainees"
+                                 referencedColumnNames="id" />
     </changeSet>
 
     <changeSet id="tag-1.1" author="Oleksandr@DevDB">

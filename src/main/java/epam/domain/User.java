@@ -31,10 +31,4 @@ public class User {
     @Column(name = "is_active", nullable = false)
     protected Boolean isActive;
 
-    /*@OneToOne(mappedBy = "user")
-    protected Trainee trainee;
-
-    @OneToOne(mappedBy = "user")
-    protected Trainer trainer;*/
-
 }

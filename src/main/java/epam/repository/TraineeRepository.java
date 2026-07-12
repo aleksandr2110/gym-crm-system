@@ -2,6 +2,7 @@ package epam.repository;
 
 
 import epam.domain.Trainee;
+import epam.domain.Trainer;
 import epam.util.UsernameAndPasswordGenerator;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -159,6 +161,13 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
         entityManager.remove(entity);
         log.info("Trainee deleted with username: {}", username);
+    }
+
+    @Override
+    public List<Trainee> findAll() {
+        Query query = entityManager.createQuery(
+                "SELECT t FROM Trainee t", Trainee.class);
+        return query.getResultList();
     }
 
     private String checkEqualsUsername(String baseUsername) {

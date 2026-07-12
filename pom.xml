@@ -20,6 +20,7 @@
         <spring.frame.version>6.2.12</spring.frame.version>
         <mockito.junit.version>5.11.0</mockito.junit.version>
         <spring.liquibase>4.18.0</spring.liquibase>
+        <flyway.version>11.15.0</flyway.version>
         <lombok.version>1.18.38</lombok.version>
     </properties>
 
@@ -133,6 +134,12 @@
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
             <version>${spring.liquibase}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
         </dependency>
 
         <dependency>

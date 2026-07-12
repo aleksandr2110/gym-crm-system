@@ -23,6 +23,7 @@ public class TrainingType {
     private Long id;
 
     @Column(name = "training_type_name", nullable = false)
+    @Enumerated(EnumType.STRING)
     private TrainingTypeName trainingTypeName;
 
     @OneToMany(mappedBy = "trainingType")

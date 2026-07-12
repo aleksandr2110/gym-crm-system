@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="load-data-trainees" author="Oleksandr@DevDB">
+        <loadData tableName="trainees"
+                  file="db/trainees.csv" separator=",">
+            <column name="id" header="edrpoy" type="NUMERIC"/>
+            <column name="first_name" header="first_name" type="STRING"/>
+            <column name="last_name" header="last_name" type="STRING"/>
+            <column name="username" header="username" type="STRING"/>
+            <column name="password" header="password" type="STRING"/>
+            <column name="is_active" header="is_active" type="BOOLEAN"/>
+            <column name="date_of_birth" header="date_of_birth" type="DATE"/>
+            <column name="address" header="address" type="STRING"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="load-data-training-types" author="Oleksandr@DevDB">
+        <loadData tableName="training_types"
+                  file="db/training_types.csv">
+            <column name="id" header="id" type="BIGINT"/>
+            <column name="training_type_name" header="training_type_name" type="STRING"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="load-data-trainers" author="Oleksandr@DevDB">
+        <loadData tableName="trainers"
+                  file="db/trainers.csv">
+            <column name="id" header="id" type="NUMERIC"/>
+            <column name="first_name" header="first_name" type="STRING"/>
+            <column name="last_name" header="last_name" type="STRING"/>
+            <column name="username" header="username" type="STRING"/>
+            <column name="password" header="password" type="STRING"/>
+            <column name="is_active" header="is_active" type="BOOLEAN"/>
+            <column name="specialization_id" header="specialization_id" type="BIGINT"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="load-data-trainings" author="Oleksandr@DevDB">
+        <loadData tableName="trainings"
+                  file="db/trainings.csv">
+            <column name="id" header="id" type="NUMERIC"/>
+            <column name="trainee_id" header="trainee_id" type="NUMERIC"/>
+            <column name="trainer_id" header="trainer_id" type="NUMERIC"/>
+            <column name="training_name" header="training_name" type="STRING"/>
+            <column name="training_type_id" header="training_type_id" type="STRING"/>
+            <column name="training_date" header="training_date" type="DATETIME"/>
+            <column name="training_duration" header="training_duration" type="INT"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="load-data-trainers-trainees" author="Oleksandr@DevDB">
+        <loadData tableName="trainers_trainees"
+                  file="db/trainers_trainees.csv">
+            <column name="id" header="id" type="BIGINT"/>
+            <column name="trainee_id" header="trainee_id" type="NUMERIC"/>
+            <column name="trainer_id" header="trainer_id" type="NUMERIC"/>
+        </loadData>
+    </changeSet>
+
+    <changeSet id="tag-1.2" author="Oleksandr@DevDB">
+        <tagDatabase tag="1.2" />
+    </changeSet>
+
+</databaseChangeLog>

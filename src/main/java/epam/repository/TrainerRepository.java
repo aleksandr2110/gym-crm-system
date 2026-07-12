@@ -175,6 +175,13 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
         return query.getResultList();
     }
 
+    @Override
+    public List<Trainer> findAll() {
+        Query query = entityManager.createQuery(
+                "SELECT t FROM Trainer t", Trainer.class);
+        return query.getResultList();
+    }
+
     private String checkEqualsUsername(String baseUsername) {
         Integer identifier = 1;
         String username = baseUsername;

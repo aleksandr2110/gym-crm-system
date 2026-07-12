@@ -19,4 +19,5 @@ public interface EntityRepository<T, ID> {
     default List<Trainer> findAllNotAssignedToTrainee(String traineeUsername) {
         return List.of();
     }
+    List<T> findAll();
 }
