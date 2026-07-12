@@ -66,6 +66,7 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
         var entity = entityManager.find(Trainee.class, id);
         if (entity == null) {
             log.warn("Trainee not found with id: {}", id);
+            throw new IllegalArgumentException("Trainee not found with id: " + id);
         }
 
         return entity;

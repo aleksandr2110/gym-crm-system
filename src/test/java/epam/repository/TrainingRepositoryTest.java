@@ -1,8 +1,7 @@
 package epam.repository;
 
 import epam.config.TestConfig;
-import epam.domain.Trainee;
-import epam.domain.Training;
+import epam.domain.*;
 import liquibase.Contexts;
 import liquibase.LabelExpression;
 import liquibase.Liquibase;
@@ -20,17 +19,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {TestConfig.class})
 @Transactional
 public class TrainingRepositoryTest {
 
+    private TrainerRepository trainerRepository;
+    private TrainingTypeRepository trainingTypeRepository;
     private TrainingRepository trainingRepository;
+    private TraineeRepository traineeRepository;
     private static final String DB_URL = "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1";
     private static final String DB_USER = "sa";
     private static final String DB_PASSWORD = ""; // password
@@ -50,15 +54,92 @@ public class TrainingRepositoryTest {
     }
 
     @Autowired
-    public void setTraineeRepository(TrainingRepository trainingRepository) {
+    public void setTraineeRepository(TrainingRepository trainingRepository,
+                                     TraineeRepository traineeRepository,
+                                     TrainingTypeRepository trainingTypeRepository,
+                                     TrainerRepository trainerRepository) {
         this.trainingRepository = trainingRepository;
+        this.traineeRepository = traineeRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
+        this.trainerRepository = trainerRepository;
     }
 
     @Test
-    void testReturnAllTrainees() {
-        List<Training> trainings = trainingRepository.findAll();
+    void testAddTraining() {
+        var trainee = new Trainee();
+        trainee.setFirstName("Sergey");
+        trainee.setLastName("Vashinskiy");
+        trainee.setDateOfBirth(LocalDate.of(1989, 10, 13));
+        trainee.setAddress("9 sea St");
+        trainee.setIsActive(true);
+        Trainee createdTrainee = traineeRepository.save(trainee);
 
-        assertNotNull(trainings);
-        assertEquals(2, trainings.size());
+        var trainingTypeJavaScript = new TrainingType();
+        trainingTypeJavaScript.setTrainingTypeName(TrainingTypeName.valueOf("JAVASCRIPT"));
+        trainingTypeRepository.saveTrainingType(List.of(trainingTypeJavaScript));
+
+        var trainer = new Trainer();
+        trainer.setFirstName("David");
+        trainer.setLastName("Gosling");
+        trainer.setSpecialization(trainingTypeJavaScript);
+        trainer.setIsActive(true);
+        Trainer createdTrainer = trainerRepository.save(trainer);
+
+        var trainingRequest = new Training();
+        trainingRequest.setTrainer(createdTrainer);
+        trainingRequest.setTrainee(createdTrainee);
+        trainingRequest.setTrainingName("Learning Javascript");
+        trainingRequest.setTrainingType(trainingTypeJavaScript);
+        trainingRequest.setTrainingDate(LocalDateTime.of(2026, Month.MAY, 11, 12, 15, 00));
+        trainingRequest.setTrainingDuration(60);
+
+        trainingRepository.save(trainingRequest);
+
+        List<Training> trainings = trainingRepository.getTrainingByTrainingTypeName(
+                TrainingTypeName.getByName("JAVASCRIPT").name());
+
+        assertEquals("Learning Javascript", trainings.get(0).getTrainingName());
+        assertEquals("Javascript", trainings.get(0).getTrainingType().getTrainingTypeName().getName());
+        assertEquals(60, trainings.get(0).getTrainingDuration());
+    }
+
+    @Test
+    void testFindTrainingByTrainingTypeName() {
+        var trainee = new Trainee();
+        trainee.setFirstName("Olga");
+        trainee.setLastName("Voronovskaya");
+        trainee.setDateOfBirth(LocalDate.of(1990, 10, 17));
+        trainee.setAddress("19 sea St");
+        trainee.setIsActive(true);
+        Trainee createdTrainee = traineeRepository.save(trainee);
+
+        var trainingTypeTypescript = new TrainingType();
+        trainingTypeTypescript.setTrainingTypeName(TrainingTypeName.valueOf("TYPESCRIPT"));
+        trainingTypeRepository.saveTrainingType(List.of(trainingTypeTypescript));
+
+        var trainer = new Trainer();
+        trainer.setFirstName("David");
+        trainer.setLastName("Gosling");
+        trainer.setSpecialization(trainingTypeTypescript);
+        trainer.setIsActive(true);
+        Trainer createdTrainer = trainerRepository.save(trainer);
+
+        var trainingRequest = new Training();
+        trainingRequest.setTrainer(createdTrainer);
+        trainingRequest.setTrainee(createdTrainee);
+        trainingRequest.setTrainingName("Learning TypeScript");
+        trainingRequest.setTrainingType(trainingTypeTypescript);
+        trainingRequest.setTrainingDate(LocalDateTime.of(2026, 6, 12, 12, 15, 00));
+        trainingRequest.setTrainingDuration(60);
+
+        trainingRepository.save(trainingRequest);
+
+        List<Training> trainings = trainingRepository.findTraineeTrainingsByUserNameAndDate(createdTrainee.getUserName(),
+                LocalDateTime.of(2026, 6, 10, 12, 15, 00),
+                LocalDateTime.of(2026, 6, 15, 12, 15, 00),
+                "TYPESCRIPT");
+
+        assertEquals("Olga.Voronovskaya", trainings.get(0).getTrainee().getUserName());
+        assertEquals("Learning TypeScript", trainings.get(0).getTrainingName());
     }
 }

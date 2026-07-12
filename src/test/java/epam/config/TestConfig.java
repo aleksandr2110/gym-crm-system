@@ -2,8 +2,6 @@ package epam.config;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import liquibase.integration.spring.SpringLiquibase;
-import org.flywaydb.core.Flyway;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -43,8 +41,7 @@ public class TestConfig {
 
         Properties jpaProps = new Properties();
         jpaProps.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-        jpaProps.put("hibernate.hbm2ddl.auto", "validate"); // validate  create-drop none
-        //jpaProps.put("hibernate.ddl-auto", "validate");//
+        jpaProps.put("hibernate.hbm2ddl.auto", "create-drop"); // validate create-drop none
         jpaProps.put("hibernate.show_sql", "true");
         em.setJpaProperties(jpaProps);
 
@@ -70,13 +67,5 @@ public class TestConfig {
         tm.setEntityManagerFactory(entityManagerFactory);
         return tm;
     }
-
-//    @Bean
-//    public SpringLiquibase liquibase() {
-//        SpringLiquibase liquibase = new SpringLiquibase();
-//        liquibase.setChangeLog("classpath:config/liquibase/db-changelog-master.xml");
-//        liquibase.setDataSource(dataSource());
-//        return liquibase;
-//    }
 
 }

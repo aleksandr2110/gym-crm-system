@@ -407,7 +407,7 @@ public class GymFacadeTest {
         trainingRequest2.setTrainingDate(LocalDateTime.of(2026, 5, 17, 12, 15, 00));
         trainingRequest2.setTrainingDuration(90);
 
-        gymFacade.createTraining(trainingRequest2); // trainingRepository.findTraineeTrainingsByUserNameAndDate
+        gymFacade.createTraining(trainingRequest2);
 
         List<Training> trainings = gymFacade.getTraineeTrainingByUserNameDateAndTrainingType(trainee.getUserName(),
                 LocalDateTime.of(2026, 5, 15, 12, 15, 00),
