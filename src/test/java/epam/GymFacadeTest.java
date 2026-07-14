@@ -68,7 +68,7 @@ public class GymFacadeTest {
         var createdTrainee = gymFacade.createTrainee(traineeDTO);
         Long userId = createdTrainee.getId();
         var retrievedTrainee = gymFacade.getTrainee(createdTrainee.getUserName(),
-                createdTrainee.getPassword(), userId);
+                createdTrainee.getPassword());
 
         assertNotNull(retrievedTrainee);
         assertEquals(userId, retrievedTrainee.getId());
@@ -91,9 +91,9 @@ public class GymFacadeTest {
         var createdTrainee = gymFacade.createTrainee(traineeDTO);
         gymFacade.deleteTrainee(createdTrainee.getUserName(), createdTrainee.getPassword());
 
-        Exception exception = assertThrows(UnauthorizedException.class, () -> {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             gymFacade.getTrainee(createdTrainee.getUserName(),
-                    createdTrainee.getPassword(), createdTrainee.getId());
+                    createdTrainee.getPassword());
         });
     }
 
@@ -107,7 +107,6 @@ public class GymFacadeTest {
         traineeDTO.setActive(true);
 
         Trainee created = gymFacade.createTrainee(traineeDTO);
-        Long userId = created.getId();
 
         var updateDto = new TraineeDTO();
         updateDto.setFirstName("Yuliya");
@@ -117,7 +116,7 @@ public class GymFacadeTest {
         updateDto.setActive(true);
 
         Trainee updatedTrainee = gymFacade.updateTrainee(updateDto,
-                created.getUserName(), created.getPassword(), userId);
+                created.getUserName(), created.getPassword());
 
         assertNotNull(updatedTrainee);
         assertEquals("Yuliya", updatedTrainee.getFirstName());
@@ -137,11 +136,10 @@ public class GymFacadeTest {
         traineeDTO.setActive(false);
 
         Trainee createdTrainee = gymFacade.createTrainee(traineeDTO);
-        Long userId = createdTrainee.getId();
 
-        gymFacade.activateTrainee(createdTrainee.getUserName(), createdTrainee.getPassword(), userId);
+        gymFacade.activateTrainee(createdTrainee.getUserName(), createdTrainee.getPassword());
         var retrievedTrainee = gymFacade.getTrainee(createdTrainee.getUserName(),
-                createdTrainee.getPassword(), userId);
+                createdTrainee.getPassword());
 
         assertNotNull(retrievedTrainee);
         assertEquals("Mila", retrievedTrainee.getFirstName());
@@ -164,7 +162,7 @@ public class GymFacadeTest {
 
         gymFacade.deactivateTrainee(createdTrainee.getUserName(), createdTrainee.getPassword(), userId);
         var retrievedTrainee = gymFacade.getTrainee(createdTrainee.getUserName(),
-                createdTrainee.getPassword(), userId);
+                createdTrainee.getPassword());
 
         assertNotNull(retrievedTrainee);
         assertEquals("Maya", retrievedTrainee.getFirstName());
@@ -187,7 +185,7 @@ public class GymFacadeTest {
 
         gymFacade.changeTraineePassword(createdTrainee.getUserName(), createdTrainee.getPassword(), newPassword);
         var retrievedTrainee = gymFacade.getTrainee(createdTrainee.getUserName(),
-                newPassword, userId);
+                newPassword);
 
         assertEquals("Richard", retrievedTrainee.getFirstName());
         assertEquals("Hatchinson", retrievedTrainee.getLastName());
@@ -285,7 +283,7 @@ public class GymFacadeTest {
         Trainer createdTrainer = gymFacade.createTrainer(trainerDto);
         Long userId = createdTrainer.getId();
 
-        gymFacade.activateTrainer(createdTrainer.getUserName(), createdTrainer.getPassword(), userId);
+        gymFacade.activateTrainer(createdTrainer.getUserName(), createdTrainer.getPassword());
 
         var retrievedTrainer = gymFacade.getTrainer(createdTrainer.getUserName(),
                 createdTrainer.getPassword(), userId);

@@ -14,7 +14,7 @@ public interface TrainerService {
     Trainer updateProfile(Trainer entity, Long userId);
     void activate(Long id);
     void deactivate(Long id);
-    boolean authenticateTrainer(String username, String password);
-    void delete(String username);
+    Trainer authenticateTrainer(String username, String password);
+    void deleteProfile(String username);
     List<Trainer> findAllNotAssignedToTrainee(String traineeUsername);
 }

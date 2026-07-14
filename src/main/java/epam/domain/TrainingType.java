@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -27,7 +24,7 @@ public class TrainingType {
     private TrainingTypeName trainingTypeName;
 
     @OneToMany(mappedBy = "trainingType")
-    private Set<Training> trainings = new LinkedHashSet<>();
+    private Set<Training> trainings = new HashSet<>();
 
     @OneToMany(mappedBy = "specialization")
     private List<Trainer> trainers = new ArrayList<>();

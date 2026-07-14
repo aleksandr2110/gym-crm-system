@@ -6,12 +6,12 @@ public interface TraineeService {
 
     Trainee save(Trainee trainee);
     Trainee findById(Long id);
-    Trainee findByUsername(String userName);
-    void changePassword(Long id, String newPassword);
+    Trainee findByUsername(String userName); //
+    void changePassword(Long id, String newPassword); //
     void changePassword(String username, String newPassword);
     Trainee updateProfile(Trainee entity, Long userId);
     void activate(Long id);
     void deactivate(Long id);
-    boolean authenticateTrainee(String username, String password);
+    Trainee authenticateTrainee(String username, String password);
     void deleteProfile(String username);
 }

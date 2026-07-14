@@ -66,6 +66,8 @@ public class TrainerRepositoryTest {
         var trainer = new Trainer();
         trainer.setFirstName("David");
         trainer.setLastName("Gosling");
+        trainer.setUserName("David.Gosling");
+        trainer.setPassword("fdbcxew3g");
         trainer.setSpecialization(trainingTypeJava);
         trainer.setIsActive(true);
         Trainer createdTrainer = trainerRepository.save(trainer);
@@ -83,11 +85,16 @@ public class TrainerRepositoryTest {
         var trainer = new Trainer();
         trainer.setFirstName("Shon");
         trainer.setLastName("Rey");
+        trainer.setUserName("Shon.Rey");
+        trainer.setPassword("fdbcefexew3g");
         trainer.setSpecialization(trainingTypeC);
         trainer.setIsActive(true);
         Trainer createdTrainer = trainerRepository.save(trainer);
+        var userId = createdTrainer.getId();
 
-        createdTrainer = trainerRepository.findById(createdTrainer.getId());
+        createdTrainer = trainerRepository.findById(createdTrainer.getId()).orElseThrow(
+                () -> new IllegalArgumentException("Trainer not found with userId: " +  userId)
+        );
 
         assertEquals("Shon", createdTrainer.getFirstName());
         assertEquals("Rey", createdTrainer.getLastName());
@@ -102,16 +109,19 @@ public class TrainerRepositoryTest {
 
         var trainer = new Trainer();
         trainer.setFirstName("Shany");
-        trainer.setLastName("Von");
+        trainer.setLastName("Vin");
+        trainer.setUserName("Shany.Vin");
+        trainer.setPassword("rteterew3g");
         trainer.setSpecialization(trainingTypeAngular);
         trainer.setIsActive(true);
+
         Trainer createdTrainer = trainerRepository.save(trainer);
         createdTrainer.setFirstName("Any");
 
-        trainerRepository.updateProfile(createdTrainer);
+        createdTrainer = trainerRepository.save(createdTrainer);
 
         assertEquals("Any", createdTrainer.getFirstName());
-        assertEquals("Von", createdTrainer.getLastName());
+        assertEquals("Vin", createdTrainer.getLastName());
     }
 
     @Test
@@ -123,12 +133,18 @@ public class TrainerRepositoryTest {
         var trainer = new Trainer();
         trainer.setFirstName("Katerina");
         trainer.setLastName("Vinny");
+        trainer.setUserName("Katerina.Vinny");
+        trainer.setPassword("rteterew3geww3");
         trainer.setSpecialization(trainingTypeReact);
         trainer.setIsActive(false);
 
         Trainer createdTrainer = trainerRepository.save(trainer);
+        var userId = createdTrainer.getId();
         trainerRepository.activate(createdTrainer.getId());
-        createdTrainer = trainerRepository.findById(createdTrainer.getId());
+
+        createdTrainer = trainerRepository.findById(createdTrainer.getId()).orElseThrow(
+                () -> new IllegalArgumentException("Trainer not found with userId: " +  userId)
+        );
 
         assertEquals("Katerina", createdTrainer.getFirstName());
         assertEquals("Vinny", createdTrainer.getLastName());

@@ -4,11 +4,13 @@ import epam.annotation.ExecutionTime;
 import epam.domain.Trainee;
 import epam.domain.Trainer;
 import epam.domain.Training;
+import epam.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
 import epam.service.TrainerService;
 import epam.service.TrainingTypeService;
+import epam.util.UsernameAndPasswordGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +45,7 @@ public class TrainerServiceImpl implements TrainerService {
         List<Trainee> traineeList = new ArrayList<>();
         for (Trainee trainee: trainer.getTrainees()) {
             var savedTrainee = traineeRepository.findById(trainee.getId());
-            traineeList.add(savedTrainee);
+            savedTrainee.ifPresent(traineeList::add);
         }
         trainer.setTrainees(traineeList);
 
@@ -54,25 +56,28 @@ public class TrainerServiceImpl implements TrainerService {
         }
         trainer.setTrainings(trainingsList);
 
+        if (trainer.getUserName() == null) {
+            setUsername(trainer);
+        } else {
+            throw new IllegalArgumentException("Attempt to save trainer with username: " + trainer.getUserName());
+        }
+
         return trainerRepository.save(trainer);
     }
 
     @Override
     @ExecutionTime
     public Trainer findById(Long id) {
-        Trainer trainer = trainerRepository.findById(id);
-
-        if (trainer == null)  {
-            throw new NoSuchElementException("User not found by id " + id);
-        }
+        var trainer = trainerRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("Trainer not found with id: " + id));
 
         return trainer;
     }
 
     @Override
     public Trainer findByUsername(String userName) {
-
-        return trainerRepository.findByUsername(userName);
+        return trainerRepository.findByUsername(userName).orElseThrow(
+                () -> new IllegalArgumentException("Trainer not found with username: " + userName));
     }
 
     @Override
@@ -88,10 +93,9 @@ public class TrainerServiceImpl implements TrainerService {
     @ExecutionTime
     @Override
     public Trainer updateProfile(Trainer trainer, Long userId) {
-        Trainer currentTrainer = trainerRepository.findById(userId);
-        if (currentTrainer == null) {
-            throw new IllegalArgumentException("Trainee with id: " + trainer.getId() + " not found!");
-        }
+        Trainer currentTrainer = trainerRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("Trainer not found with userId: " + userId)
+        );
         currentTrainer.setFirstName(trainer.getFirstName());
         currentTrainer.setLastName(trainer.getLastName());
         currentTrainer.setUserName(trainer.getUserName());
@@ -101,7 +105,7 @@ public class TrainerServiceImpl implements TrainerService {
         currentTrainer.setTrainings(trainer.getTrainings());
         currentTrainer.setIsActive(trainer.getIsActive());
 
-        return trainerRepository.updateProfile(currentTrainer);
+        return trainerRepository.save(currentTrainer);
     }
 
     @Override
@@ -115,18 +119,24 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public boolean authenticateTrainer(String username, String password) {
-        return trainerRepository.authenticate(username, password);
+    public Trainer authenticateTrainer(String username, String password) {
+        var entity = trainerRepository.findByUsername(username).orElseThrow(()
+                -> new IllegalArgumentException("Trainer not found with username: " + username));
+        if (!entity.getPassword().equals(password)) {
+            throw new UnauthorizedException("User is not authenticated: " + username);
+        }
+        return entity;
     }
 
     @Override
-    public void delete(String username) {
+    public void deleteProfile(String username) {
         trainerRepository.delete(username);
     }
 
     @Override
     public List<Trainer> findAllNotAssignedToTrainee(String traineeUsername) {
-        Trainee trainee = traineeRepository.findByUsername(traineeUsername);
+        Trainee trainee = traineeRepository.findByUsername(traineeUsername).orElseThrow(()
+                -> new IllegalArgumentException("Trainer not found with username: " + traineeUsername));
         if (trainee == null) {
             throw new NoSuchElementException("Trainee not found with username: " + traineeUsername);
         }
@@ -134,8 +144,13 @@ public class TrainerServiceImpl implements TrainerService {
         return trainerRepository.findAllNotAssignedToTrainee(traineeUsername);
     }
 
-
-
-
+    private void setUsername(Trainer trainer) {
+        trainer.setUserName(UsernameAndPasswordGenerator.createUsername(
+                trainer.getFirstName(),
+                trainer.getLastName()));
+        trainer.setPassword(UsernameAndPasswordGenerator.generatePassword());
+        List<String> usernameDuplicates = trainerRepository.findUsernamesLike(trainer.getUserName() + "%");
+        trainer.setUserName(trainer.getUserName() + (usernameDuplicates.size() == 0 ? "" : usernameDuplicates.size()));
+    }
 
 }

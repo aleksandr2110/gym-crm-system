@@ -1,6 +1,7 @@
 package epam.service;
 
 import epam.domain.Trainee;
+import epam.domain.Trainer;
 import epam.repository.TraineeRepository;
 import epam.service.impl.TraineeServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -76,8 +79,8 @@ public class TraineeServiceImplTest {
         updatedTrainee.setIsActive(traineeRequest.getIsActive());
 
         //WHEN
-        when(traineeRepository.findById(userId)).thenReturn(currentTrainee);
-        when(traineeRepository.updateProfile(any())).thenReturn(updatedTrainee);
+        when(traineeRepository.findById(userId)).thenReturn(Optional.of(currentTrainee));
+        when(traineeRepository.save(any())).thenReturn(updatedTrainee);
         Trainee updatedTraineeById = traineeService.updateProfile(traineeRequest, userId);
 
         //THEN
@@ -92,11 +95,11 @@ public class TraineeServiceImplTest {
     void shouldThrowExceptionWhenUpdateTrainee() {
         //GIVEN
         Long userId = 1L;
-        Trainee empty = null;
+        Optional<Trainee> emptyTrainee = Optional.empty();
         var traineeRequest = new Trainee();
 
         //WHEN
-        when(traineeRepository.findById(userId)).thenReturn(empty);
+        when(traineeRepository.findById(userId)).thenReturn(emptyTrainee);
 
         //THEN
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -116,7 +119,7 @@ public class TraineeServiceImplTest {
         trainee.setIsActive(false);
 
         //WHEN
-        when(traineeRepository.findById(userId)).thenReturn(trainee);
+        when(traineeRepository.findById(userId)).thenReturn(Optional.of(trainee));
         var selectedTraineeById = traineeService.findById(userId);
 
         //THEN

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -43,7 +44,7 @@ public class TrainingServiceImplTest {
 
         var trainee = new Trainee();
         trainee.setId(userId);
-        trainee.setUserName("Viliam");
+        trainee.setUserName("Viliam.Dashkovec");
 
         var trainingType = new TrainingType();
         trainingType.setTrainingTypeName(TrainingTypeName.getByName("Java"));
@@ -60,8 +61,8 @@ public class TrainingServiceImplTest {
         training.setTrainingName("TypeScript");
 
         //WHEN
-        when(traineeRepository.findByUsername(any())).thenReturn(trainee);
-        when(trainerRepository.findByUsername(any())).thenReturn(trainer);
+        when(traineeRepository.findByUsername(any())).thenReturn(Optional.of(trainee));
+        when(trainerRepository.findByUsername(any())).thenReturn(Optional.of(trainer));
         when(trainingTypeRepository.findByName(any())).thenReturn(trainingType);
         doNothing().when(trainingRepository).save(training);
         trainingService.save(training);

@@ -58,6 +58,8 @@ public class TraineeRepositoryTest {
         var trainee = new Trainee();
         trainee.setFirstName("Jonny");
         trainee.setLastName("Dep");
+        trainee.setUserName("Jonny.Dep");
+        trainee.setPassword("fdgfdgfdg");
         trainee.setDateOfBirth(LocalDate.of(1976, 2, 21));
         trainee.setAddress("3 Bank St");
         trainee.setIsActive(true);
@@ -73,12 +75,17 @@ public class TraineeRepositoryTest {
         var trainee = new Trainee();
         trainee.setFirstName("Jonson");
         trainee.setLastName("Dip");
+        trainee.setUserName("Jonson.Dip");
+        trainee.setPassword("fdgfdgfd43g");
         trainee.setDateOfBirth(LocalDate.of(1971, 2, 10));
         trainee.setAddress("88 Bank St");
         trainee.setIsActive(true);
 
         Trainee createdTrainee = traineeRepository.save(trainee);
-        createdTrainee = traineeRepository.findById(createdTrainee.getId());
+        var userId = createdTrainee.getId();
+        createdTrainee = traineeRepository.findById(createdTrainee.getId()).orElseThrow(
+                () -> new IllegalArgumentException("Trainer not found with userId: " +  userId)
+        );
 
         assertNotNull(createdTrainee);
         assertEquals("Jonson", createdTrainee.getFirstName());
@@ -86,35 +93,22 @@ public class TraineeRepositoryTest {
     }
 
     @Test
-    void testUpdateTrainee() {
-        var trainee = new Trainee();
-        trainee.setFirstName("Janny");
-        trainee.setLastName("Jip");
-        trainee.setDateOfBirth(LocalDate.of(1988, 5, 13));
-        trainee.setAddress("15/3 Sunny St");
-        trainee.setIsActive(true);
-
-        Trainee createdTrainee = traineeRepository.save(trainee);
-        createdTrainee.setFirstName("Arianita");
-
-        createdTrainee = traineeRepository.updateProfile(createdTrainee);
-
-        assertEquals("Arianita", createdTrainee.getFirstName());
-        assertEquals("Jip", createdTrainee.getLastName());
-    }
-
-    @Test
     void testActivateTrainee() {
         var trainee = new Trainee();
         trainee.setFirstName("Sabrina");
         trainee.setLastName("Karpenter");
+        trainee.setUserName("Sabrina.Karpenter");
+        trainee.setPassword("fdgfdgfd4ew3g");
         trainee.setDateOfBirth(LocalDate.of(1998, 7, 13));
         trainee.setAddress("71 Sunny St");
         trainee.setIsActive(false);
 
         Trainee createdTrainee = traineeRepository.save(trainee);
+        var userId = createdTrainee.getId();
         traineeRepository.activate(createdTrainee.getId());
-        createdTrainee = traineeRepository.findById(createdTrainee.getId());
+        createdTrainee = traineeRepository.findById(createdTrainee.getId()).orElseThrow(
+                () -> new IllegalArgumentException("Trainer not found with userId: " +  userId)
+        );
 
         assertEquals("Sabrina", createdTrainee.getFirstName());
         assertEquals("Karpenter", createdTrainee.getLastName());
@@ -122,26 +116,12 @@ public class TraineeRepositoryTest {
     }
 
     @Test
-    void testAuthenticateTrainee() {
-        var trainee = new Trainee();
-        trainee.setFirstName("Soniya");
-        trainee.setLastName("Kos");
-        trainee.setDateOfBirth(LocalDate.of(1999, 2, 13));
-        trainee.setAddress("98 Sunny St");
-        trainee.setIsActive(true);
-        Trainee createdTrainee = traineeRepository.save(trainee);
-
-        boolean authentication = traineeRepository.authenticate(
-                createdTrainee.getUserName(), createdTrainee.getPassword());
-
-        assertTrue(authentication);
-    }
-
-    @Test
     void testCreateAndDeleteTrainee() {
         var trainee = new Trainee();
         trainee.setFirstName("Sara");
         trainee.setLastName("Connor");
+        trainee.setUserName("Sara.Connor");
+        trainee.setPassword("fdbcxew3g");
         trainee.setDateOfBirth(LocalDate.of(1978, 2, 13));
         trainee.setAddress("90 sea St");
         trainee.setIsActive(true);
@@ -150,7 +130,10 @@ public class TraineeRepositoryTest {
         traineeRepository.delete(createdTrainee.getUserName());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            traineeRepository.findById(createdTrainee.getId());
+            traineeRepository.findById(createdTrainee.getId()).orElseThrow(
+                    () -> new IllegalArgumentException("Trainee not found with id: " + createdTrainee.getId())
+            );
         });
+
     }
 }

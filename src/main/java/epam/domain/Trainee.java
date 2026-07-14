@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -26,6 +23,6 @@ public class Trainee extends User {
     List<Trainer> trainers = new ArrayList<>();
 
     @OneToMany(mappedBy = "trainee")
-    Set<Training> trainings = new LinkedHashSet<>();
+    Set<Training> trainings = new HashSet<>();
 
 }

@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,7 +63,7 @@ public class TrainerServiceImplTest {
 
         //WHEN
         when(trainingTypeService.findByName(any())).thenReturn(trainingType);
-        when(traineeRepository.findById(any())).thenReturn(trainee);
+        when(traineeRepository.findById(any())).thenReturn(Optional.of(trainee));
         when(trainingRepository.findTrainingById(any())).thenReturn(training);
         when(trainerRepository.save(any())).thenReturn(newTrainer);
         var createdTrainer = trainerService.save(trainerRequest);
@@ -110,8 +111,8 @@ public class TrainerServiceImplTest {
         updatedTrainer.setIsActive(trainerRequest.getIsActive());
 
         //WHEN
-        when(trainerRepository.findById(userId)).thenReturn(currentTrainer);
-        when(trainerRepository.updateProfile(currentTrainer)).thenReturn(updatedTrainer);
+        when(trainerRepository.findById(userId)).thenReturn(Optional.of(currentTrainer));
+        when(trainerRepository.save(currentTrainer)).thenReturn(updatedTrainer);
         var updatedNewTrainer = trainerService.updateProfile(trainerRequest, userId);
 
         //THEN
@@ -126,12 +127,12 @@ public class TrainerServiceImplTest {
     void shouldThrowExceptionWhenUpdateTrainer() {
         //GIVEN
         Long userId = 1L;
-        Trainer emptyTrainee = null;
+        Optional<Trainer> emptyTrainer = Optional.empty();
         var trainerRequest = new Trainer();
         trainerRequest.setId(userId);
 
         //WHEN
-        when(trainerRepository.findById(userId)).thenReturn(emptyTrainee);
+        when(trainerRepository.findById(userId)).thenReturn(emptyTrainer);
 
         //THEN
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -154,7 +155,7 @@ public class TrainerServiceImplTest {
         trainer.setIsActive(false);
 
         //WHEN
-        when(trainerRepository.findById(userId)).thenReturn(trainer);
+        when(trainerRepository.findById(userId)).thenReturn(Optional.of(trainer));
         var selectedTrainerById = trainerService.findById(userId);
 
         //THEN

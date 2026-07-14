@@ -69,6 +69,8 @@ public class TrainingRepositoryTest {
         var trainee = new Trainee();
         trainee.setFirstName("Sergey");
         trainee.setLastName("Vashinskiy");
+        trainee.setUserName("Sergey.Vashinskiy");
+        trainee.setPassword("fdbcxew3g");
         trainee.setDateOfBirth(LocalDate.of(1989, 10, 13));
         trainee.setAddress("9 sea St");
         trainee.setIsActive(true);
@@ -81,6 +83,8 @@ public class TrainingRepositoryTest {
         var trainer = new Trainer();
         trainer.setFirstName("David");
         trainer.setLastName("Gosling");
+        trainer.setUserName("David.Gosling");
+        trainer.setPassword("fdbcxew789");
         trainer.setSpecialization(trainingTypeJavaScript);
         trainer.setIsActive(true);
         Trainer createdTrainer = trainerRepository.save(trainer);
@@ -108,6 +112,8 @@ public class TrainingRepositoryTest {
         var trainee = new Trainee();
         trainee.setFirstName("Olga");
         trainee.setLastName("Voronovskaya");
+        trainee.setUserName("Olga.Voronovskaya");
+        trainee.setPassword("fdbcxew3g");
         trainee.setDateOfBirth(LocalDate.of(1990, 10, 17));
         trainee.setAddress("19 sea St");
         trainee.setIsActive(true);
@@ -118,8 +124,10 @@ public class TrainingRepositoryTest {
         trainingTypeRepository.saveTrainingType(List.of(trainingTypeTypescript));
 
         var trainer = new Trainer();
-        trainer.setFirstName("David");
+        trainer.setFirstName("Davidson");
         trainer.setLastName("Gosling");
+        trainer.setUserName("Davidson.Gosling");
+        trainer.setPassword("fdbcxew3ewg");
         trainer.setSpecialization(trainingTypeTypescript);
         trainer.setIsActive(true);
         Trainer createdTrainer = trainerRepository.save(trainer);
