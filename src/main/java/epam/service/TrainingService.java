@@ -1,13 +1,18 @@
 package epam.service;
 
-import epam.domain.Trainee;
-import epam.domain.Training;
-import epam.request.TrainingDTO;
+import epam.domain.dto.request.TraineeTrainingsRequestDTO;
+import epam.domain.dto.request.TrainerTrainingsRequestDTO;
+import epam.domain.dto.request.TrainingRequestDTO;
+import epam.domain.dto.response.TrainingDTO;
+import epam.domain.entity.Training;
 
 import java.util.List;
 
 public interface TrainingService {
 
-    Training create(Training training, Long trainerId, List<Long> traineeIds);
-    Training select(Long id);
+    void save(TrainingRequestDTO training);
+    Training findTrainingById(Long id);
+    List<Training> getTrainingByTrainingTypeName(String trainingTypeName);
+    List<TrainingDTO> selectTraineeTrainings(TraineeTrainingsRequestDTO filterRequest);
+    List<TrainingDTO> selectTrainerTrainings(TrainerTrainingsRequestDTO filterRequest);
 }

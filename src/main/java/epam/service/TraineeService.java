@@ -1,11 +1,25 @@
 package epam.service;
 
-import epam.domain.Trainee;
+import epam.domain.dto.request.TraineeRequestDTO;
+import epam.domain.dto.request.UpdateTraineeRequestDTO;
+import epam.domain.dto.response.RegistrationResponseDTO;
+import epam.domain.dto.response.TraineeProfileDTO;
+import epam.domain.dto.response.TrainerInfoDTO;
+import epam.domain.entity.Trainee;
+import epam.domain.entity.Trainer;
+
+import java.util.List;
 
 public interface TraineeService {
 
-    Trainee create(Trainee trainee);
-    Trainee update(Trainee trainee, Long userId);
-    Trainee select(Long id);
-    void delete(Long id);
+    Trainee save(TraineeRequestDTO traineeRequestDTO);
+    Trainee findById(Long id);
+    Trainee findByUsername(String userName); //
+    void changePassword(String username, String oldPassword, String newPassword);
+    void changePassword(String username, String newPassword);
+    TraineeProfileDTO updateProfile(UpdateTraineeRequestDTO updateTraineeRequestDTO);
+    void activateDeactivateTrainee(String username, boolean isActive);
+    Trainee authenticateTrainee(String username, String password);
+    void deleteProfile(String username);
+    List<Trainer> updateTrainersList(String traineeUsername, List<String> trainerUsernames);
 }

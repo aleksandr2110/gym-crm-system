@@ -1,85 +1,169 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
-import epam.domain.Trainee;
+import epam.domain.dto.request.TraineeRequestDTO;
+import epam.domain.dto.request.UpdateTraineeRequestDTO;
+import epam.domain.dto.response.TraineeProfileDTO;
+import epam.domain.dto.response.TrainerInfoDTO;
+import epam.domain.entity.Trainee;
+import epam.domain.entity.Trainer;
+import epam.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
+import epam.repository.TrainerRepository;
 import epam.service.TraineeService;
+import epam.util.DataMapper;
+import epam.util.UsernameAndPasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class TraineeServiceImpl implements TraineeService {
 
     private final TraineeRepository traineeRepository;
-    private static final Logger logger = Logger.getLogger(TraineeServiceImpl.class.getName());
-
+    private final TrainerRepository trainerRepository;
+    private final DataMapper dataMapper;
 
     @Autowired
-    public TraineeServiceImpl(TraineeRepository traineeRepository) {
+    public TraineeServiceImpl(TraineeRepository traineeRepository, TrainerRepository trainerRepository,
+                              DataMapper dataMapper) {
         this.traineeRepository = traineeRepository;
+        this.trainerRepository = trainerRepository;
+        this.dataMapper = dataMapper;
+    }
+
+    @Transactional
+    @Override
+    public Trainee save(TraineeRequestDTO traineeRequestDTO) {
+        var trainee = dataMapper.toTrainee(traineeRequestDTO);
+
+        if (trainee.getUsername() == null) { // getUser().
+            setUsername(trainee);
+        } else {
+            throw new IllegalArgumentException("Attempt to save trainee with username: "
+                    + trainee.getUsername());// .getUser().
+        }
+
+        var created = traineeRepository.save(trainee);
+
+        return created;
     }
 
     @Override
     @ExecutionTime
-    public Trainee create(Trainee trainee) {
-        Trainee createdTrainee = traineeRepository.save(trainee);
-        logger.info("User created successfully with userId: " +  createdTrainee.getUserId());
+    public Trainee findById(Long id) {
+        Trainee trainee = traineeRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException("Trainee not found with id: " + id));
 
-        return createdTrainee;
-    }
-
-    @Override
-    @ExecutionTime
-    public Trainee update(Trainee trainee, Long userId) {
-
-        Trainee currentTrainee = traineeRepository.select(userId);
-        if (currentTrainee == null) {
-            logger.warning("User with id " + userId + " not found");
-            throw new IllegalArgumentException("User with id: " + userId + " not found!");
-        }
-
-        boolean nameChanged = !currentTrainee.getFirstName().equals(trainee.getFirstName()) ||
-                !currentTrainee.getLastName().equals(trainee.getLastName());
-
-        if (nameChanged) {
-            logger.info("Name changed. Before first/last name " +
-                    currentTrainee.getFirstName() + " " + currentTrainee.getLastName() +
-                    " After " + trainee.getFirstName() + " " + trainee.getLastName());
-        }
-
-        currentTrainee.setFirstName(trainee.getFirstName());
-        currentTrainee.setLastName(trainee.getLastName());
-        currentTrainee.setAddress(trainee.getAddress());
-        currentTrainee.setDateOfBirth(trainee.getDateOfBirth());
-        currentTrainee.setActive(trainee.isActive());
-
-        Trainee updatedTrainee = traineeRepository.update(currentTrainee);
-        logger.info("User updated successfully with id " + updatedTrainee.getUserId());
-        return updatedTrainee;
-    }
-
-    @Override
-    @ExecutionTime
-    public Trainee select(Long id) {
-        Trainee trainee = traineeRepository.select(id);
-
-        if (trainee == null) {
-            logger.warning("User with id " + id + " not found");
-            throw new NoSuchElementException("User with id: " + id + " not found!");
-        }
-
-        logger.info("User found with userId: " + id);
         return trainee;
     }
 
+    @Transactional
     @Override
-    @ExecutionTime
-    public void delete(Long id) {
-        logger.info("Deleting user with userId: " + id);
-        traineeRepository.delete(id);
-        logger.info("User deleted successfully with userId: " + id);
+    public Trainee findByUsername(String userName) {
+        var trainee = traineeRepository.findByUsername(userName).orElseThrow(
+                () -> new IllegalArgumentException("Trainee not found with username: " + userName));
+
+        return trainee;
     }
+
+    @Transactional
+    @Override
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        var trainee = traineeRepository.findByUsername(username).orElseThrow(
+                () -> new IllegalArgumentException("Trainee not found with username: " + username));
+        if (!trainee.getPassword().equals(oldPassword)) {
+            throw new IllegalArgumentException("Invalid username or password");
+        }
+        traineeRepository.changePassword(trainee.getUsername(), newPassword);
+    }
+
+    @Transactional
+    @Override
+    public void changePassword(String username, String newPassword) {
+        traineeRepository.changePassword(username, newPassword);
+    }
+
+    @Transactional
+    @Override
+    public TraineeProfileDTO updateProfile(UpdateTraineeRequestDTO traineeRequestDTO) {
+        Trainee currentTrainee = traineeRepository.findByUsername(traineeRequestDTO.getUsername()).orElseThrow(
+                () -> new IllegalArgumentException("Trainee not found with username: " + traineeRequestDTO.getUsername())
+        );
+
+        currentTrainee.setFirstName(traineeRequestDTO.getFirstName());
+        currentTrainee.setLastName(traineeRequestDTO.getLastName());
+        currentTrainee.setAddress(traineeRequestDTO.getAddress());
+        currentTrainee.setDateOfBirth(traineeRequestDTO.getDateOfBirth());
+        currentTrainee.setActive(traineeRequestDTO.getIsActive());
+        var updatedTrainee = traineeRepository.save(currentTrainee);
+
+        TraineeProfileDTO traineeProfileDTO = dataMapper.toProfileTraineeDTO(updatedTrainee);
+        traineeProfileDTO.setIsActive(updatedTrainee.isActive());
+
+        return traineeProfileDTO;
+    }
+
+    @Transactional
+    @Override
+    public void activateDeactivateTrainee(String username, boolean isActive) {
+        var entity = traineeRepository.findByUsername(username).orElseThrow(()
+                -> new IllegalArgumentException("Trainee not found with id: " + username));;
+
+        if (isActive) {
+            traineeRepository.activate(entity.getId());
+        } else {
+            traineeRepository.deactivate(entity.getId());
+        }
+    }
+
+    @Transactional
+    @Override
+    public Trainee authenticateTrainee(String username, String password) {
+        var entity = traineeRepository.findByUsername(username).orElseThrow(()
+                -> new IllegalArgumentException("Trainee not found with username: " + username));
+        if (!entity.getPassword().equals(password)) {
+            throw new UnauthorizedException("User is not authenticated: " + username);
+        }
+        return entity;
+    }
+
+    @Transactional
+    @Override
+    public void deleteProfile(String username) {
+        traineeRepository.delete(username);
+    }
+
+    @Override
+    @Transactional
+    public List<Trainer> updateTrainersList(String traineeUsername, List<String> trainerUsernames) {
+        var trainee = traineeRepository.findByUsername(traineeUsername).orElseThrow(()
+                -> new IllegalArgumentException("Trainee not found with username: " + traineeUsername));
+
+        List<Trainer> newTrainers = trainerUsernames.stream()
+                .map(username -> {
+                    Trainer trainer = trainerRepository.findByUsername(username).orElseThrow(()
+                            -> new IllegalArgumentException("Trainer not found with username: " + username));
+                    return trainer;
+                })
+                .toList();
+
+        trainee.setTrainers(new ArrayList<>(newTrainers));
+        traineeRepository.save(trainee);
+
+        return newTrainers;
+    }
+
+    private void setUsername(Trainee trainee) {
+        trainee.setUsername(UsernameAndPasswordGenerator.createUsername(
+                trainee.getFirstName(),
+                trainee.getLastName()));
+        trainee.setPassword(UsernameAndPasswordGenerator.generatePassword());
+        List<String> usernameDuplicates = traineeRepository.findUsernamesLike(trainee.getFirstName() + "%");
+        trainee.setUsername(trainee.getUsername() + (usernameDuplicates.size() == 0 ? "" : usernameDuplicates.size()));
+    }
+
 }

@@ -1,26 +1,25 @@
 package epam;
 
-import epam.application.FacadeGymCrmSystem;
-import epam.config.ApplicationConfig;
-import epam.config.DataSilosConfig;
+import epam.config.TestConfig;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
-import epam.service.impl.TraineeServiceImpl;
-import epam.service.impl.TrainerServiceImpl;
-import epam.service.impl.TrainingServiceImpl;
-import epam.storage.*;
+import epam.service.TraineeService;
+import epam.service.TrainerService;
+import epam.service.TrainingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {ApplicationConfig.class, DataSilosConfig.class})
+@ContextConfiguration(classes = {TestConfig.class})
+@Transactional
 public class AllBeansTest {
 
     private ApplicationContext applicationContext;
@@ -39,29 +38,9 @@ public class AllBeansTest {
 
     @Test
     void testAllServiceBeansExist() {
-        assertNotNull(applicationContext.getBean(TraineeServiceImpl.class));
-        assertNotNull(applicationContext.getBean(TrainerServiceImpl.class));
-        assertNotNull(applicationContext.getBean(TrainingServiceImpl.class));
+        assertNotNull(applicationContext.getBean(TraineeService.class));
+        assertNotNull(applicationContext.getBean(TrainerService.class));
+        assertNotNull(applicationContext.getBean(TrainingService.class));
     }
 
-    @Test
-    void testFacadeBeanExists() {
-        assertNotNull(applicationContext.getBean(FacadeGymCrmSystem.class));
-    }
-
-    @Test
-    void testStorageBeansExist() {
-        assertNotNull(applicationContext.getBean("traineeStorage"));
-        assertNotNull(applicationContext.getBean("trainerStorage"));
-        assertNotNull(applicationContext.getBean("trainingStorage"));
-        assertNotNull(applicationContext.getBean("trainingTypeStorage"));
-    }
-
-    @Test
-    void testDataLoaderBeansExist() {
-        assertNotNull(applicationContext.getBean(TraineeDataLoader.class));
-        assertNotNull(applicationContext.getBean(TrainerDataLoader.class));
-        assertNotNull(applicationContext.getBean(TrainingDataLoader.class));
-        assertNotNull(applicationContext.getBean(TrainingTypeDataLoader.class));
-    }
 }

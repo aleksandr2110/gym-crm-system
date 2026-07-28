@@ -1,0 +1,69 @@
+package epam.controller.interfaces;
+
+import epam.domain.dto.request.TraineeTrainingsRequestDTO;
+import epam.domain.dto.request.TrainerTrainingsRequestDTO;
+import epam.domain.dto.request.TrainingRequestDTO;
+import epam.domain.dto.response.TrainingDTO;
+import epam.domain.dto.response.TrainingTypeDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Tag(name = "Training Management", description = "Operations for training management")
+public interface TrainingController {
+
+    @GetMapping("/types")
+    @Operation(summary = "Get Training types", description = "Retrieves list of all training types")
+    @ApiResponse(responseCode = "200", description = "Types retrieved successfully")
+    ResponseEntity<List<TrainingTypeDTO>> getTrainingTypes();
+
+    @PostMapping
+    @Operation(summary = "Add training", description = "Creates a new training session")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Training created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "404", description = "Trainee or trainer not found")
+    })
+    ResponseEntity<Void> addTraining(
+            @Parameter(description = "Training creation data", required = true)
+            @Valid @RequestBody TrainingRequestDTO request,
+            @Parameter(description = "Trainer header username", required = true)
+            @RequestHeader("X-Username") String headerUsername,
+            @Parameter(description = "Trainer header password", required = true)
+            @RequestHeader("X-Password") String headerPassword);
+
+    @GetMapping("/trainee")
+    @Operation(summary = "Get trainee trainings", description = "Retrieves list of trainings for a trainee with optional filters")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trainings retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Trainee not found")
+    })
+    ResponseEntity<List<TrainingDTO>> getTraineeTrainings(
+            @Parameter(description = "Filter criteria for trainee trainings", required = true)
+            @Valid @RequestBody TraineeTrainingsRequestDTO filterRequest,
+            @Parameter(description = "Trainer header username", required = true)
+            @RequestHeader("X-Username") String headerUsername,
+            @Parameter(description = "Trainer header password", required = true)
+            @RequestHeader("X-Password") String headerPassword);
+
+    @GetMapping("/trainer")
+    @Operation(summary = "Get trainer trainings", description = "Retrieves list of trainings for a trainer with optional filters")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Trainings retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Trainer not found")
+    })
+    ResponseEntity<List<TrainingDTO>> getTrainerTrainings(
+            @Parameter(description = "Filter criteria for trainer trainings", required = true)
+            @Valid @RequestBody TrainerTrainingsRequestDTO filterRequest,
+            @Parameter(description = "Trainer header username", required = true)
+            @RequestHeader("X-Username") String headerUsername,
+            @Parameter(description = "Trainer header password", required = true)
+            @RequestHeader("X-Password") String headerPassword);
+}

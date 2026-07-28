@@ -1,96 +1,108 @@
 package epam.repository;
 
-import epam.domain.Trainer;
-import epam.util.UsernameAndPasswordGenerator;
+import epam.domain.entity.Trainer;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.Map;
-import java.util.logging.Logger;
+import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Repository
 public class TrainerRepository implements EntityRepository<Trainer, Long> {
 
-    private final Map<Long, Trainer> trainerStorage;
-    private static final Logger logger = Logger.getLogger(TrainerRepository.class.getName());
+    private final EntityManager entityManager;
 
-    public TrainerRepository(Map<Long, Trainer> trainerStorage) {
-        this.trainerStorage = trainerStorage;
+    public TrainerRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Override
     public Trainer save(Trainer trainer) {
-        if (trainer == null) {
-            logger.warning("Attempt to save null user");
-            throw new IllegalArgumentException("Attempt to save null user");
+        if (trainer.getId() == null) {
+            entityManager.persist(trainer);
+        } else {
+            trainer = entityManager.merge(trainer);
         }
-
-        String username = trainer.getUserName();
-
-        if (username == null) {
-            trainer.setUserName(UsernameAndPasswordGenerator.createUsername(
-                    trainer.getFirstName(),
-                    trainer.getLastName()));
-            checkEqualsUsername(trainer.getUserName(), trainer);
-            trainer.setPassword(UsernameAndPasswordGenerator.generatePassword());
-            trainer.setUserId(appointId((long) trainerStorage.size() + 1));
-        }
-
-        trainerStorage.put(trainer.getUserId(), trainer);
+        log.info("Trainer saved with username: {}", trainer.getUsername());
         return trainer;
     }
 
     @Override
-    public Trainer select(Long id) {
-        if (id == null) {
-            logger.warning("Attempt to select user with null id");
-            throw new IllegalArgumentException("Attempt to select user with null id");
-        }
-
-        Trainer selectedTrainer = null;
-        for (Map.Entry<Long, Trainer> entry : trainerStorage.entrySet()) {
-            var traineeDao = entry.getValue();
-            if (traineeDao.getUserId().longValue() == id.longValue()) {
-                selectedTrainer = traineeDao;
-            }
-        }
-
-        return selectedTrainer;
+    public Optional<Trainer> findById(Long id) {
+        var entity = entityManager.find(Trainer.class, id);
+        return Optional.ofNullable(entity);
     }
 
     @Override
-    public Trainer update(Trainer entity) {
-
-        return trainerStorage.put(entity.getUserId(), entity);
+    public Optional<Trainer> findByUsername(String username) {
+        TypedQuery<Trainer> query = entityManager.createQuery(
+                "FROM Trainer t WHERE t.username = :username", Trainer.class);
+        query.setParameter("username", username);
+        return query.getResultStream().findAny();
     }
 
-    private void checkEqualsUsername(String username, Trainer trainer) {
-        Integer identifier;
+    @Override
+    public void changePassword(Long id, String newPassword) {
+        var entity = findById(id).orElseThrow(()
+                -> new IllegalArgumentException("Trainer not found with id: " + id));
 
-        if (trainerStorage.containsKey(username)) {
-            for (identifier = 1; identifier < 100; identifier++) {
-                username = username + identifier;
-                if (!trainerStorage.containsKey(username)) {
-                    trainer.setUserName(username);
-                    logger.info("User with username: " + username);
-                    break;
-                }
-            }
-        } else {
-            trainer.setUserName(username);
-            logger.info("User with username: " + username);
-        }
+        entity.setPassword(newPassword);
+        entityManager.merge(entity);
+        log.info("Password changed for trainer with id: {}", id);
     }
 
-    private Long appointId(Long userId) {
+    @Override
+    public void changePassword(String username, String newPassword) {
+        Trainer entity = findByUsername(username).orElseThrow(() ->
+                new IllegalArgumentException("Trainer not found with username: " + username));
 
-        for (Map.Entry<Long, Trainer> entry : trainerStorage.entrySet()) {
-            Trainer traineeDao = entry.getValue();
-            if (traineeDao.getUserId().longValue() == userId.longValue()) {
-                appointId(++userId);
-                break;
-            }
-        }
+        entity.setPassword(newPassword);
+        entityManager.merge(entity);
+        log.info("Password changed for trainee with user name: {}", username);
+    }
 
-        return userId;
+    @Override
+    public void activate(Long id) {
+        var entity = findById(id).orElseThrow(
+                () -> new IllegalArgumentException("Trainer not found with id: " + id));
+        entity.setActive(!entity.isActive());
+        entityManager.merge(entity);
+        log.info("Trainer activated with id: {}", id);
+    }
+
+    @Override
+    public void deactivate(Long id) {
+        var entity = findById(id).orElseThrow(()
+                -> new IllegalArgumentException("Trainer not found with id: " + id));
+        entity.setActive(!entity.isActive());
+        entityManager.merge(entity);
+        log.info("Trainer deactivated with id: {}", id);
+    }
+
+    @Override
+    public void delete(String username) {
+        var entity = findByUsername(username).orElseThrow(() ->
+                new IllegalArgumentException("Trainer not found with username: " + username));
+        entityManager.remove(entity);
+        log.info("Trainer deleted with username: {}", username);
+    }
+
+    @Override
+    public List<Trainer> findAll() {
+        Query query = entityManager.createQuery(
+                "SELECT t FROM Trainer t", Trainer.class);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<String> findUsernamesLike(String likeUsername) {
+        return entityManager.createQuery(
+                        "select t.username from Trainer t where t.username like :username", String.class)
+                .setParameter("username", likeUsername)
+                .getResultList();
     }
 }
