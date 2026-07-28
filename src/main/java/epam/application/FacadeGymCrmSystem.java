@@ -1,9 +1,8 @@
 package epam.application;
 
 import epam.domain.dto.request.*;
-import epam.domain.dto.response.RegistrationResponseDTO;
-import epam.domain.dto.response.TraineeProfileDTO;
-import epam.domain.dto.response.TrainerInfoDTO;
+import epam.domain.dto.response.*;
+import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
 import epam.service.TraineeService;
 import epam.service.TrainerService;
@@ -34,6 +33,10 @@ public class FacadeGymCrmSystem {
         this.trainingService = trainingService;
         this.dataMapper = dataMapper;
         this.trainingTypeService = trainingTypeService;
+    }
+
+    public Trainee authenticateTrainee(String username, String password) {
+        return traineeService.authenticateTrainee(username, password);
     }
 
     public RegistrationResponseDTO createTrainee(TraineeRequestDTO request) {
@@ -124,6 +127,55 @@ public class FacadeGymCrmSystem {
                 .build();
         return trainerDTO;
     }
+
+    public TrainerProfileDTO getTrainerByUsername(String username, String headerUsername, String headerPassword) {
+        trainerService.authenticateTrainer(headerUsername, headerPassword);
+        var trainer = trainerService.findByUsername(username);
+
+        var trainerProfileDTO = dataMapper.toProfileTrainerDTO(trainer);
+        trainerProfileDTO.setIsActive(trainer.isActive());
+        trainerProfileDTO.setSpecialization(trainer.getSpecialization().getTrainingTypeName().getName());
+        return trainerProfileDTO;
+    }
+
+    public TrainerProfileDTO updateTrainerProfile(UpdateTrainerRequestDTO request, String headerUsername, String headerPassword) {
+        trainerService.authenticateTrainer(headerUsername, headerPassword);
+        var trainer = trainerService.updateProfile(request);
+
+        var trainerProfileDTO = dataMapper.toProfileTrainerDTO(trainer);
+        trainerProfileDTO.setSpecialization(trainer.getSpecialization().getTrainingTypeName().getName());
+        trainerProfileDTO.setIsActive(trainer.isActive());
+
+        return trainerProfileDTO;
+    }
+
+    public void changeTrainerPassword(ChangePasswordRequestDTO request, String headerUsername,
+                                      String headerPassword) {
+        var trainer = trainerService.authenticateTrainer(headerUsername, headerPassword);
+        trainerService.changePassword(request.getUsername(), request.getOldPassword(), request.getNewPassword());
+    }
+
+    public void activateDeactivateTrainer(String username, Boolean isActive,
+                                          String headerUsername, String headerPassword) {
+        trainerService.authenticateTrainer(headerUsername, headerPassword);
+        trainerService.activateDeactivateTrainee(username, isActive);
+    }
+
+    public Trainer authenticateTrainer(String username, String password) {
+        return trainerService.authenticateTrainer(username, password);
+    }
+
+    public List<TrainingTypeDTO> getTrainingTypes() {
+        var trainingTypes = trainingTypeService.findAll();
+        List<TrainingTypeDTO> types = trainingTypes.stream()
+                .map(trainingType -> {
+                    var trainingTypeDTO = new TrainingTypeDTO();
+                    trainingTypeDTO.setId(trainingType.getId());
+                    trainingTypeDTO.setTrainingTypeName(trainingType.getTrainingTypeName().name());
+                    return trainingTypeDTO;
+                }).toList();
+        return types;
+    }
     /*
      public void createTrainingType(List<TrainingTypeDTO> trainingTypeDTOs) {
         log.info("Creating training types ");
@@ -133,53 +185,6 @@ public class FacadeGymCrmSystem {
             trainingTypeList.add(trainingType);
         }
         trainingTypeService.saveTrainingType(trainingTypeList);
-    }
-
-    public Trainer createTrainer(TrainerDTO trainerDto) {
-        log.info("Creating trainer {} {}", trainerDto.getFirstName(), trainerDto.getLastName());
-        var trainer = trainerMapper.toModel(trainerDto);
-        return trainerService.save(trainer);
-    }
-
-    public Trainee authenticateTrainee(String username, String password) {
-        log.info("Authenticating trainee {}", username);
-        return traineeService.authenticateTrainee(username, password);
-    }
-
-    public Trainer authenticateTrainer(String username, String password) {
-        log.info("Authenticating trainer {}", username);
-        return trainerService.authenticateTrainer(username, password);
-    }
-
-    public Trainer getTrainer(String username, String password, Long userId) {
-        log.info("Getting trainer with userId " + userId);
-        var trainer = authenticateTrainer(username, password);
-        return trainerService.findById(trainer.getId());
-    }
-
-    public Trainer updateTrainer(String username, String password, TrainerDTO trainerDto, Long userId) {
-        log.info("Updating trainer with id " + userId);
-        var trainer = authenticateTrainer(username, password);
-        var trainerRequest =  trainerMapper.toModel(trainerDto);
-        return trainerService.updateProfile(trainerRequest, trainer.getId());
-    }
-
-    public void activateTrainer(String username, String password) {
-        log.info("Activating trainer with user name {}", username);
-        var trainer = authenticateTrainer(username, password);
-        trainerService.activate(trainer.getId());
-    }
-
-    public void deactivateTrainer(String username, String password) {
-        log.info("Deactivating trainer with user name {}", username);
-        var trainer = authenticateTrainer(username, password);
-        trainerService.deactivate(trainer.getId());
-    }
-
-    public void changeTrainerPassword(String username, String password, String newPassword) {
-        log.info("Changing password trainee with user name {}", username);
-        var trainer = authenticateTrainer(username, password);
-        trainerService.changePassword(trainer.getUserName(), newPassword);
     }
 
     public List<Training> createTraining(TrainingDTO trainingDTO) {

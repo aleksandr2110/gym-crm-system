@@ -1,5 +1,6 @@
 package epam.controller.rest;
 
+import epam.application.FacadeGymCrmSystem;
 import epam.controller.interfaces.TrainingController;
 import epam.domain.dto.request.TraineeTrainingsRequestDTO;
 import epam.domain.dto.request.TrainerTrainingsRequestDTO;
@@ -24,8 +25,8 @@ import java.util.List;
 public class TrainingControllerImpl implements TrainingController {
 
     private final TrainingService trainingService;
-    private final TrainingTypeService trainingTypeService;
     private final TrainerService trainerService;
+    private final FacadeGymCrmSystem facadeGymCrmSystem;
 
     // http://localhost:8080/swagger-ui.html
 
@@ -33,14 +34,7 @@ public class TrainingControllerImpl implements TrainingController {
     public ResponseEntity<List<TrainingTypeDTO>> getTrainingTypes() {
         log.info("Get training types request received for username");
 
-        var trainingTypes = trainingTypeService.findAll();
-        List<TrainingTypeDTO> types = trainingTypes.stream()
-                .map(trainingType -> {
-                    var trainingTypeDTO = new TrainingTypeDTO();
-                    trainingTypeDTO.setId(trainingType.getId());
-                    trainingTypeDTO.setTrainingTypeName(trainingType.getTrainingTypeName().name());
-            return trainingTypeDTO;
-        }).toList();
+        List<TrainingTypeDTO> types = facadeGymCrmSystem.getTrainingTypes();
 
         log.info("Training types retrieved successfully!");
         return ResponseEntity.ok(types);

@@ -93,6 +93,7 @@ public class TraineeControllerTest {
 
         var profileDTO = deserializeFromJsonFile(
                 "/trainee/get-trainee-by-username.json", TraineeProfileDTO.class);
+
         Mockito.when(facadeGymCrmSystem.getTraineeByUsername(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenReturn(profileDTO);
 
@@ -314,20 +315,6 @@ public class TraineeControllerTest {
     }
 
     /*@Test
-    // "2026-07-26T15:30:00",
-
-    void shouldSortByCompanyNameAndAsc() {
-        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(getVacanciesSortByAndOrderBy())
-                .queryParam("pageNumber", 0)
-                .queryParam("pageSize", 4)
-                .queryParam("sortBy", "companyName")
-                .queryParam("orderBy", "asc");
-        var responseDto = testRestTemplate.getForObject(uriBuilder.toUriString(), DataObjectDTO.class);
-
-        List<DataDTO> responseList = responseDto.getDataList();
-        // AHV Deutschland GmbH GAB-Solution GmbH PrettyTELCO GmbH PrettyTELCO GmbH ASC page 0
-        assertEquals(4, responseDto.getDataList().size());
-        assertEquals("AHV Deutschland GmbH", responseList.get(0).getCompanyName());
-        assertEquals("GAB-Solution GmbH", responseList.get(1).getCompanyName());
+    // "2026-07-26T15:30:00"
     }*/
 }

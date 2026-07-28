@@ -13,10 +13,10 @@ public interface TrainerService {
 
     Trainer save(Trainer trainer);
     Trainer findById(Long id);
-    TrainerProfileDTO findByUsername(String userName);
+    Trainer findByUsername(String userName);
     void changePassword(Long id, String newPassword);
     void changePassword(String username, String oldPassword, String newPassword);
-    TrainerProfileDTO updateProfile(UpdateTrainerRequestDTO requestTrainer);
+    Trainer updateProfile(UpdateTrainerRequestDTO requestTrainer);
     void  activateDeactivateTrainee(String username, boolean isActive);
     Trainer authenticateTrainer(String username, String password);
     void deleteProfile(String username);

@@ -86,13 +86,11 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional
-    public TrainerProfileDTO findByUsername(String userName) {
+    public Trainer findByUsername(String userName) {
         var trainer = trainerRepository.findByUsername(userName).orElseThrow(
                 () -> new IllegalArgumentException("Trainer not found with username: " + userName));
-        var trainerProfileDTO = dataMapper.toProfileTrainerDTO(trainer);
-        trainerProfileDTO.setIsActive(trainer.isActive());
-        trainerProfileDTO.setSpecialization(trainer.getSpecialization().getTrainingTypeName().getName());
-        return trainerProfileDTO;
+
+        return trainer;
     }
 
     @Override
@@ -114,9 +112,10 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Transactional
     @Override
-    public TrainerProfileDTO updateProfile(UpdateTrainerRequestDTO requestTrainer) {
-        Trainer currentTrainer = trainerRepository.findByUsername(requestTrainer.getUsername()).orElseThrow(
-                () -> new IllegalArgumentException("Trainer not found with username: " + requestTrainer.getUsername())
+    public Trainer updateProfile(UpdateTrainerRequestDTO requestTrainer) {
+        Trainer currentTrainer = trainerRepository.findByUsername(requestTrainer.getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("Trainer not found with username: "
+                        + requestTrainer.getUsername())
         );
         currentTrainer.setUsername(requestTrainer.getUsername());
         currentTrainer.setFirstName(requestTrainer.getFirstName());
@@ -127,12 +126,7 @@ public class TrainerServiceImpl implements TrainerService {
         currentTrainer.setSpecialization(trainingType);
         currentTrainer.setActive(requestTrainer.getIsActive());
 
-        var updatedTrainer = trainerRepository.save(currentTrainer);
-        var trainerProfileDTO = dataMapper.toProfileTrainerDTO(updatedTrainer);
-        trainerProfileDTO.setSpecialization(updatedTrainer.getSpecialization().getTrainingTypeName().getName());
-        trainerProfileDTO.setIsActive(updatedTrainer.isActive());
-
-        return trainerProfileDTO;
+        return trainerRepository.save(currentTrainer);
     }
 
     @Transactional

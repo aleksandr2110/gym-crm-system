@@ -7,7 +7,6 @@ import epam.domain.dto.request.TrainerRequestDTO;
 import epam.domain.dto.request.UpdateTrainerRequestDTO;
 import epam.domain.dto.response.RegistrationResponseDTO;
 import epam.domain.dto.response.TrainerProfileDTO;
-import epam.service.TrainerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TrainerControllerImpl implements TrainerController {
 
-    private final TrainerService trainerService;
     private final FacadeGymCrmSystem facadeGymCrmSystem;
     // http://localhost:8080/swagger-ui.html
 
@@ -41,8 +39,7 @@ public class TrainerControllerImpl implements TrainerController {
                                                                String headerPassword) {
         log.info("Get trainer profile request received for username: {}", username);
 
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-        TrainerProfileDTO profile = trainerService.findByUsername(username);
+        var profile = facadeGymCrmSystem.getTrainerByUsername(username, headerUsername, headerPassword);
 
         log.info("Trainer profile retrieved successfully for username: {}", username);
         return ResponseEntity.ok(profile);
@@ -54,8 +51,7 @@ public class TrainerControllerImpl implements TrainerController {
                                                                   String headerPassword) {
         log.info("Update trainer profile request received for username: {}", request.getUsername());
 
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-        TrainerProfileDTO profile = trainerService.updateProfile(request);
+        var profile = facadeGymCrmSystem.updateTrainerProfile(request, headerUsername, headerPassword);
 
         log.info("Trainer profile updated successfully for username: {}", request.getUsername());
         return ResponseEntity.ok(profile);
@@ -67,8 +63,7 @@ public class TrainerControllerImpl implements TrainerController {
                                                String headerPassword) {
         log.info("Change password request received for trainer: {}", request.getUsername());
 
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-        trainerService.changePassword(request.getUsername(), request.getOldPassword(), request.getNewPassword());
+        facadeGymCrmSystem.changeTrainerPassword(request, headerUsername, headerPassword);
 
         log.info("Password changed successfully for trainer: {}", request.getUsername());
         return ResponseEntity.ok().build();
@@ -79,8 +74,7 @@ public class TrainerControllerImpl implements TrainerController {
                                                           String headerUsername, String headerPassword) {
         log.info("Activate/Deactivate trainer request received for username: {}, isActive: {}", username, isActive);
 
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-        trainerService.activateDeactivateTrainee(username, isActive);
+        facadeGymCrmSystem.activateDeactivateTrainer(username, isActive, headerUsername, headerPassword);
 
         log.info("Trainer status updated successfully for username: {}, new status: {}", username, isActive);
         return ResponseEntity.ok().build();
