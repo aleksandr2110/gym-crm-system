@@ -2,10 +2,7 @@ package epam.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -18,20 +15,13 @@ import java.util.*;
 @Table(name = "trainees")
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 @PrimaryKeyJoinColumn(name = "user_id") // Links to parent table ID
 public class Trainee extends User {
 
     @Id
-    //@Column(name = "id", nullable = false) // user_id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-//    @NotNull
-//    @MapsId
-//    @OneToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.ALL)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
@@ -60,15 +50,4 @@ public class Trainee extends User {
         trainings.add(training);
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (o == null || getClass() != o.getClass()) return false;
-//        Trainee trainee = (Trainee) o;
-//        return isActive == trainee.isActive && Objects.equals(id, trainee.id) && Objects.equals(user, trainee.user) && Objects.equals(dateOfBirth, trainee.dateOfBirth) && Objects.equals(address, trainee.address) && Objects.equals(trainers, trainee.trainers) && Objects.equals(trainings, trainee.trainings);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(id, user, isActive, dateOfBirth, address, trainers, trainings);
-//    }
 }

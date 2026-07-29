@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import epam.application.FacadeGymCrmSystem;
 import epam.controller.interfaces.TrainingController;
 import epam.controller.rest.TrainingControllerImpl;
+import epam.domain.dto.request.TraineeTrainingsRequestDTO;
+import epam.domain.dto.request.TrainerTrainingsRequestDTO;
 import epam.domain.dto.request.TrainingRequestDTO;
+import epam.domain.dto.response.TrainingDTO;
 import epam.domain.dto.response.TrainingTypeDTO;
 import epam.service.TrainerService;
 import epam.service.TrainingService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,28 +18,23 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TrainingControllerTest {
 
-    @Mock
-    private TrainingService trainingService;
-    @Mock
-    private TrainerService trainerService;
     @Mock
     private FacadeGymCrmSystem facadeGymCrmSystem;
 
@@ -47,7 +43,7 @@ public class TrainingControllerTest {
 
     @BeforeEach
     void setup() {
-        TrainingController controller = new TrainingControllerImpl(trainingService, trainerService, facadeGymCrmSystem);
+        TrainingController controller = new TrainingControllerImpl(facadeGymCrmSystem);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .build();
         objectMapper = new ObjectMapper();
@@ -105,6 +101,65 @@ public class TrainingControllerTest {
 
     @Test
     public void shouldReturnTraineeTraining() throws Exception {
+        var filterRequest = new TraineeTrainingsRequestDTO();
+        filterRequest.setUsername("Kevin.Josh");
+        filterRequest.setTrainingType("Java");
+        filterRequest.setPeriodFrom("2026-07-10 20:38:00");
+        filterRequest.setPeriodTo("2026-07-30 20:38:00");
+        filterRequest.setTrainerName("Java learning");
 
+        Mockito.when(facadeGymCrmSystem.getTraineeTraining(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(getTrainings());
+
+        mockMvc.perform(get("/api/v1/trainings/trainee")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(filterRequest))
+                        .header("X-Username", "Josh")
+                        .header("X-Password", "34322ds"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].trainerName").exists())
+                .andExpect(jsonPath("$[0].trainingType").exists());
+    }
+
+    @Test
+    public void shouldReturnTrainerTraining() throws Exception {
+        var filterRequest = new TrainerTrainingsRequestDTO();
+        filterRequest.setUsername("Kevin.Josh");
+        filterRequest.setPeriodFrom("2026-07-10 20:38:00");
+        filterRequest.setPeriodTo("2026-07-30 20:38:00");
+        filterRequest.setTraineeName("Stive.Jobs");
+
+        Mockito.when(facadeGymCrmSystem.getTrainerTrainings(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(getTrainings());
+
+        mockMvc.perform(get("/api/v1/trainings/trainer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(filterRequest))
+                        .header("X-Username", "Josh")
+                        .header("X-Password", "34322ds"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].trainerName").value("Jeff.Gosling"))
+                .andExpect(jsonPath("$[0].trainingType").value("Java"));
+    }
+
+    private List<TrainingDTO> getTrainings() {
+        var traning = new TrainingDTO();
+        traning.setTrainerName("Jeff.Gosling");
+        traning.setTrainingType("Java");
+        traning.setTrainingName("Java learning");
+        traning.setTrainingDate(LocalDateTime.of(2026, 7, 12, 18, 30));
+        traning.setTrainingDuration(50);
+        var traning2 = new TrainingDTO();
+        traning2.setTrainerName("Stive.Vitkov");
+        traning2.setTrainingType("Python");
+        traning2.setTrainingName("Python learning");
+        traning2.setTrainingDate(LocalDateTime.of(2026, 7, 17, 18, 30));
+        traning2.setTrainingDuration(50);
+        List<TrainingDTO> trainings = new ArrayList<>(Arrays.asList(traning, traning2));
+        return trainings;
     }
 }

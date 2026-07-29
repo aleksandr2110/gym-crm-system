@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -24,8 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TrainingControllerImpl implements TrainingController {
 
-    private final TrainingService trainingService;
-    private final TrainerService trainerService;
     private final FacadeGymCrmSystem facadeGymCrmSystem;
 
     // http://localhost:8080/swagger-ui.html
@@ -78,8 +75,8 @@ public class TrainingControllerImpl implements TrainingController {
                 filterRequest.getUsername(), filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(),
                 filterRequest.getTraineeName());
 
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-        List<TrainingDTO> trainings = trainingService.selectTrainerTrainings(filterRequest);
+
+        List<TrainingDTO> trainings = facadeGymCrmSystem.getTrainerTrainings(filterRequest, headerUsername, headerPassword);
 
         log.info("Trainer trainings retrieved successfully for username: {}, count: {}",
                 filterRequest.getUsername(), trainings.size());

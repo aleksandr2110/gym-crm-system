@@ -18,10 +18,10 @@ public class TraineeTrainingsRequestDTO {
     private String username;
 
     @Schema(description = "Period from date", example = "2026-07-01")
-    private LocalDateTime periodFrom;
+    private String periodFrom;
 
     @Schema(description = "Period to date", example = "2026-07-30")
-    private LocalDateTime periodTo;
+    private String periodTo;
 
     @Schema(description = "Trainer name to filter by", example = "Josh.Gosling")
     private String trainerName;

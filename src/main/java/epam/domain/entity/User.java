@@ -40,9 +40,4 @@ public class User {
     @ColumnDefault("0")
     private boolean isActive;
 
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    Trainee trainee;
-
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private Trainer trainer;
 }

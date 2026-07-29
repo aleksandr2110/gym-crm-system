@@ -195,7 +195,13 @@ public class FacadeGymCrmSystem {
                                                 String headerPassword) {
 
         trainerService.authenticateTrainer(headerUsername, headerPassword);
-        List<Training> trainingsList = trainingService.selectTraineeTrainings(filterRequest);
+        String username = filterRequest.getUsername();
+        LocalDateTime fromDate = LocalDateTime.parse(filterRequest.getPeriodFrom());
+        LocalDateTime toDate  = LocalDateTime.parse(filterRequest.getPeriodTo());
+        String trainingType = filterRequest.getTrainingType();
+
+        List<Training> trainingsList = trainingService.selectTraineeTrainings(username, fromDate,
+                toDate, trainingType);
         List<TrainingDTO> trainingDTOs = trainingsList.stream().map(
                 training -> {
                     var trainingResponse = new TrainingDTO();
@@ -210,28 +216,27 @@ public class FacadeGymCrmSystem {
 
         return trainingDTOs;
     }
-    /*
-    public Training findById(Long id) {
-        log.info("Find training by id {}", id);
-        return trainingService.findTrainingById(id);
+
+    public List<TrainingDTO> getTrainerTrainings(TrainerTrainingsRequestDTO filterRequest, String headerUsername,
+                                                 String headerPassword) {
+        trainerService.authenticateTrainer(headerUsername, headerPassword);
+        String trainerUsername = filterRequest.getUsername();
+        LocalDateTime fromDate = LocalDateTime.parse(filterRequest.getPeriodFrom());
+        LocalDateTime toDate  = LocalDateTime.parse(filterRequest.getPeriodTo());
+
+        List<Training> trainings = trainingService.selectTrainerTrainings(trainerUsername, fromDate, toDate);
+
+        List<TrainingDTO> trainingDTOs = trainings.stream().map(
+                training -> {
+                    var trainingResponse = new TrainingDTO();
+                    trainingResponse.setTrainingName(training.getTrainingName());
+                    trainingResponse.setTrainingType(training.getTrainingType().getTrainingTypeName().getName());
+                    trainingResponse.setTrainingDate(training.getTrainingDate());
+                    trainingResponse.setTrainingDuration(training.getTrainingDuration());
+                    trainingResponse.setTrainerName(training.getTrainer().getUsername());
+                    return trainingResponse;
+                }
+        ).toList();
+        return trainingDTOs;
     }
-
-    public List<Training> getTrainingByTrainingTypeName(String trainingTypeName) {
-        log.info("Find training by training type name {}", trainingTypeName);
-        return trainingService.getTrainingByTrainingTypeName(trainingTypeName);
-    }
-
-
-
-    public List<Training> getTrainerTrainingsByUserNameDateAndTrainingType(String trainerUsername, LocalDateTime fromDate,
-                                                                           LocalDateTime toDate) {
-        log.info("Getting trainings for trainer {} from {} to {}", trainerUsername, fromDate, toDate);
-        return trainingService.selectTrainerTrainings(trainerUsername, fromDate, toDate);
-    }
-
-    public List<Trainer> getTrainersNotAssignedToTrainee(String traineeUsername) {
-        log.info("Getting trainers not assigned to trainee {}", traineeUsername);
-        return trainerService.findAllNotAssignedToTrainee(traineeUsername);
-    }
-     */
 }

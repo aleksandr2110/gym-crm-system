@@ -1,10 +1,6 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
-import epam.domain.dto.request.TraineeTrainingsRequestDTO;
-import epam.domain.dto.request.TrainerTrainingsRequestDTO;
-import epam.domain.dto.request.TrainingRequestDTO;
-import epam.domain.dto.response.TrainingDTO;
 import epam.domain.entity.Training;
 import epam.domain.entity.TrainingType;
 import epam.domain.entity.TrainingTypeName;
@@ -68,31 +64,21 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Transactional
     @Override
-    public List<Training> selectTraineeTrainings(TraineeTrainingsRequestDTO filterRequest) {
-        List<Training> trainings = trainingRepository.findTraineeTrainingsByUserNameAndDate(filterRequest.getUsername(),
-                filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(), filterRequest.getTrainingType());
+    public List<Training> selectTraineeTrainings(String username, LocalDateTime fromDate, LocalDateTime toDate,
+                                                 String trainingType) {
+        List<Training> trainings = trainingRepository.findTraineeTrainingsByUserNameAndDate(username,
+                fromDate, toDate, trainingType);
 
         return trainings;
     }
 
     @Transactional
     @Override
-    public List<TrainingDTO> selectTrainerTrainings(TrainerTrainingsRequestDTO filterRequest) {
-        List<Training> trainings = trainingRepository.findTrainerTrainingsByUserNameAndDate(filterRequest.getUsername(),
-                filterRequest.getPeriodFrom(), filterRequest.getPeriodTo());
+    public List<Training> selectTrainerTrainings(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate) {
+        List<Training> trainings = trainingRepository.findTrainerTrainingsByUserNameAndDate(trainerUsername,
+                fromDate, toDate);
 
-        List<TrainingDTO> trainingDTOs = trainings.stream().map(
-                training -> {
-                    var trainingResponse = new TrainingDTO();
-                    trainingResponse.setTrainingName(training.getTrainingName());
-                    trainingResponse.setTrainingType(training.getTrainingType().getTrainingTypeName().getName());
-                    trainingResponse.setTrainingDate(training.getTrainingDate());
-                    trainingResponse.setTrainingDuration(training.getTrainingDuration());
-                    trainingResponse.setTrainerName(training.getTrainer().getUsername());
-                    return trainingResponse;
-                }
-        ).toList();
-        return trainingDTOs;
+        return trainings;
     }
 
     private Training getTraining(Training trainingRequest) {

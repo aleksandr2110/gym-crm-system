@@ -4,7 +4,6 @@ import epam.annotation.ExecutionTime;
 import epam.domain.dto.request.TraineeRequestDTO;
 import epam.domain.dto.request.UpdateTraineeRequestDTO;
 import epam.domain.dto.response.TraineeProfileDTO;
-import epam.domain.dto.response.TrainerInfoDTO;
 import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
 import epam.exception.UnauthorizedException;

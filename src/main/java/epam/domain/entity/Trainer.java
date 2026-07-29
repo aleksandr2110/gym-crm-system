@@ -1,10 +1,7 @@
 package epam.domain.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +17,6 @@ public class Trainer extends User {
     @Id
     @Column(name = "user_id", nullable = false)
     private Long id;
-
-//    @NotNull
-//    @OneToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.ALL)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
-//    @MapsId
-//    @JoinColumn(name = "user_id", nullable = false)
-//    User user;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "specialization_id", nullable = false)
