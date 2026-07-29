@@ -73,17 +73,6 @@ public interface TraineeController {
             @Parameter(description = "Trainer header password", required = true)
             @RequestHeader("X-Password") String headerPassword);
 
-    @GetMapping("/login")
-    @Operation(summary = "Login trainee", description = "Login a trainee by username and password")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Trainee login executed successfully"),
-            @ApiResponse(responseCode = "404", description = "Trainee not found")
-    })
-    ResponseEntity<Void> loginTrainee(
-            @Parameter(description = "Trainee username", required = true)
-            @RequestParam("username") String username,
-            @Parameter(description = "Trainee password", required = true)
-            @RequestParam("password") String password);
 
     @PutMapping
     @Operation(summary = "Update trainee profile", description = "Updates trainee profile information")

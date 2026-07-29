@@ -111,7 +111,7 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public void activateDeactivateTrainee(String username, boolean isActive) {
         var entity = traineeRepository.findByUsername(username).orElseThrow(()
-                -> new IllegalArgumentException("Trainee not found with id: " + username));;
+                -> new IllegalArgumentException("Trainee not found with username : " + username));;
 
         if (isActive) {
             traineeRepository.activate(entity.getId());
@@ -122,7 +122,7 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Transactional
     @Override
-    public Trainee authenticateTrainee(String username, String password) {
+    public Trainee authenticateTrainee(String username, String password) throws IllegalArgumentException {
         var entity = traineeRepository.findByUsername(username).orElseThrow(()
                 -> new IllegalArgumentException("Trainee not found with username: " + username));
         if (!entity.getPassword().equals(password)) {

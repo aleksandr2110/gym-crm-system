@@ -34,7 +34,7 @@ public class TrainingRequestDTO {
 
     @NotNull(message = "Training date is required")
     @Schema(description = "Training date", requiredMode = Schema.RequiredMode.REQUIRED, example = "2026-07-21-13-20-00")
-    private LocalDateTime trainingDate;
+    private String trainingDate;
 
     @NotNull(message = "Training duration is required")
     @Schema(description = "Training duration in minutes", requiredMode = Schema.RequiredMode.REQUIRED, example = "60")

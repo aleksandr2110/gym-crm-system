@@ -15,6 +15,12 @@ public class ExceptionHandlerController {
         return createError(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Error handleEntityNotFoundException(IllegalArgumentException e) {
+        return createError(HttpStatus.NOT_FOUND, e.getMessage());
+    }
+
     private Error createError(HttpStatus code, String message) {
         Error error = new Error();
         error.setCode(Integer.toString(code.value()));

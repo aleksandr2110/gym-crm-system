@@ -43,14 +43,12 @@ public class TrainingServiceImpl implements TrainingService {
     @ExecutionTime
     @Transactional
     @Override
-    public void save(TrainingRequestDTO trainingRequest) {
-
-        var convertedTraining = dataMapper.toTraining(trainingRequest);
+    public void save(Training trainingRequest) {
         var trainingType = new TrainingType();
-        trainingType.setTrainingTypeName(TrainingTypeName.getByName(trainingRequest.getTrainingType().toUpperCase()));
-        convertedTraining.setTrainingType(trainingType);
+        trainingType.setTrainingTypeName(TrainingTypeName.getByName(trainingRequest.getTrainingType().getTrainingTypeName().getName()));
+        trainingRequest.setTrainingType(trainingType);
 
-        var training = getTraining(convertedTraining);
+        var training = getTraining(trainingRequest);
         training.setTrainingName(trainingRequest.getTrainingName());
         training.setTrainingDate(trainingRequest.getTrainingDate());
         training.setTrainingDuration(trainingRequest.getTrainingDuration());
@@ -70,22 +68,11 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Transactional
     @Override
-    public List<TrainingDTO> selectTraineeTrainings(TraineeTrainingsRequestDTO filterRequest) {
+    public List<Training> selectTraineeTrainings(TraineeTrainingsRequestDTO filterRequest) {
         List<Training> trainings = trainingRepository.findTraineeTrainingsByUserNameAndDate(filterRequest.getUsername(),
                 filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(), filterRequest.getTrainingType());
 
-        List<TrainingDTO> trainingDTOs = trainings.stream().map(
-                training -> {
-                    var trainingResponse = new TrainingDTO();
-                    trainingResponse.setTrainingName(training.getTrainingName());
-                    trainingResponse.setTrainingType(training.getTrainingType().getTrainingTypeName().getName());
-                    trainingResponse.setTrainingDate(training.getTrainingDate());
-                    trainingResponse.setTrainingDuration(training.getTrainingDuration());
-                    trainingResponse.setTrainerName(training.getTrainer().getUsername());
-                    return trainingResponse;
-                }
-        ).toList();
-        return trainingDTOs;
+        return trainings;
     }
 
     @Transactional

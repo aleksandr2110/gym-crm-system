@@ -2,6 +2,7 @@ package epam.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import epam.application.FacadeGymCrmSystem;
+import epam.controller.exception.ExceptionHandlerController;
 import epam.controller.interfaces.TraineeController;
 import epam.controller.rest.TraineeControllerImpl;
 import epam.domain.dto.request.ChangePasswordRequestDTO;
@@ -9,6 +10,7 @@ import epam.domain.dto.request.TraineeRequestDTO;
 import epam.domain.dto.response.RegistrationResponseDTO;
 import epam.domain.dto.response.TraineeProfileDTO;
 import epam.domain.dto.response.TrainerInfoDTO;
+import epam.exception.UnauthorizedException;
 import epam.service.TraineeService;
 import epam.service.TrainerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,12 +24,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDate;
 import java.util.List;
 
-import static epam.util.TestUtil.deserializeFromJsonFile;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @ExtendWith(MockitoExtension.class)
 public class TraineeControllerTest {
@@ -40,13 +43,13 @@ public class TraineeControllerTest {
     private FacadeGymCrmSystem facadeGymCrmSystem;
 
     private MockMvc mockMvc;
-
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setup() {
         TraineeController controller = new TraineeControllerImpl(traineeService, trainerService, facadeGymCrmSystem);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new ExceptionHandlerController())
                 .build();
         objectMapper = new ObjectMapper();
     }
@@ -57,8 +60,9 @@ public class TraineeControllerTest {
         newTrainee.setFirstName("Josh");
         newTrainee.setLastName("Builder");
         newTrainee.setAddress("434 fly road st");
-        var registrationResponseDTO = deserializeFromJsonFile(
-                "/trainee/registration-trainee-response.json", RegistrationResponseDTO.class);
+        var registrationResponseDTO = new RegistrationResponseDTO();
+        registrationResponseDTO.setUsername("Josh.Builder");
+        registrationResponseDTO.setPassword("fdsfdsf798");
 
         Mockito.when(facadeGymCrmSystem.createTrainee(Mockito.any())).thenReturn(registrationResponseDTO);
 
@@ -76,8 +80,9 @@ public class TraineeControllerTest {
         newTrainee.setFirstName("Josh");
         newTrainee.setLastName("Builder");
         newTrainee.setAddress("434 fly road st");
-        var registrationResponseDTO = deserializeFromJsonFile(
-                "/trainee/registration-trainee-response.json", RegistrationResponseDTO.class);
+        var registrationResponseDTO = new RegistrationResponseDTO();
+        registrationResponseDTO.setUsername("Josh.Builder");
+        registrationResponseDTO.setPassword("fdsfdsf798");
 
         Mockito.when(facadeGymCrmSystem.createTrainee(Mockito.any())).thenReturn(registrationResponseDTO);
 
@@ -91,8 +96,14 @@ public class TraineeControllerTest {
         var registrationResp = objectMapper.readValue(registrationResponse, RegistrationResponseDTO.class);
         String username = registrationResp.getUsername();
 
-        var profileDTO = deserializeFromJsonFile(
-                "/trainee/get-trainee-by-username.json", TraineeProfileDTO.class);
+        var profileDTO = new TraineeProfileDTO();
+        profileDTO.setUsername("Josh.Builder");
+        profileDTO.setFirstName("Josh");
+        profileDTO.setLastName("Builder");
+        profileDTO.setDateOfBirth(LocalDate.of(1990, 07, 26));
+        profileDTO.setAddress("11 Green st");
+        profileDTO.setIsActive(false);
+        profileDTO.setTrainers(List.of());
 
         Mockito.when(facadeGymCrmSystem.getTraineeByUsername(Mockito.any(), Mockito.any(),
                 Mockito.any())).thenReturn(profileDTO);
@@ -112,13 +123,27 @@ public class TraineeControllerTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenNotAuthorized() throws Exception {
+        String username = "Josef.Marti";
+        Mockito.when(facadeGymCrmSystem.getTraineeByUsername(Mockito.any(), Mockito.any(),
+                Mockito.any())).thenThrow(new UnauthorizedException("User is not authenticated: " + username));
+
+        mockMvc.perform(get("/api/v1/trainees/"+ username)
+                        .header("X-Username", "Josh")
+                        .header("X-Password", "34322ds"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
     void shouldDeleteTraineeByUsername() throws Exception  {
         var newTrainee = new TraineeRequestDTO();
         newTrainee.setFirstName("Josh");
         newTrainee.setLastName("Builder");
         newTrainee.setAddress("434 fly road st");
-        var registrationResponseDTO = deserializeFromJsonFile(
-                "/trainee/registration-trainee-response.json", RegistrationResponseDTO.class);
+
+        var registrationResponseDTO = new RegistrationResponseDTO();
+        registrationResponseDTO.setUsername("Josh.Builder");
+        registrationResponseDTO.setPassword("fdsfdsf798");
 
         Mockito.when(facadeGymCrmSystem.createTrainee(Mockito.any())).thenReturn(registrationResponseDTO);
 
@@ -134,7 +159,7 @@ public class TraineeControllerTest {
         var registrationResp = objectMapper.readValue(registrationResponse, RegistrationResponseDTO.class);
         String username = registrationResp.getUsername();
 
-        doNothing().when(facadeGymCrmSystem).deleteTrainee(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(facadeGymCrmSystem).deleteTrainee(Mockito.any(), Mockito.any(), Mockito.any());
 
         mockMvc.perform(delete("/api/v1/trainees/" + username)
                         .header("X-Username", "Josh")
@@ -150,8 +175,9 @@ public class TraineeControllerTest {
         newTrainee.setFirstName("Josh");
         newTrainee.setLastName("Builder");
         newTrainee.setAddress("434 fly road st");
-        var registrationResponseDTO = deserializeFromJsonFile(
-                "/trainee/registration-trainee-response.json", RegistrationResponseDTO.class);
+        var registrationResponseDTO = new RegistrationResponseDTO();
+        registrationResponseDTO.setUsername("Josh.Builder");
+        registrationResponseDTO.setPassword("fdsfdsf798");
 
         Mockito.when(facadeGymCrmSystem.createTrainee(Mockito.any())).thenReturn(registrationResponseDTO);
 
@@ -182,8 +208,9 @@ public class TraineeControllerTest {
         newTrainee.setFirstName("Josh");
         newTrainee.setLastName("Builder");
         newTrainee.setAddress("434 fly road st");
-        var registrationResponseDTO = deserializeFromJsonFile(
-                "/trainee/registration-trainee-response.json", RegistrationResponseDTO.class);
+        var registrationResponseDTO = new RegistrationResponseDTO();
+        registrationResponseDTO.setUsername("Josh.Builder");
+        registrationResponseDTO.setPassword("fdsfdsf798");
 
         Mockito.when(facadeGymCrmSystem.createTrainee(Mockito.any())).thenReturn(registrationResponseDTO);
 
@@ -238,8 +265,9 @@ public class TraineeControllerTest {
         newTrainee.setFirstName("Josh");
         newTrainee.setLastName("Builder");
         newTrainee.setAddress("434 fly road st");
-        var registrationResponseDTO = deserializeFromJsonFile(
-                "/trainee/registration-trainee-response.json", RegistrationResponseDTO.class);
+        var registrationResponseDTO = new RegistrationResponseDTO();
+        registrationResponseDTO.setUsername("Josh.Builder");
+        registrationResponseDTO.setPassword("fdsfdsf798");
 
         Mockito.when(facadeGymCrmSystem.createTrainee(Mockito.any())).thenReturn(registrationResponseDTO);
 
@@ -259,7 +287,7 @@ public class TraineeControllerTest {
         changePasswordRequest.setOldPassword(oldPassword);
         changePasswordRequest.setNewPassword("newPass5435");
 
-        doNothing().when(facadeGymCrmSystem).changeTraineePassword(Mockito.any(), Mockito.any(),
+        Mockito.doNothing().when(facadeGymCrmSystem).changeTraineePassword(Mockito.any(), Mockito.any(),
                 Mockito.any());
 
         mockMvc.perform(put("/api/v1/trainees/change-password")
@@ -278,8 +306,9 @@ public class TraineeControllerTest {
         newTrainee.setFirstName("Josh");
         newTrainee.setLastName("Builder");
         newTrainee.setAddress("434 fly road st");
-        var registrationResponseDTO = deserializeFromJsonFile(
-                "/trainee/registration-trainee-response.json", RegistrationResponseDTO.class);
+        var registrationResponseDTO = new RegistrationResponseDTO();
+        registrationResponseDTO.setUsername("Josh.Builder");
+        registrationResponseDTO.setPassword("fdsfdsf798");
 
         Mockito.when(facadeGymCrmSystem.createTrainee(Mockito.any())).thenReturn(registrationResponseDTO);
 

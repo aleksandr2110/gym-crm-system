@@ -49,10 +49,8 @@ public class TraineeControllerImpl implements TraineeController {
                                                                String headerPassword) {
         log.info("Get trainee profile request received for username: {}", username);
 
-
         TraineeProfileDTO profile = facadeGymCrmSystem.getTraineeByUsername(username, headerUsername,
                                                                             headerPassword);
-
         log.info("Trainee profile retrieved successfully for username: {}", username);
         return ResponseEntity.ok(profile);
     }
@@ -61,7 +59,6 @@ public class TraineeControllerImpl implements TraineeController {
     public ResponseEntity<Void> deleteTraineeProfile(String username, String headerUsername,
                                                      String headerPassword) {
         log.info("Delete trainee profile request received for username: {}", username);
-
 
         facadeGymCrmSystem.deleteTrainee(username, headerUsername, headerPassword);
 
@@ -79,16 +76,6 @@ public class TraineeControllerImpl implements TraineeController {
 
         log.info("Found {} available trainers for trainee: {}", trainers.size(), username);
         return ResponseEntity.ok(trainers);
-    }
-
-    @Override
-    public ResponseEntity<Void> loginTrainee(String username, String password) {
-        log.info("Login for trainee with username: {}", username);
-
-        facadeGymCrmSystem.loginTrainee(username, password);
-
-        log.info("Credentials were successfully performed for trainee: {}", username);
-        return ResponseEntity.ok().build();
     }
 
     @Override

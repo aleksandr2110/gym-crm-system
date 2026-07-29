@@ -2,8 +2,7 @@ package epam.application;
 
 import epam.domain.dto.request.*;
 import epam.domain.dto.response.*;
-import epam.domain.entity.Trainee;
-import epam.domain.entity.Trainer;
+import epam.domain.entity.*;
 import epam.service.TraineeService;
 import epam.service.TrainerService;
 import epam.service.TrainingService;
@@ -12,6 +11,7 @@ import epam.util.DataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,7 +83,13 @@ public class FacadeGymCrmSystem {
     }
 
     public void loginTrainee(String username, String password) {
+
         traineeService.authenticateTrainee(username, password);
+    }
+
+    public void loginTrainer(String username, String password) {
+
+        trainerService.authenticateTrainer(username, password);
     }
 
     public TraineeProfileDTO updateTraineeProfile(UpdateTraineeRequestDTO traineeRequestDTO,
@@ -176,31 +182,35 @@ public class FacadeGymCrmSystem {
                 }).toList();
         return types;
     }
+
+    public void createTraining(TrainingRequestDTO trainingRequest, String headerUsername, String headerPassword) {
+        trainerService.authenticateTrainer(headerUsername, headerPassword);
+
+        var training = dataMapper.toTraining(trainingRequest);
+        training.setTrainingDate(LocalDateTime.parse(trainingRequest.getTrainingDate()));
+        trainingService.save(training);
+    }
+
+    public List<TrainingDTO> getTraineeTraining(TraineeTrainingsRequestDTO filterRequest, String headerUsername,
+                                                String headerPassword) {
+
+        trainerService.authenticateTrainer(headerUsername, headerPassword);
+        List<Training> trainingsList = trainingService.selectTraineeTrainings(filterRequest);
+        List<TrainingDTO> trainingDTOs = trainingsList.stream().map(
+                training -> {
+                    var trainingResponse = new TrainingDTO();
+                    trainingResponse.setTrainingName(training.getTrainingName());
+                    trainingResponse.setTrainingType(training.getTrainingType().getTrainingTypeName().getName());
+                    trainingResponse.setTrainingDate(training.getTrainingDate());
+                    trainingResponse.setTrainingDuration(training.getTrainingDuration());
+                    trainingResponse.setTrainerName(training.getTrainer().getUsername());
+                    return trainingResponse;
+                }
+        ).toList();
+
+        return trainingDTOs;
+    }
     /*
-     public void createTrainingType(List<TrainingTypeDTO> trainingTypeDTOs) {
-        log.info("Creating training types ");
-        List<TrainingType> trainingTypeList = new ArrayList<>();
-        for (TrainingTypeDTO trainingTypeDTO: trainingTypeDTOs) {
-            var trainingType = trainingTypeMapper.toModel(trainingTypeDTO);
-            trainingTypeList.add(trainingType);
-        }
-        trainingTypeService.saveTrainingType(trainingTypeList);
-    }
-
-    public List<Training> createTraining(TrainingDTO trainingDTO) {
-        log.info("Creating training {}", trainingDTO.toString());
-        var training = trainingMapper.toModel(trainingDTO);
-        training.setTrainer(trainerService.findById(trainingDTO.getTrainerId()));
-
-        for (Long traineeId : trainingDTO.getTraineeIds()) {
-            var trainee = traineeService.findById(traineeId);
-            training.setTrainee(trainee);
-            trainingService.save(training);
-        }
-
-        return trainingService.getTrainingByTrainingTypeName(training.getTrainingType().getTrainingTypeName().name());
-    }
-
     public Training findById(Long id) {
         log.info("Find training by id {}", id);
         return trainingService.findTrainingById(id);
@@ -211,11 +221,7 @@ public class FacadeGymCrmSystem {
         return trainingService.getTrainingByTrainingTypeName(trainingTypeName);
     }
 
-    public List<Training> getTraineeTrainingByUserNameDateAndTrainingType(String traineeUsername, LocalDateTime fromDate,
-                                                                          LocalDateTime toDate, String trainingType) {
-        log.info("Getting trainings for trainee {} from {} to {}", traineeUsername, fromDate, toDate);
-        return trainingService.selectTraineeTrainings(traineeUsername, fromDate, toDate, trainingType);
-    }
+
 
     public List<Training> getTrainerTrainingsByUserNameDateAndTrainingType(String trainerUsername, LocalDateTime fromDate,
                                                                            LocalDateTime toDate) {

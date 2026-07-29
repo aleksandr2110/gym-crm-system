@@ -9,13 +9,13 @@ import epam.domain.dto.response.TrainingDTO;
 import epam.domain.dto.response.TrainingTypeDTO;
 import epam.service.TrainerService;
 import epam.service.TrainingService;
-import epam.service.TrainingTypeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -46,8 +46,7 @@ public class TrainingControllerImpl implements TrainingController {
         log.info("Add training request received: trainee={}, trainer={}, name={}",
                 request.getTraineeUsername(), request.getTrainerUsername(), request.getTrainingName());
 
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-        trainingService.save(request);
+        facadeGymCrmSystem.createTraining(request, headerUsername, headerPassword);
 
         log.info("Training created successfully: trainee={}, trainer={}, name={}",
                 request.getTraineeUsername(), request.getTrainerUsername(), request.getTrainingName());
@@ -62,11 +61,12 @@ public class TrainingControllerImpl implements TrainingController {
                 filterRequest.getUsername(), filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(),
                 filterRequest.getTrainerName(), filterRequest.getTrainingType());
 
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-        List<TrainingDTO> trainings = trainingService.selectTraineeTrainings(filterRequest);
+        List<TrainingDTO> trainings = facadeGymCrmSystem.getTraineeTraining(filterRequest,
+                headerUsername, headerPassword);
 
         log.info("Trainee trainings retrieved successfully for username: {}, count: {}",
                 filterRequest.getUsername(), trainings.size());
+
         return ResponseEntity.ok(trainings);
     }
 

@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface TrainingService {
 
-    void save(TrainingRequestDTO training);
+    void save(Training training);
     Training findTrainingById(Long id);
     List<Training> getTrainingByTrainingTypeName(String trainingTypeName);
-    List<TrainingDTO> selectTraineeTrainings(TraineeTrainingsRequestDTO filterRequest);
+    List<Training> selectTraineeTrainings(TraineeTrainingsRequestDTO filterRequest);
     List<TrainingDTO> selectTrainerTrainings(TrainerTrainingsRequestDTO filterRequest);
 }
