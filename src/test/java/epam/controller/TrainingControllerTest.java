@@ -7,10 +7,9 @@ import epam.controller.rest.TrainingControllerImpl;
 import epam.domain.dto.request.TraineeTrainingsRequestDTO;
 import epam.domain.dto.request.TrainerTrainingsRequestDTO;
 import epam.domain.dto.request.TrainingRequestDTO;
-import epam.domain.dto.response.TrainingDTO;
+import epam.domain.dto.response.TrainingTraineeDTO;
+import epam.domain.dto.response.TrainingTrainerDTO;
 import epam.domain.dto.response.TrainingTypeDTO;
-import epam.service.TrainerService;
-import epam.service.TrainingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -108,7 +107,7 @@ public class TrainingControllerTest {
         filterRequest.setPeriodTo("2026-07-30 20:38:00");
         filterRequest.setTrainerName("Java learning");
 
-        Mockito.when(facadeGymCrmSystem.getTraineeTraining(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(facadeGymCrmSystem.getTraineeTrainings(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(getTrainings());
 
         mockMvc.perform(get("/api/v1/trainings/trainee")
@@ -132,7 +131,7 @@ public class TrainingControllerTest {
         filterRequest.setTraineeName("Stive.Jobs");
 
         Mockito.when(facadeGymCrmSystem.getTrainerTrainings(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(getTrainings());
+                .thenReturn(getTrainerTrainings());
 
         mockMvc.perform(get("/api/v1/trainings/trainer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -142,24 +141,40 @@ public class TrainingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].trainerName").value("Jeff.Gosling"))
+                .andExpect(jsonPath("$[0].traineeName").value("Jeff.Gosling"))
                 .andExpect(jsonPath("$[0].trainingType").value("Java"));
     }
 
-    private List<TrainingDTO> getTrainings() {
-        var traning = new TrainingDTO();
+    private List<TrainingTraineeDTO> getTrainings() {
+        var traning = new TrainingTraineeDTO();
         traning.setTrainerName("Jeff.Gosling");
         traning.setTrainingType("Java");
         traning.setTrainingName("Java learning");
         traning.setTrainingDate(LocalDateTime.of(2026, 7, 12, 18, 30));
         traning.setTrainingDuration(50);
-        var traning2 = new TrainingDTO();
+        var traning2 = new TrainingTraineeDTO();
         traning2.setTrainerName("Stive.Vitkov");
         traning2.setTrainingType("Python");
         traning2.setTrainingName("Python learning");
         traning2.setTrainingDate(LocalDateTime.of(2026, 7, 17, 18, 30));
         traning2.setTrainingDuration(50);
-        List<TrainingDTO> trainings = new ArrayList<>(Arrays.asList(traning, traning2));
+        List<TrainingTraineeDTO> trainings = new ArrayList<>(Arrays.asList(traning, traning2));
+        return trainings;
+    }
+    public List<TrainingTrainerDTO> getTrainerTrainings() {
+        var traning = new TrainingTrainerDTO();
+        traning.setTraineeName("Jeff.Gosling");
+        traning.setTrainingType("Java");
+        traning.setTrainingName("Java learning");
+        traning.setTrainingDate(LocalDateTime.of(2026, 7, 12, 18, 30));
+        traning.setTrainingDuration(50);
+        var traning2 = new TrainingTrainerDTO();
+        traning2.setTraineeName("Stive.Vitkov");
+        traning2.setTrainingType("Python");
+        traning2.setTrainingName("Python learning");
+        traning2.setTrainingDate(LocalDateTime.of(2026, 7, 17, 18, 30));
+        traning2.setTrainingDuration(50);
+        List<TrainingTrainerDTO> trainings = new ArrayList<>(Arrays.asList(traning, traning2));
         return trainings;
     }
 }

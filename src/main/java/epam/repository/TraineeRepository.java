@@ -26,12 +26,12 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
     @Override
     public Trainee save(Trainee trainee) {
         if (trainee.getId() == null) {
-            //trainee.setActive(true);
             entityManager.persist(trainee);
         } else {
             trainee = entityManager.merge(trainee);
         }
-        log.info("Trainee saved with username: {}", trainee.getUsername()); // .getUser().
+
+        log.info("Trainee saved with username: {}", trainee.getUsername());
         return trainee;
     }
 

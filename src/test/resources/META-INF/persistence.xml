@@ -6,7 +6,6 @@
 
     <persistence-unit name="test" transaction-type="RESOURCE_LOCAL">
 
-        <!-- Entity classes -->
         <class>epam.domain.User</class>
         <class>epam.domain.Trainee</class>
         <class>epam.domain.Trainer</class>

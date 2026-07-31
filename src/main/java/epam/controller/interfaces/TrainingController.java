@@ -3,7 +3,8 @@ package epam.controller.interfaces;
 import epam.domain.dto.request.TraineeTrainingsRequestDTO;
 import epam.domain.dto.request.TrainerTrainingsRequestDTO;
 import epam.domain.dto.request.TrainingRequestDTO;
-import epam.domain.dto.response.TrainingDTO;
+import epam.domain.dto.response.TrainingTraineeDTO;
+import epam.domain.dto.response.TrainingTrainerDTO;
 import epam.domain.dto.response.TrainingTypeDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -45,7 +46,7 @@ public interface TrainingController {
             @ApiResponse(responseCode = "200", description = "Trainings retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "Trainee not found")
     })
-    ResponseEntity<List<TrainingDTO>> getTraineeTrainings(
+    ResponseEntity<List<TrainingTraineeDTO>> getTraineeTrainings(
             @Parameter(description = "Filter criteria for trainee trainings", required = true)
             @Valid @RequestBody TraineeTrainingsRequestDTO filterRequest,
             @Parameter(description = "Trainer header username", required = true)
@@ -59,7 +60,7 @@ public interface TrainingController {
             @ApiResponse(responseCode = "200", description = "Trainings retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "Trainer not found")
     })
-    ResponseEntity<List<TrainingDTO>> getTrainerTrainings(
+    ResponseEntity<List<TrainingTrainerDTO>> getTrainerTrainings(
             @Parameter(description = "Filter criteria for trainer trainings", required = true)
             @Valid @RequestBody TrainerTrainingsRequestDTO filterRequest,
             @Parameter(description = "Trainer header username", required = true)

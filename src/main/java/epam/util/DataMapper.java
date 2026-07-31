@@ -42,8 +42,4 @@ public class DataMapper {
     public Training toTraining(TrainingRequestDTO trainingRequestDTO) {
         return mapper.map(trainingRequestDTO, Training.class);
     }
-
-//    public TrainingDTO toTrainingResponseDTO(Training training) {
-//        return mapper.map(training, TrainingDTO.class);
-//    }
 }

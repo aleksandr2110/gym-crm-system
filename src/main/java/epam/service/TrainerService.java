@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface TrainerService {
 
-    Trainer save(Trainer trainer);
+    Trainer save(Trainer trainer, String specialization);
     Trainer findById(Long id);
     Trainer findByUsername(String userName);
     void changePassword(Long id, String newPassword);

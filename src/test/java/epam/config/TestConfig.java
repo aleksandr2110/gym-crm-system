@@ -45,7 +45,7 @@ public class TestConfig {
 
         Properties jpaProps = new Properties();
         jpaProps.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-        jpaProps.put("hibernate.hbm2ddl.auto", "create-drop"); // validate create-drop none
+        jpaProps.put("hibernate.hbm2ddl.auto", "create-drop");
         jpaProps.put("hibernate.show_sql", "true");
         em.setJpaProperties(jpaProps);
 

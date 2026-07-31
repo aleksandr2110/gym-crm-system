@@ -2,8 +2,6 @@ package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
 import epam.domain.entity.Training;
-import epam.domain.entity.TrainingType;
-import epam.domain.entity.TrainingTypeName;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
@@ -40,11 +38,8 @@ public class TrainingServiceImpl implements TrainingService {
     @Transactional
     @Override
     public void save(Training trainingRequest) {
-        var trainingType = new TrainingType();
-        trainingType.setTrainingTypeName(TrainingTypeName.getByName(trainingRequest.getTrainingType().getTrainingTypeName().getName()));
-        trainingRequest.setTrainingType(trainingType);
-
         var training = getTraining(trainingRequest);
+
         training.setTrainingName(trainingRequest.getTrainingName());
         training.setTrainingDate(trainingRequest.getTrainingDate());
         training.setTrainingDuration(trainingRequest.getTrainingDuration());
@@ -75,10 +70,10 @@ public class TrainingServiceImpl implements TrainingService {
     @Transactional
     @Override
     public List<Training> selectTrainerTrainings(String trainerUsername, LocalDateTime fromDate, LocalDateTime toDate) {
-        List<Training> trainings = trainingRepository.findTrainerTrainingsByUserNameAndDate(trainerUsername,
+
+        return trainingRepository.findTrainerTrainingsByUserNameAndDate(trainerUsername,
                 fromDate, toDate);
 
-        return trainings;
     }
 
     private Training getTraining(Training trainingRequest) {

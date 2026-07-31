@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public interface LoginController {
 
-    @GetMapping("/trainee/login")
+    @GetMapping("/trainees/login")
     @Operation(summary = "Login", description = "Login a user by username and password")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login executed successfully"),

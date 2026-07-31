@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class TrainerControllerImpl implements TrainerController {
 
     private final FacadeGymCrmSystem facadeGymCrmSystem;
-    // http://localhost:8080/swagger-ui.html
 
     @Override
     public ResponseEntity<RegistrationResponseDTO> registerTrainer(TrainerRequestDTO request) {

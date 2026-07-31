@@ -14,17 +14,5 @@ public class GymApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GymApplication.class, args);
-        /*ApplicationContext context = new AnnotationConfigApplicationContext(GymApplication.class);
-        TraineeService traineeService = context.getBean(TraineeService.class);
-        Trainee trainee = traineeService.select(2L);
-        System.out.println("trainee with id " + trainee.toString());
-
-        TrainerService trainerService = context.getBean(TrainerService.class);
-        Trainer trainer = trainerService.select(2L);
-        System.out.println("trainer with id " + trainer.toString());
-
-        TrainingService trainingService = context.getBean(TrainingService.class); // Impl
-        Training training = trainingService.select(2L);
-        System.out.println("training with id " + training.toString()); */
     }
 }

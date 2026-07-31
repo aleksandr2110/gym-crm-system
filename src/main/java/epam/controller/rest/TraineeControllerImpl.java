@@ -26,11 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TraineeControllerImpl implements TraineeController {
 
-    private final TraineeService traineeService;
-    private final TrainerService trainerService;
     private final FacadeGymCrmSystem facadeGymCrmSystem;
-
-    // http://localhost:8080/swagger-ui.html
 
     @Override
     public ResponseEntity<RegistrationResponseDTO> registerTrainee(TraineeRequestDTO request) {
@@ -63,7 +59,7 @@ public class TraineeControllerImpl implements TraineeController {
         facadeGymCrmSystem.deleteTrainee(username, headerUsername, headerPassword);
 
         log.info("Trainee profile deleted successfully for username: {}", username);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -91,7 +87,7 @@ public class TraineeControllerImpl implements TraineeController {
         return ResponseEntity.ok(profile);
     }
 
-    @Override // 4
+    @Override
     public ResponseEntity<Void> changePassword(ChangePasswordRequestDTO request, String headerUsername,
                                                String headerPassword) {
         log.info("Change password request received for trainee: {}", request.getUsername());

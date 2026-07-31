@@ -10,6 +10,7 @@ import epam.service.TrainingTypeService;
 import epam.util.DataMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,9 +51,11 @@ public class FacadeGymCrmSystem {
         return response;
     }
 
+    @Transactional
     public TraineeProfileDTO getTraineeByUsername(String username, String headerUsername,
                                                   String headerPassword) {
         traineeService.authenticateTrainee(headerUsername, headerPassword);
+
         var trainee = traineeService.findByUsername(username);
         List<Trainer> trainers = trainee.getTrainers();
         List<TrainerInfoDTO> trainerDtos = new ArrayList<>();
@@ -125,7 +128,7 @@ public class FacadeGymCrmSystem {
 
     public RegistrationResponseDTO createTrainer(TrainerRequestDTO request) {
         var trainer = dataMapper.toTrainer(request);
-        var createdTrainer = trainerService.save(trainer);
+        var createdTrainer = trainerService.save(trainer, request.getSpecialization());
 
         RegistrationResponseDTO trainerDTO = RegistrationResponseDTO.builder()
                 .username(createdTrainer.getUsername())
@@ -134,8 +137,10 @@ public class FacadeGymCrmSystem {
         return trainerDTO;
     }
 
+    @Transactional
     public TrainerProfileDTO getTrainerByUsername(String username, String headerUsername, String headerPassword) {
         trainerService.authenticateTrainer(headerUsername, headerPassword);
+
         var trainer = trainerService.findByUsername(username);
 
         var trainerProfileDTO = dataMapper.toProfileTrainerDTO(trainer);
@@ -144,6 +149,7 @@ public class FacadeGymCrmSystem {
         return trainerProfileDTO;
     }
 
+    @Transactional
     public TrainerProfileDTO updateTrainerProfile(UpdateTrainerRequestDTO request, String headerUsername, String headerPassword) {
         trainerService.authenticateTrainer(headerUsername, headerPassword);
         var trainer = trainerService.updateProfile(request);
@@ -155,12 +161,14 @@ public class FacadeGymCrmSystem {
         return trainerProfileDTO;
     }
 
+    @Transactional
     public void changeTrainerPassword(ChangePasswordRequestDTO request, String headerUsername,
                                       String headerPassword) {
         var trainer = trainerService.authenticateTrainer(headerUsername, headerPassword);
         trainerService.changePassword(request.getUsername(), request.getOldPassword(), request.getNewPassword());
     }
 
+    @Transactional
     public void activateDeactivateTrainer(String username, Boolean isActive,
                                           String headerUsername, String headerPassword) {
         trainerService.authenticateTrainer(headerUsername, headerPassword);
@@ -187,14 +195,20 @@ public class FacadeGymCrmSystem {
         trainerService.authenticateTrainer(headerUsername, headerPassword);
 
         var training = dataMapper.toTraining(trainingRequest);
+        var trainingType = new TrainingType();
+        trainingType.setTrainingTypeName(TrainingTypeName.getByName(trainingRequest.getTrainingType().toUpperCase()));
+
+        training.setTrainingType(trainingType);
         training.setTrainingDate(LocalDateTime.parse(trainingRequest.getTrainingDate()));
         trainingService.save(training);
     }
 
-    public List<TrainingDTO> getTraineeTraining(TraineeTrainingsRequestDTO filterRequest, String headerUsername,
-                                                String headerPassword) {
+    @Transactional
+    public List<TrainingTraineeDTO> getTraineeTrainings(TraineeTrainingsRequestDTO filterRequest, String headerUsername,
+                                                        String headerPassword) {
 
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
+        traineeService.authenticateTrainee(headerUsername, headerPassword);
+
         String username = filterRequest.getUsername();
         LocalDateTime fromDate = LocalDateTime.parse(filterRequest.getPeriodFrom());
         LocalDateTime toDate  = LocalDateTime.parse(filterRequest.getPeriodTo());
@@ -202,9 +216,9 @@ public class FacadeGymCrmSystem {
 
         List<Training> trainingsList = trainingService.selectTraineeTrainings(username, fromDate,
                 toDate, trainingType);
-        List<TrainingDTO> trainingDTOs = trainingsList.stream().map(
+        List<TrainingTraineeDTO> trainingTraineeDTOS = trainingsList.stream().map(
                 training -> {
-                    var trainingResponse = new TrainingDTO();
+                    var trainingResponse = new TrainingTraineeDTO();
                     trainingResponse.setTrainingName(training.getTrainingName());
                     trainingResponse.setTrainingType(training.getTrainingType().getTrainingTypeName().getName());
                     trainingResponse.setTrainingDate(training.getTrainingDate());
@@ -214,26 +228,28 @@ public class FacadeGymCrmSystem {
                 }
         ).toList();
 
-        return trainingDTOs;
+        return trainingTraineeDTOS;
     }
 
-    public List<TrainingDTO> getTrainerTrainings(TrainerTrainingsRequestDTO filterRequest, String headerUsername,
-                                                 String headerPassword) {
+    @Transactional
+    public List<TrainingTrainerDTO> getTrainerTrainings(TrainerTrainingsRequestDTO filterRequest, String headerUsername,
+                                                        String headerPassword) {
         trainerService.authenticateTrainer(headerUsername, headerPassword);
+
         String trainerUsername = filterRequest.getUsername();
         LocalDateTime fromDate = LocalDateTime.parse(filterRequest.getPeriodFrom());
         LocalDateTime toDate  = LocalDateTime.parse(filterRequest.getPeriodTo());
 
         List<Training> trainings = trainingService.selectTrainerTrainings(trainerUsername, fromDate, toDate);
 
-        List<TrainingDTO> trainingDTOs = trainings.stream().map(
+        List<TrainingTrainerDTO> trainingDTOs = trainings.stream().map(
                 training -> {
-                    var trainingResponse = new TrainingDTO();
+                    var trainingResponse = new TrainingTrainerDTO();
                     trainingResponse.setTrainingName(training.getTrainingName());
                     trainingResponse.setTrainingType(training.getTrainingType().getTrainingTypeName().getName());
                     trainingResponse.setTrainingDate(training.getTrainingDate());
                     trainingResponse.setTrainingDuration(training.getTrainingDuration());
-                    trainingResponse.setTrainerName(training.getTrainer().getUsername());
+                    trainingResponse.setTraineeName(training.getTrainee().getUsername());
                     return trainingResponse;
                 }
         ).toList();

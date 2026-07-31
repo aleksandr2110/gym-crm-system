@@ -16,7 +16,7 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@PrimaryKeyJoinColumn(name = "user_id") // Links to parent table ID
+@PrimaryKeyJoinColumn(name = "user_id")
 public class Trainee extends User {
 
     @Id

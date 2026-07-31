@@ -1,9 +1,5 @@
 package epam.service;
 
-import epam.domain.dto.request.TraineeTrainingsRequestDTO;
-import epam.domain.dto.request.TrainerTrainingsRequestDTO;
-import epam.domain.dto.request.TrainingRequestDTO;
-import epam.domain.dto.response.TrainingDTO;
 import epam.domain.entity.Training;
 
 import java.time.LocalDateTime;

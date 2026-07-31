@@ -11,8 +11,6 @@ import epam.domain.dto.response.RegistrationResponseDTO;
 import epam.domain.dto.response.TraineeProfileDTO;
 import epam.domain.dto.response.TrainerInfoDTO;
 import epam.exception.UnauthorizedException;
-import epam.service.TraineeService;
-import epam.service.TrainerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,10 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class TraineeControllerTest {
 
     @Mock
-    private TraineeService traineeService;
-    @Mock
-    private TrainerService trainerService;
-    @Mock
     private FacadeGymCrmSystem facadeGymCrmSystem;
 
     private MockMvc mockMvc;
@@ -47,7 +41,7 @@ public class TraineeControllerTest {
 
     @BeforeEach
     void setup() {
-        TraineeController controller = new TraineeControllerImpl(traineeService, trainerService, facadeGymCrmSystem);
+        TraineeController controller = new TraineeControllerImpl(facadeGymCrmSystem);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new ExceptionHandlerController())
                 .build();
@@ -164,7 +158,7 @@ public class TraineeControllerTest {
         mockMvc.perform(delete("/api/v1/trainees/" + username)
                         .header("X-Username", "Josh")
                         .header("X-Password", "34322ds"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(facadeGymCrmSystem, times(1)).deleteTrainee(Mockito.any(), Mockito.any(), Mockito.any());
     }
@@ -343,7 +337,4 @@ public class TraineeControllerTest {
         return trainers;
     }
 
-    /*@Test
-    // "2026-07-26T15:30:00"
-    }*/
 }

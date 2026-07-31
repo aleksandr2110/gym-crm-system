@@ -1,12 +1,11 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
-import epam.domain.dto.request.TrainerRequestDTO;
 import epam.domain.dto.request.UpdateTrainerRequestDTO;
-import epam.domain.dto.response.RegistrationResponseDTO;
-import epam.domain.dto.response.TrainerInfoDTO;
-import epam.domain.dto.response.TrainerProfileDTO;
-import epam.domain.entity.*;
+import epam.domain.entity.Trainee;
+import epam.domain.entity.Trainer;
+import epam.domain.entity.Training;
+import epam.domain.entity.TrainingTypeName;
 import epam.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
@@ -46,9 +45,8 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     @Transactional
-    public Trainer save(Trainer trainer) {
-        TrainingTypeName specialization = trainer.getSpecialization().getTrainingTypeName();
-        var trainingType = trainingTypeService.findByName(specialization.getName().toUpperCase());
+    public Trainer save(Trainer trainer, String specialization) {
+        var trainingType = trainingTypeService.findByName(specialization.toUpperCase());
         trainer.setSpecialization(trainingType);
 
         List<Trainee> traineeList = new ArrayList<>();
@@ -145,10 +143,16 @@ public class TrainerServiceImpl implements TrainerService {
     @Transactional
     @Override
     public Trainer authenticateTrainer(String username, String password) {
+        if (username == null || password == null) {
+            throw new UnauthorizedException("Trainer is not authenticated");
+        }
+        if (username.equals("") || password.equals("")) {
+            throw new UnauthorizedException("Trainer is not authenticated");
+        }
         var entity = trainerRepository.findByUsername(username).orElseThrow(()
                 -> new IllegalArgumentException("Trainer not found with username: " + username));
         if (!entity.getPassword().equals(password)) {
-            throw new UnauthorizedException("User is not authenticated: " + username);
+            throw new UnauthorizedException("Trainer is not authenticated: " + username);
         }
         return entity;
     }

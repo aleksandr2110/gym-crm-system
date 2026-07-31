@@ -5,10 +5,9 @@ import epam.controller.interfaces.TrainingController;
 import epam.domain.dto.request.TraineeTrainingsRequestDTO;
 import epam.domain.dto.request.TrainerTrainingsRequestDTO;
 import epam.domain.dto.request.TrainingRequestDTO;
-import epam.domain.dto.response.TrainingDTO;
+import epam.domain.dto.response.TrainingTraineeDTO;
+import epam.domain.dto.response.TrainingTrainerDTO;
 import epam.domain.dto.response.TrainingTypeDTO;
-import epam.service.TrainerService;
-import epam.service.TrainingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +23,6 @@ import java.util.List;
 public class TrainingControllerImpl implements TrainingController {
 
     private final FacadeGymCrmSystem facadeGymCrmSystem;
-
-    // http://localhost:8080/swagger-ui.html
 
     @Override
     public ResponseEntity<List<TrainingTypeDTO>> getTrainingTypes() {
@@ -50,15 +47,15 @@ public class TrainingControllerImpl implements TrainingController {
         return ResponseEntity.ok().build();
     }
 
-    @Override // 12
-    public ResponseEntity<List<TrainingDTO>> getTraineeTrainings(TraineeTrainingsRequestDTO filterRequest,
-                                                                 String headerUsername,
-                                                                 String headerPassword) {
+    @Override
+    public ResponseEntity<List<TrainingTraineeDTO>> getTraineeTrainings(TraineeTrainingsRequestDTO filterRequest,
+                                                                        String headerUsername,
+                                                                        String headerPassword) {
         log.info("Get trainee trainings request received for username: {}, filters: from={}, to={}, trainer={}, type={}",
                 filterRequest.getUsername(), filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(),
                 filterRequest.getTrainerName(), filterRequest.getTrainingType());
 
-        List<TrainingDTO> trainings = facadeGymCrmSystem.getTraineeTraining(filterRequest,
+        List<TrainingTraineeDTO> trainings = facadeGymCrmSystem.getTraineeTrainings(filterRequest,
                 headerUsername, headerPassword);
 
         log.info("Trainee trainings retrieved successfully for username: {}, count: {}",
@@ -67,16 +64,16 @@ public class TrainingControllerImpl implements TrainingController {
         return ResponseEntity.ok(trainings);
     }
 
-    @Override // 13
-    public ResponseEntity<List<TrainingDTO>> getTrainerTrainings(TrainerTrainingsRequestDTO filterRequest,
-                                                                 String headerUsername,
-                                                                 String headerPassword) {
+    @Override
+    public ResponseEntity<List<TrainingTrainerDTO>> getTrainerTrainings(TrainerTrainingsRequestDTO filterRequest,
+                                                                        String headerUsername,
+                                                                        String headerPassword) {
         log.info("Get trainer trainings request received for username: {}, filters: from={}, to={}, trainee={}",
                 filterRequest.getUsername(), filterRequest.getPeriodFrom(), filterRequest.getPeriodTo(),
                 filterRequest.getTraineeName());
 
 
-        List<TrainingDTO> trainings = facadeGymCrmSystem.getTrainerTrainings(filterRequest, headerUsername, headerPassword);
+        List<TrainingTrainerDTO> trainings = facadeGymCrmSystem.getTrainerTrainings(filterRequest, headerUsername, headerPassword);
 
         log.info("Trainer trainings retrieved successfully for username: {}, count: {}",
                 filterRequest.getUsername(), trainings.size());

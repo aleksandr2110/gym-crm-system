@@ -39,11 +39,11 @@ public class TraineeServiceImpl implements TraineeService {
     public Trainee save(TraineeRequestDTO traineeRequestDTO) {
         var trainee = dataMapper.toTrainee(traineeRequestDTO);
 
-        if (trainee.getUsername() == null) { // getUser().
+        if (trainee.getUsername() == null) {
             setUsername(trainee);
         } else {
             throw new IllegalArgumentException("Attempt to save trainee with username: "
-                    + trainee.getUsername());// .getUser().
+                    + trainee.getUsername());
         }
 
         var created = traineeRepository.save(trainee);
@@ -121,11 +121,17 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Transactional
     @Override
-    public Trainee authenticateTrainee(String username, String password) throws IllegalArgumentException {
+    public Trainee authenticateTrainee(String username, String password) {
+        if (username == null || password == null) {
+            throw new UnauthorizedException("Trainee is not authenticated");
+        }
+        if (username.equals("") || password.equals("")) {
+            throw new UnauthorizedException("Trainee is not authenticated");
+        }
         var entity = traineeRepository.findByUsername(username).orElseThrow(()
                 -> new IllegalArgumentException("Trainee not found with username: " + username));
         if (!entity.getPassword().equals(password)) {
-            throw new UnauthorizedException("User is not authenticated: " + username);
+            throw new UnauthorizedException("Trainee is not authenticated: " + username);
         }
         return entity;
     }

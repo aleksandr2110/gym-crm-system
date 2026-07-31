@@ -14,7 +14,7 @@ public interface TraineeService {
 
     Trainee save(TraineeRequestDTO traineeRequestDTO);
     Trainee findById(Long id);
-    Trainee findByUsername(String userName); //
+    Trainee findByUsername(String userName);
     void changePassword(String username, String oldPassword, String newPassword);
     void changePassword(String username, String newPassword);
     TraineeProfileDTO updateProfile(UpdateTraineeRequestDTO updateTraineeRequestDTO);
