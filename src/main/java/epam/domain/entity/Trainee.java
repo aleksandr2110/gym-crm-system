@@ -1,13 +1,11 @@
 package epam.domain.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,31 +14,43 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@PrimaryKeyJoinColumn(name = "user_id")
+@PrimaryKeyJoinColumn(name = "id")
 public class Trainee extends User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "date_of_birth")
+    @Column(name = "date_birth", nullable = true)
     private LocalDate dateOfBirth;
 
-    @Column(name = "address")
+    @Column(name = "address", nullable = true)
     private String address;
 
     @ManyToMany(mappedBy = "trainees")
     private List<Trainer> trainers = new ArrayList<>();
 
-
+    @PreRemove
     public void removeAssociations() {
-        for (Trainer trainer : new ArrayList<>(trainers)) {
+        for (Trainer trainer : this.getTrainers()) {
             trainer.getTrainees().remove(this);
         }
+        trainers.clear();
+
+        System.out.println("remove delete association ");
+        for (Training training : this.getTrainings()) {
+            training.setTrainee(null);
+        }
+        trainings.clear();
+        /*for (Trainer trainer : new ArrayList<>(trainers)) {
+            trainer.getTrainees().remove(this);
+        }
+        System.out.println("delete association ");
+        //trainers.clear();
         for (Training t : new ArrayList<>(trainings)) {
             t.setTrainee(null);
         }
-        trainings.clear();
+        trainings.clear(); */
     }
 
     @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -50,4 +60,19 @@ public class Trainee extends User {
         trainings.add(training);
     }
 
+//    public void removeTrainer(Trainer trainer) {
+//        this.trainers.remove(trainer);
+//        trainer.getTrainees().remove(this);
+//    }
+
+    @Override
+    public String toString() {
+        return "Trainee{" +
+                "id=" + id +
+                ", dateOfBirth=" + dateOfBirth +
+                ", address='" + address + '\'' +
+                ", trainers=" + trainers +
+                ", trainings=" + trainings +
+                '}';
+    }
 }

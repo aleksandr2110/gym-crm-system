@@ -12,12 +12,12 @@ import java.util.List;
 
 public interface TraineeService {
 
-    Trainee save(TraineeRequestDTO traineeRequestDTO);
+    Trainee save(Trainee trainee);
     Trainee findById(Long id);
     Trainee findByUsername(String userName);
     void changePassword(String username, String oldPassword, String newPassword);
     void changePassword(String username, String newPassword);
-    TraineeProfileDTO updateProfile(UpdateTraineeRequestDTO updateTraineeRequestDTO);
+    Trainee updateProfile(Trainee updateTrainee);
     void activateDeactivateTrainee(String username, boolean isActive);
     Trainee authenticateTrainee(String username, String password);
     void deleteProfile(String username);

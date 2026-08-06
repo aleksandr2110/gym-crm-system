@@ -24,25 +24,35 @@ public class Training {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "trainee_id", nullable = false)
+    @JoinColumn(name = "trainee_id", nullable = true)
     private Trainee trainee;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "trainer_id", nullable = false)
+    @JoinColumn(name = "trainer_id", nullable = true)
     private Trainer trainer;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "training_type_id", nullable = false)
+    @JoinColumn(name = "training_type_id", nullable = true)
     private TrainingType trainingType;
 
-    @Column(name = "training_name", nullable = false)
+    @Column(name = "training_name", nullable = true)
     private String trainingName;
 
 
-    @Column(name = "training_date", nullable = false)
+    @Column(name = "training_date", nullable = true)
     private LocalDateTime trainingDate;
 
-    @Column(name = "training_duration", nullable = false)
-    Integer trainingDuration;
+    @Column(name = "training_duration", nullable = true)
+    private Integer trainingDuration;
+
+    @PreRemove
+    private void removeAssociations() {
+        if (trainee != null && trainee.getTrainings() != null) {
+            trainee.getTrainings().remove(this);
+        }
+        if (trainer != null && trainer.getTrainings() != null) {
+            trainer.getTrainings().remove(this);
+        }
+    }
 
 }

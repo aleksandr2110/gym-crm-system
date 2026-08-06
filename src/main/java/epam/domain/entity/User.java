@@ -10,11 +10,11 @@ import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-@AllArgsConstructor
-@NoArgsConstructor
 public class User {
 
     @Id
@@ -22,16 +22,16 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name", nullable = true)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name", nullable = true)
     private String lastName;
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "username", nullable = true)
     private String username;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", nullable = true)
     private String password;
 
 

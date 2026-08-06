@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +37,13 @@ public class FacadeGymCrmSystem {
         this.trainingTypeService = trainingTypeService;
     }
 
-    public Trainee authenticateTrainee(String username, String password) {
-        return traineeService.authenticateTrainee(username, password);
-    }
-
     public RegistrationResponseDTO createTrainee(TraineeRequestDTO request) {
-        var trainee = traineeService.save(request);
+        var trainee = dataMapper.toTrainee(request);
+        var createdTrainee = traineeService.save(trainee);
 
         RegistrationResponseDTO response = RegistrationResponseDTO.builder()
-                .username(trainee.getUsername())
-                .password(trainee.getPassword())
+                .username(createdTrainee.getUsername())
+                .password(createdTrainee.getPassword())
                 .build();
 
         return response;
@@ -68,12 +66,14 @@ public class FacadeGymCrmSystem {
         return traineeDTO;
     }
 
+    @Transactional
     public void deleteTrainee(String username, String headerUsername,
                               String headerPassword) {
        traineeService.authenticateTrainee(headerUsername, headerPassword);
        traineeService.deleteProfile(username);
     }
 
+    @Transactional
     public List<TrainerInfoDTO> getAvailableTrainers(String username, String headerUsername,
                                                      String headerPassword) {
         traineeService.authenticateTrainee(headerUsername, headerPassword);
@@ -90,30 +90,40 @@ public class FacadeGymCrmSystem {
         traineeService.authenticateTrainee(username, password);
     }
 
-    public void loginTrainer(String username, String password) {
-
-        trainerService.authenticateTrainer(username, password);
-    }
-
+    @Transactional
     public TraineeProfileDTO updateTraineeProfile(UpdateTraineeRequestDTO traineeRequestDTO,
                                                   String headerUsername,
                                                   String headerPassword) {
         traineeService.authenticateTrainee(headerUsername, headerPassword);
-        return traineeService.updateProfile(traineeRequestDTO);
+        var updateTrainee = dataMapper.toUpdateTrainee(traineeRequestDTO);
+        updateTrainee.setDateOfBirth(LocalDate.parse(traineeRequestDTO.getDateOfBirth()));
+
+        var updatedTrainee = traineeService.updateProfile(updateTrainee);
+        TraineeProfileDTO traineeProfileDTO = dataMapper.toProfileTraineeDTO(updatedTrainee);
+        traineeProfileDTO.setIsActive(updatedTrainee.isActive());
+        return traineeProfileDTO;
     }
 
+    @Transactional
     public void changeTraineePassword(ChangePasswordRequestDTO request, String headerUsername,
                                String headerPassword) {
         traineeService.authenticateTrainee(headerUsername, headerPassword);
         traineeService.changePassword(request.getUsername(), request.getOldPassword(), request.getNewPassword());
     }
 
+    @Transactional
     public void activateDeactivateTrainee(String username, Boolean isActive, String headerUsername,
                                           String headerPassword) {
         traineeService.authenticateTrainee(headerUsername, headerPassword);
         traineeService.activateDeactivateTrainee(username, isActive);
     }
 
+    public void loginTrainer(String username, String password) {
+
+        trainerService.authenticateTrainer(username, password);
+    }
+
+    @Transactional
     public List<TrainerInfoDTO> updateTrainersList(UpdateTraineeTrainersRequestDTO request,
                                                    String headerUsername,
                                                    String headerPassword) {

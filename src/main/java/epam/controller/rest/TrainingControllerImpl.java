@@ -8,6 +8,7 @@ import epam.domain.dto.request.TrainingRequestDTO;
 import epam.domain.dto.response.TrainingTraineeDTO;
 import epam.domain.dto.response.TrainingTrainerDTO;
 import epam.domain.dto.response.TrainingTypeDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +36,7 @@ public class TrainingControllerImpl implements TrainingController {
     }
 
     @Override
-    public ResponseEntity<Void> addTraining(TrainingRequestDTO request,  String headerUsername,
+    public ResponseEntity<Void> addTraining(@Valid TrainingRequestDTO request, String headerUsername,
                                             String headerPassword) {
         log.info("Add training request received: trainee={}, trainer={}, name={}",
                 request.getTraineeUsername(), request.getTrainerUsername(), request.getTrainingName());
@@ -48,7 +49,7 @@ public class TrainingControllerImpl implements TrainingController {
     }
 
     @Override
-    public ResponseEntity<List<TrainingTraineeDTO>> getTraineeTrainings(TraineeTrainingsRequestDTO filterRequest,
+    public ResponseEntity<List<TrainingTraineeDTO>> getTraineeTrainings(@Valid TraineeTrainingsRequestDTO filterRequest,
                                                                         String headerUsername,
                                                                         String headerPassword) {
         log.info("Get trainee trainings request received for username: {}, filters: from={}, to={}, trainer={}, type={}",
@@ -65,7 +66,7 @@ public class TrainingControllerImpl implements TrainingController {
     }
 
     @Override
-    public ResponseEntity<List<TrainingTrainerDTO>> getTrainerTrainings(TrainerTrainingsRequestDTO filterRequest,
+    public ResponseEntity<List<TrainingTrainerDTO>> getTrainerTrainings(@Valid TrainerTrainingsRequestDTO filterRequest,
                                                                         String headerUsername,
                                                                         String headerPassword) {
         log.info("Get trainer trainings request received for username: {}, filters: from={}, to={}, trainee={}",

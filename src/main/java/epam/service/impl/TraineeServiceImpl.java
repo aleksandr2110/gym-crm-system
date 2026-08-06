@@ -1,12 +1,9 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
-import epam.domain.dto.request.TraineeRequestDTO;
-import epam.domain.dto.request.UpdateTraineeRequestDTO;
-import epam.domain.dto.response.TraineeProfileDTO;
 import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
-import epam.exception.UnauthorizedException;
+import epam.controller.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.service.TraineeService;
@@ -36,8 +33,7 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Transactional
     @Override
-    public Trainee save(TraineeRequestDTO traineeRequestDTO) {
-        var trainee = dataMapper.toTrainee(traineeRequestDTO);
+    public Trainee save(Trainee trainee) {
 
         if (trainee.getUsername() == null) {
             setUsername(trainee);
@@ -88,35 +84,26 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Transactional
     @Override
-    public TraineeProfileDTO updateProfile(UpdateTraineeRequestDTO traineeRequestDTO) {
-        Trainee currentTrainee = traineeRepository.findByUsername(traineeRequestDTO.getUsername()).orElseThrow(
-                () -> new IllegalArgumentException("Trainee not found with username: " + traineeRequestDTO.getUsername())
+    public Trainee updateProfile(Trainee trainee) {
+        Trainee currentTrainee = traineeRepository.findByUsername(trainee.getUsername()).orElseThrow(
+                () -> new IllegalArgumentException("Trainee not found with username: " + trainee.getUsername())
         );
 
-        currentTrainee.setFirstName(traineeRequestDTO.getFirstName());
-        currentTrainee.setLastName(traineeRequestDTO.getLastName());
-        currentTrainee.setAddress(traineeRequestDTO.getAddress());
-        currentTrainee.setDateOfBirth(traineeRequestDTO.getDateOfBirth());
-        currentTrainee.setActive(traineeRequestDTO.getIsActive());
-        var updatedTrainee = traineeRepository.save(currentTrainee);
-
-        TraineeProfileDTO traineeProfileDTO = dataMapper.toProfileTraineeDTO(updatedTrainee);
-        traineeProfileDTO.setIsActive(updatedTrainee.isActive());
-
-        return traineeProfileDTO;
+        currentTrainee.setFirstName(trainee.getFirstName());
+        currentTrainee.setLastName(trainee.getLastName());
+        currentTrainee.setAddress(trainee.getAddress());
+        currentTrainee.setDateOfBirth(trainee.getDateOfBirth());
+        currentTrainee.setActive(trainee.isActive());
+        return traineeRepository.save(currentTrainee);
     }
 
     @Transactional
     @Override
     public void activateDeactivateTrainee(String username, boolean isActive) {
         var entity = traineeRepository.findByUsername(username).orElseThrow(()
-                -> new IllegalArgumentException("Trainee not found with username : " + username));;
+                -> new IllegalArgumentException("Trainee not found with username : " + username));
 
-        if (isActive) {
-            traineeRepository.activate(entity.getId());
-        } else {
-            traineeRepository.deactivate(entity.getId());
-        }
+        traineeRepository.toggleStatus(entity.getId());
     }
 
     @Transactional

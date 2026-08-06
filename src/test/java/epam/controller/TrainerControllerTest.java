@@ -10,7 +10,7 @@ import epam.domain.dto.request.TrainerRequestDTO;
 import epam.domain.dto.request.UpdateTrainerRequestDTO;
 import epam.domain.dto.response.RegistrationResponseDTO;
 import epam.domain.dto.response.TrainerProfileDTO;
-import epam.exception.UnauthorizedException;
+import epam.controller.exception.UnauthorizedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

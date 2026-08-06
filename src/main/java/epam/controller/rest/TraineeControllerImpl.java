@@ -11,6 +11,7 @@ import epam.domain.dto.response.TraineeProfileDTO;
 import epam.domain.dto.response.TrainerInfoDTO;
 import epam.service.TraineeService;
 import epam.service.TrainerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class TraineeControllerImpl implements TraineeController {
     private final FacadeGymCrmSystem facadeGymCrmSystem;
 
     @Override
-    public ResponseEntity<RegistrationResponseDTO> registerTrainee(TraineeRequestDTO request) {
+    public ResponseEntity<RegistrationResponseDTO> registerTrainee(@Valid TraineeRequestDTO request) {
         log.info("Register trainee request received: {} {}", request.getFirstName(), request.getLastName());
 
         RegistrationResponseDTO response = facadeGymCrmSystem.createTrainee(request);
@@ -75,7 +76,7 @@ public class TraineeControllerImpl implements TraineeController {
     }
 
     @Override
-    public ResponseEntity<TraineeProfileDTO> updateTraineeProfile(UpdateTraineeRequestDTO traineeRequestDTO,
+    public ResponseEntity<TraineeProfileDTO> updateTraineeProfile(@Valid UpdateTraineeRequestDTO traineeRequestDTO,
                                                                   String headerUsername,
                                                                   String headerPassword) {
         log.info("Update trainee profile request received for username: {}", traineeRequestDTO.getUsername());
@@ -88,7 +89,7 @@ public class TraineeControllerImpl implements TraineeController {
     }
 
     @Override
-    public ResponseEntity<Void> changePassword(ChangePasswordRequestDTO request, String headerUsername,
+    public ResponseEntity<Void> changePassword(@Valid ChangePasswordRequestDTO request, String headerUsername,
                                                String headerPassword) {
         log.info("Change password request received for trainee: {}", request.getUsername());
 
@@ -110,7 +111,7 @@ public class TraineeControllerImpl implements TraineeController {
     }
 
     @Override
-    public ResponseEntity<List<TrainerInfoDTO>> updateTrainersList(UpdateTraineeTrainersRequestDTO request,
+    public ResponseEntity<List<TrainerInfoDTO>> updateTrainersList(@Valid UpdateTraineeTrainersRequestDTO request,
                                                                    String headerUsername,
                                                                    String headerPassword) {
         log.info("Update trainers list request received for trainee: {}", request.getTraineeUsername());

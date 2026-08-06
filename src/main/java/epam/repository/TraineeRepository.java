@@ -2,6 +2,8 @@ package epam.repository;
 
 
 import epam.domain.entity.Trainee;
+import epam.domain.entity.Trainer;
+import epam.domain.entity.Training;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -9,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,28 +73,48 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
         log.info("Password changed for trainee with user name: {}", username);
     }
 
-    public void activate(Long id) {
+    @Override
+    public void toggleStatus(Long id) {
         var entity = findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Trainee not found with id: " + id));
-
         entity.setActive(!entity.isActive());
         entityManager.merge(entity);
         log.info("Trainee activated with id: {}", id);
-    }
-
-    public void deactivate(Long id) {
-        var entity = findById(id).orElseThrow(()
-                -> new IllegalArgumentException("Trainee not found with id: " + id));
-        entity.setActive(!entity.isActive());
-        entityManager.merge(entity);
-        log.info("Trainee deactivated with id: {}", id);
     }
 
     @Override
     public void delete(String username) {
         var entity = findByUsername(username).orElseThrow(() ->
                 new IllegalArgumentException("Trainee not found with username: " + username));
+
+        Iterator<Trainer> trainerIterator = entity.getTrainers().iterator();
+        while (trainerIterator.hasNext()) {
+            var trainer = trainerIterator.next();
+            trainerIterator.remove();
+        }
+        Iterator<Training> trainingIterator = entity.getTrainings().iterator();
+        while (trainingIterator.hasNext()) {
+            var training = trainingIterator.next();
+            trainingIterator.remove();
+        }
+
+        //entity.removeAssociations();
         entityManager.remove(entity);
+        entityManager.flush();
+//        for (Trainer trainer : new ArrayList<>(entity.getTrainers())) {
+//            trainer.getTrainees().remove(this);
+//        }
+//        for (Trainer trainer : entity.getTrainers()) {
+//            entity.removeTrainer(trainer);
+//        }
+
+        //entity.removeAssociations();
+//        entity.getTrainers().clear();
+//        entity.getTrainings().clear();
+//        var modifiedTrainee = entityManager.merge(entity);
+//
+//        entityManager.remove(modifiedTrainee);
+
         log.info("Trainee deleted with username: {}", username);
     }
 

@@ -2,6 +2,8 @@ package epam.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +14,15 @@ import java.util.List;
 @Table(name = "trainers")
 @AllArgsConstructor
 @NoArgsConstructor
+@PrimaryKeyJoinColumn(name = "id")
 public class Trainer extends User {
 
     @Id
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "specialization_id", nullable = false)
+    @JoinColumn(name = "specialization_id", nullable = true)
     private TrainingType specialization;
 
     @ManyToMany(cascade = {
@@ -29,18 +32,25 @@ public class Trainer extends User {
     @JoinTable(name = "trainers_trainees",
             joinColumns = @JoinColumn(name = "trainer_id"),
             inverseJoinColumns = @JoinColumn(name = "trainee_id")
-    )
+    ) // owner
     List<Trainee> trainees = new ArrayList<>();
 
-    public void removeAssociations() {
-        for (Trainee trainee : new ArrayList<>(trainees)) {
-            trainee.getTrainers().remove(this);
-        }
-        for (Training t : new ArrayList<>(trainings)) {
-            t.setTrainer(null);
-        }
-        trainings.clear();
+    public void removeTrainee(Trainee trainee) {
+        this.trainees.remove(trainee);
+        trainee.getTrainers().remove(this);
+//        this.authors.remove(author);
+//        author.getBooks().remove(this);
     }
+//    @PreRemove
+//    public void removeAssociations() {
+//        for (Trainee trainee : new ArrayList<>(trainees)) {
+//            trainee.getTrainers().remove(this);
+//        }
+//        for (Training t : new ArrayList<>(trainings)) {
+//            t.setTrainer(null);
+//        }
+//        trainings.clear();
+//    }
 
     @OneToMany(mappedBy = "trainer",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Training> trainings = new ArrayList<>();

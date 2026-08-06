@@ -6,7 +6,7 @@ import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
 import epam.domain.entity.Training;
 import epam.domain.entity.TrainingTypeName;
-import epam.exception.UnauthorizedException;
+import epam.controller.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
@@ -131,13 +131,9 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public void activateDeactivateTrainee(String username, boolean isActive) {
         var entity = trainerRepository.findByUsername(username).orElseThrow(()
-                -> new IllegalArgumentException("Trainee not found with id: " + username));;
+                -> new IllegalArgumentException("Trainee not found with id: " + username));
 
-        if (isActive) {
-            trainerRepository.activate(entity.getId());
-        } else {
-            trainerRepository.deactivate(entity.getId());
-        }
+        trainerRepository.toggleStatus(entity.getId());
     }
 
     @Transactional

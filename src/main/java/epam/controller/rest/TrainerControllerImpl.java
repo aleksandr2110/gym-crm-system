@@ -7,6 +7,7 @@ import epam.domain.dto.request.TrainerRequestDTO;
 import epam.domain.dto.request.UpdateTrainerRequestDTO;
 import epam.domain.dto.response.RegistrationResponseDTO;
 import epam.domain.dto.response.TrainerProfileDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class TrainerControllerImpl implements TrainerController {
     private final FacadeGymCrmSystem facadeGymCrmSystem;
 
     @Override
-    public ResponseEntity<RegistrationResponseDTO> registerTrainer(TrainerRequestDTO request) {
+    public ResponseEntity<RegistrationResponseDTO> registerTrainer(@Valid TrainerRequestDTO request) {
         log.info("Register trainer request received: {} {}", request.getFirstName(), request.getLastName());
 
         RegistrationResponseDTO response = facadeGymCrmSystem.createTrainer(request);
@@ -45,7 +46,7 @@ public class TrainerControllerImpl implements TrainerController {
     }
 
     @Override
-    public ResponseEntity<TrainerProfileDTO> updateTrainerProfile(UpdateTrainerRequestDTO request,
+    public ResponseEntity<TrainerProfileDTO> updateTrainerProfile(@Valid UpdateTrainerRequestDTO request,
                                                                   String headerUsername,
                                                                   String headerPassword) {
         log.info("Update trainer profile request received for username: {}", request.getUsername());
@@ -57,7 +58,7 @@ public class TrainerControllerImpl implements TrainerController {
     }
 
     @Override
-    public ResponseEntity<Void> changePassword(ChangePasswordRequestDTO request,
+    public ResponseEntity<Void> changePassword(@Valid ChangePasswordRequestDTO request,
                                                String headerUsername,
                                                String headerPassword) {
         log.info("Change password request received for trainer: {}", request.getUsername());

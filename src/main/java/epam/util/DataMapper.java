@@ -4,6 +4,7 @@ package epam.util;
 import epam.domain.dto.request.TraineeRequestDTO;
 import epam.domain.dto.request.TrainerRequestDTO;
 import epam.domain.dto.request.TrainingRequestDTO;
+import epam.domain.dto.request.UpdateTraineeRequestDTO;
 import epam.domain.dto.response.TraineeProfileDTO;
 import epam.domain.dto.response.TrainerInfoDTO;
 import epam.domain.dto.response.TrainerProfileDTO;
@@ -21,6 +22,10 @@ public class DataMapper {
     private ModelMapper mapper;
 
     public Trainee toTrainee(TraineeRequestDTO traineeRequestDTO) {
+        return mapper.map(traineeRequestDTO, Trainee.class);
+    }
+
+    public Trainee toUpdateTrainee(UpdateTraineeRequestDTO traineeRequestDTO) {
         return mapper.map(traineeRequestDTO, Trainee.class);
     }
 

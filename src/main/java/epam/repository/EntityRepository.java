@@ -12,8 +12,7 @@ public interface EntityRepository<T, ID> {
     Optional<T> findByUsername(String userName);
     void changePassword(Long id, String newPassword);
     void changePassword(String username, String newPassword);
-    void activate(ID id);
-    void deactivate(ID id);
+    void toggleStatus(Long id);
     void delete(String username);
     default List<Trainer> findAllNotAssignedToTrainee(String traineeUsername) {
         return List.of();

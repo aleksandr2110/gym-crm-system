@@ -51,7 +51,7 @@ public class TrainingTypeRepository {
 
     public List<TrainingType> findAll() {
         Query query = entityManager.createQuery(
-                "SELECT t FROM " + TrainingType.class.getSimpleName() + " t",
+                "SELECT t FROM TrainingType t",
                 TrainingType.class);
         return query.getResultList();
     }

@@ -66,21 +66,12 @@ public class TrainerRepository implements EntityRepository<Trainer, Long> {
     }
 
     @Override
-    public void activate(Long id) {
+    public void toggleStatus(Long id) {
         var entity = findById(id).orElseThrow(
                 () -> new IllegalArgumentException("Trainer not found with id: " + id));
         entity.setActive(!entity.isActive());
         entityManager.merge(entity);
         log.info("Trainer activated with id: {}", id);
-    }
-
-    @Override
-    public void deactivate(Long id) {
-        var entity = findById(id).orElseThrow(()
-                -> new IllegalArgumentException("Trainer not found with id: " + id));
-        entity.setActive(!entity.isActive());
-        entityManager.merge(entity);
-        log.info("Trainer deactivated with id: {}", id);
     }
 
     @Override

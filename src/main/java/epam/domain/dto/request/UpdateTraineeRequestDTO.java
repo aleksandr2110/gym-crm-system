@@ -1,11 +1,12 @@
 package epam.domain.dto.request;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,7 +28,7 @@ public class UpdateTraineeRequestDTO {
     private String lastName;
 
     @Schema(description = "Date of birth", example = "1987-11-15")
-    private LocalDate dateOfBirth;
+    private String dateOfBirth;
 
     @Schema(description = "Address", example = "65 White road St, City")
     private String address;

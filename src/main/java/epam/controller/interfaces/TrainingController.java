@@ -49,9 +49,9 @@ public interface TrainingController {
     ResponseEntity<List<TrainingTraineeDTO>> getTraineeTrainings(
             @Parameter(description = "Filter criteria for trainee trainings", required = true)
             @Valid @RequestBody TraineeTrainingsRequestDTO filterRequest,
-            @Parameter(description = "Trainer header username", required = true)
+            @Parameter(description = "Trainee header username", required = true)
             @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
+            @Parameter(description = "Trainee header password", required = true)
             @RequestHeader("X-Password") String headerPassword);
 
     @GetMapping("/trainer")

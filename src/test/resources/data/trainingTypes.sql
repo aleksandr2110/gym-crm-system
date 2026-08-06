@@ -1,2 +1,0 @@
-INSERT INTO training_types (id, training_type_name) values (1, 'Java'), (2, 'C'), (3, 'Python'), (4, 'Angular'),
- (5, 'React'), (6, 'JavaScript'), (7, 'TypeScript'), (8, 'Php'), (9, 'Business Analyst'), (10, 'Qa'), (11, Devops);

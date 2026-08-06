@@ -23,7 +23,7 @@ public class TrainingType {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "training_type_name", nullable = false)
+    @Column(name = "training_type_name", nullable = true)
     @Enumerated(EnumType.STRING)
     private TrainingTypeName trainingTypeName;
 
