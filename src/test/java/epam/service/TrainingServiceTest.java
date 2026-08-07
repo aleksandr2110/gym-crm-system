@@ -65,7 +65,7 @@ public class TrainingServiceTest {
         when(traineeRepository.findByUsername(any())).thenReturn(Optional.of(trainee));
         when(trainerRepository.findByUsername(any())).thenReturn(Optional.of(trainer));
         when(trainingTypeRepository.findByName(any())).thenReturn(trainingType);
-        doNothing().when(trainingRepository).save(training);
+        doNothing().when(trainingRepository).save(any());
         trainingService.save(training);
 
         //THEN

@@ -98,22 +98,8 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
             trainingIterator.remove();
         }
 
-        //entity.removeAssociations();
         entityManager.remove(entity);
-        entityManager.flush();
-//        for (Trainer trainer : new ArrayList<>(entity.getTrainers())) {
-//            trainer.getTrainees().remove(this);
-//        }
-//        for (Trainer trainer : entity.getTrainers()) {
-//            entity.removeTrainer(trainer);
-//        }
-
-        //entity.removeAssociations();
-//        entity.getTrainers().clear();
-//        entity.getTrainings().clear();
-//        var modifiedTrainee = entityManager.merge(entity);
-//
-//        entityManager.remove(modifiedTrainee);
+        entityManager.flush();;
 
         log.info("Trainee deleted with username: {}", username);
     }

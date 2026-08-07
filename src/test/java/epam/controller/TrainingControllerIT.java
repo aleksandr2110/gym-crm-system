@@ -170,7 +170,7 @@ public class TrainingControllerIT {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].trainingName").value("Practice Python"))
-                .andExpect(jsonPath("$[0].trainingType").exists()) // Python
+                .andExpect(jsonPath("$[0].trainingType").exists())
                 .andExpect(jsonPath("$[0].trainerName").exists());
     }
 

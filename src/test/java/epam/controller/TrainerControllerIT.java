@@ -340,7 +340,7 @@ public class TrainerControllerIT {
         assertNotNull(trainer);
         assertEquals("Kevin", trainer.getFirstName());
         assertEquals("Wayne", trainer.getLastName());
-        assertEquals("Javascript", trainer.getSpecialization().getTrainingTypeName().name());
+        assertEquals("JAVASCRIPT", trainer.getSpecialization().getTrainingTypeName().name());
         assertFalse(trainer.isActive());
     }
 }

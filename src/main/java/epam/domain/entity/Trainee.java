@@ -42,15 +42,6 @@ public class Trainee extends User {
             training.setTrainee(null);
         }
         trainings.clear();
-        /*for (Trainer trainer : new ArrayList<>(trainers)) {
-            trainer.getTrainees().remove(this);
-        }
-        System.out.println("delete association ");
-        //trainers.clear();
-        for (Training t : new ArrayList<>(trainings)) {
-            t.setTrainee(null);
-        }
-        trainings.clear(); */
     }
 
     @OneToMany(mappedBy = "trainee", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -59,11 +50,6 @@ public class Trainee extends User {
     public void addTraining(Training training) {
         trainings.add(training);
     }
-
-//    public void removeTrainer(Trainer trainer) {
-//        this.trainers.remove(trainer);
-//        trainer.getTrainees().remove(this);
-//    }
 
     @Override
     public String toString() {

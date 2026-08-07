@@ -32,25 +32,13 @@ public class Trainer extends User {
     @JoinTable(name = "trainers_trainees",
             joinColumns = @JoinColumn(name = "trainer_id"),
             inverseJoinColumns = @JoinColumn(name = "trainee_id")
-    ) // owner
+    )
     List<Trainee> trainees = new ArrayList<>();
 
     public void removeTrainee(Trainee trainee) {
         this.trainees.remove(trainee);
         trainee.getTrainers().remove(this);
-//        this.authors.remove(author);
-//        author.getBooks().remove(this);
     }
-//    @PreRemove
-//    public void removeAssociations() {
-//        for (Trainee trainee : new ArrayList<>(trainees)) {
-//            trainee.getTrainers().remove(this);
-//        }
-//        for (Training t : new ArrayList<>(trainings)) {
-//            t.setTrainer(null);
-//        }
-//        trainings.clear();
-//    }
 
     @OneToMany(mappedBy = "trainer",cascade = CascadeType.ALL, orphanRemoval = true)
     List<Training> trainings = new ArrayList<>();
