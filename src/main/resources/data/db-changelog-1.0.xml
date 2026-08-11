@@ -131,6 +131,28 @@
          </createTable>
     </changeSet>
 
+    <changeSet id="create_roles" author="Oleksandr@DevDB">
+        <createTable tableName="roles">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type ="varchar(70)">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create_users_roles" author="Oleksandr@DevDB">
+        <createTable tableName="users_roles">
+            <column name="user_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="role_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+
     <changeSet id="tag-1.0" author="Oleksandr@DevDB">
         <tagDatabase tag="1.0" />
     </changeSet>

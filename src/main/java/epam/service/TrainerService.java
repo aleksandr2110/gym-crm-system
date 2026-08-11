@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface TrainerService {
 
+    void beforeCreate(Trainer entity);
     Trainer save(Trainer trainer, String specialization);
     Trainer findById(Long id);
     Trainer findByUsername(String userName);

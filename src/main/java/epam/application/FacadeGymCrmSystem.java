@@ -8,6 +8,7 @@ import epam.service.TrainerService;
 import epam.service.TrainingService;
 import epam.service.TrainingTypeService;
 import epam.util.DataMapper;
+import epam.util.UsernameAndPasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

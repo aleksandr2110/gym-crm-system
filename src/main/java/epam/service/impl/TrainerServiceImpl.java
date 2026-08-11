@@ -1,6 +1,7 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
+import epam.constants.RoleName;
 import epam.domain.dto.request.UpdateTrainerRequestDTO;
 import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
@@ -10,11 +11,13 @@ import epam.controller.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
+import epam.security.service.RoleService;
 import epam.service.TrainerService;
 import epam.service.TrainingTypeService;
 import epam.util.DataMapper;
 import epam.util.UsernameAndPasswordGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,17 +33,25 @@ public class TrainerServiceImpl implements TrainerService {
     private final TrainingRepository trainingRepository;
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
-    private final DataMapper dataMapper;
+    private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
     public TrainerServiceImpl(TrainingTypeService trainingTypeService,
                               TrainingRepository trainingRepository,
                               TraineeRepository traineeRepository,
-                              TrainerRepository trainerRepository, DataMapper dataMapper) {
+                              TrainerRepository trainerRepository,  PasswordEncoder passwordEncoder,
+                              RoleService roleService) {
         this.trainingTypeService = trainingTypeService;
         this.trainingRepository = trainingRepository;
         this.traineeRepository = traineeRepository;
         this.trainerRepository = trainerRepository;
-        this.dataMapper = dataMapper;
+        this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
+    public void beforeCreate(Trainer entity) {
+        roleService.assignRoleToTrainer(entity, RoleName.ROLE_TRAINEE);
     }
 
     @Override
@@ -65,6 +76,8 @@ public class TrainerServiceImpl implements TrainerService {
 
         if (trainer.getUsername() == null) {
             setUsername(trainer);
+            String plainPassword = trainer.getPassword();
+            trainer.setPassword(passwordEncoder.encode(plainPassword));
         } else {
             throw new IllegalArgumentException("Attempt to save trainer with username: "
                     + trainer.getUsername());

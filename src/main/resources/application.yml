@@ -4,7 +4,7 @@ spring:
   datasource:
     username: root
     password: sqlpas
-    url: jdbc:mysql://localhost:3306/springboot?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/springsecurity?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -21,6 +21,10 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 864000
 
 management:
   endpoints:

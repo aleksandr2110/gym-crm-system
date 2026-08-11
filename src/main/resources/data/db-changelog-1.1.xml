@@ -59,12 +59,12 @@
 
     <changeSet id="add-fk-between-trainer-and-trainee" author="Oleksandr@DevDB">
 
-    <!-- 4. Add Composite Primary Key to prevent duplicate relationships -->
+    <!-- Add Composite Primary Key to prevent duplicate relationships -->
     <addPrimaryKey tableName="trainers_trainees"
                    columnNames="trainee_id, trainer_id"
                    constraintName="pk_trainers_trainees"/>
 
-    <!-- 5. Add Foreign Key Constraint for Table 1 -->
+    <!-- Add Foreign Key Constraint for Table 1 -->
     <addForeignKeyConstraint baseTableName="trainers_trainees"
                              baseColumnNames="trainee_id"
                              referencedTableName="trainees"
@@ -72,13 +72,34 @@
                              constraintName="fk_trainees_trainers_trainees"
                              onDelete="CASCADE"/>
 
-    <!-- 6. Add Foreign Key Constraint for Table 2 -->
+    <!-- Add Foreign Key Constraint for Table 2 -->
     <addForeignKeyConstraint baseTableName="trainers_trainees"
                              baseColumnNames="trainer_id"
                              referencedTableName="trainers"
                              referencedColumnNames="id"
                              constraintName="fk_trainers_trainers_trainees"
                              onDelete="CASCADE"/>
+    </changeSet>
+
+    <changeSet id="add-fk-between-user-and-role" author="Oleksandr@DevDB">
+
+        <addPrimaryKey tableName="users_roles"
+                       columnNames="user_id, role_id"
+                       constraintName="pk_user_roles"/>
+
+        <addForeignKeyConstraint baseTableName="users_roles"
+                                 baseColumnNames="user_id"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_users_roles_users"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="users_roles"
+                                 baseColumnNames="role_id"
+                                 referencedTableName="roles"
+                                 referencedColumnNames="id"
+                                 constraintName="fk_users_roles_roles"
+                                 onDelete="CASCADE"/>
     </changeSet>
 
     <changeSet id="tag-1.1" author="Oleksandr@DevDB">

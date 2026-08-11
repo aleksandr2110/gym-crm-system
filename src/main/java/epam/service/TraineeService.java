@@ -12,6 +12,7 @@ import java.util.List;
 
 public interface TraineeService {
 
+    void beforeCreate(Trainee entity);
     Trainee save(Trainee trainee);
     Trainee findById(Long id);
     Trainee findByUsername(String userName);

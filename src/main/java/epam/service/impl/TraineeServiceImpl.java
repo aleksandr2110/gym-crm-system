@@ -1,15 +1,18 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
+import epam.constants.RoleName;
 import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
 import epam.controller.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
+import epam.security.service.RoleService;
 import epam.service.TraineeService;
 import epam.util.DataMapper;
 import epam.util.UsernameAndPasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +24,22 @@ public class TraineeServiceImpl implements TraineeService {
 
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
-    private final DataMapper dataMapper;
+    private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public TraineeServiceImpl(TraineeRepository traineeRepository, TrainerRepository trainerRepository,
-                              DataMapper dataMapper) {
+                              PasswordEncoder passwordEncoder,
+                              RoleService roleService) {
         this.traineeRepository = traineeRepository;
         this.trainerRepository = trainerRepository;
-        this.dataMapper = dataMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
+    }
+
+    @Override
+    public void beforeCreate(Trainee entity) {
+        roleService.assignRoleToTrainee(entity, RoleName.ROLE_TRAINEE);
     }
 
     @Transactional
@@ -37,6 +48,8 @@ public class TraineeServiceImpl implements TraineeService {
 
         if (trainee.getUsername() == null) {
             setUsername(trainee);
+            String plainPassword = trainee.getPassword();
+            trainee.setPassword(passwordEncoder.encode(plainPassword));
         } else {
             throw new IllegalArgumentException("Attempt to save trainee with username: "
                     + trainee.getUsername());
