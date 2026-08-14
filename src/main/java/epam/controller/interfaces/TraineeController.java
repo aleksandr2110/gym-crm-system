@@ -39,11 +39,7 @@ public interface TraineeController {
     })
     ResponseEntity<TraineeProfileDTO> getTraineeProfile(
             @Parameter(description = "Trainee username", required = true)
-            @PathVariable("username") String username,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @PathVariable("username") String username);
 
     @DeleteMapping("/{username}")
     @Operation(summary = "Delete trainee profile", description = "Deletes a trainee profile by username (hard delete with cascade)")
@@ -53,11 +49,7 @@ public interface TraineeController {
     })
     ResponseEntity<Void> deleteTraineeProfile(
             @Parameter(description = "Trainee username", required = true)
-            @PathVariable("username") String username,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @PathVariable("username") String username);
 
     @GetMapping("/{username}/available-trainers")
     @Operation(summary = "Get available trainers", description = "Retrieves active trainers not assigned to the trainee")
@@ -67,14 +59,10 @@ public interface TraineeController {
     })
     ResponseEntity<List<TrainerInfoDTO>> getAvailableTrainers(
             @Parameter(description = "Trainee username", required = true)
-            @PathVariable("username") String username,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @PathVariable("username") String username);
 
 
-    @PutMapping
+    @PutMapping("/{id}")
     @Operation(summary = "Update trainee profile", description = "Updates trainee profile information")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Trainee profile updated successfully"),
@@ -84,10 +72,8 @@ public interface TraineeController {
     ResponseEntity<TraineeProfileDTO> updateTraineeProfile(
             @Parameter(description = "Trainee update data", required = true)
             @Valid @RequestBody UpdateTraineeRequestDTO request,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @Parameter(description = "Trainee id", required = true)
+            @PathVariable("id") Long id);
 
     @PutMapping("/change-password")
     @Operation(summary = "Change trainee password", description = "Changes the password for a trainee")
@@ -98,11 +84,7 @@ public interface TraineeController {
     })
     ResponseEntity<Void> changePassword(
             @Parameter(description = "Password change request", required = true)
-            @Valid @RequestBody ChangePasswordRequestDTO request,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @Valid @RequestBody ChangePasswordRequestDTO request);
 
     @PatchMapping("/activation")
     @Operation(summary = "Activate/Deactivate trainee", description = "Activates or deactivates a trainee profile (non-idempotent operation)")
@@ -114,11 +96,7 @@ public interface TraineeController {
             @Parameter(description = "Trainee username", required = true)
             @RequestParam("username") String username,
             @Parameter(description = "Active status", required = true)
-            @RequestParam("isActive") Boolean isActive,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @RequestParam("isActive") Boolean isActive);
 
     @PutMapping("/trainers")
     @Operation(summary = "Update trainee's trainer list", description = "Updates the list of trainers assigned to a trainee")
@@ -129,9 +107,5 @@ public interface TraineeController {
     })
     ResponseEntity<List<TrainerInfoDTO>> updateTrainersList(
             @Parameter(description = "Update trainers list request", required = true)
-            @Valid @RequestBody UpdateTraineeTrainersRequestDTO request,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @Valid @RequestBody UpdateTraineeTrainersRequestDTO request);
 }

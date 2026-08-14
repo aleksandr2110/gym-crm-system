@@ -23,4 +23,5 @@ public interface TraineeService {
     Trainee authenticateTrainee(String username, String password);
     void deleteProfile(String username);
     List<Trainer> updateTrainersList(String traineeUsername, List<String> trainerUsernames);
+    List<String> findUsernamesLike(String likeUsername);
 }

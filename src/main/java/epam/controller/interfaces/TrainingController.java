@@ -34,11 +34,7 @@ public interface TrainingController {
     })
     ResponseEntity<Void> addTraining(
             @Parameter(description = "Training creation data", required = true)
-            @Valid @RequestBody TrainingRequestDTO request,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @Valid @RequestBody TrainingRequestDTO request);
 
     @GetMapping("/trainee")
     @Operation(summary = "Get trainee trainings", description = "Retrieves list of trainings for a trainee with optional filters")
@@ -48,11 +44,7 @@ public interface TrainingController {
     })
     ResponseEntity<List<TrainingTraineeDTO>> getTraineeTrainings(
             @Parameter(description = "Filter criteria for trainee trainings", required = true)
-            @Valid @RequestBody TraineeTrainingsRequestDTO filterRequest,
-            @Parameter(description = "Trainee header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainee header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @Valid @RequestBody TraineeTrainingsRequestDTO filterRequest);
 
     @GetMapping("/trainer")
     @Operation(summary = "Get trainer trainings", description = "Retrieves list of trainings for a trainer with optional filters")
@@ -62,9 +54,5 @@ public interface TrainingController {
     })
     ResponseEntity<List<TrainingTrainerDTO>> getTrainerTrainings(
             @Parameter(description = "Filter criteria for trainer trainings", required = true)
-            @Valid @RequestBody TrainerTrainingsRequestDTO filterRequest,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @Valid @RequestBody TrainerTrainingsRequestDTO filterRequest);
 }

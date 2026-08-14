@@ -9,7 +9,7 @@ public class BooleanAttributeConverter implements AttributeConverter<Boolean, In
 @Override
 public Integer convertToDatabaseColumn(Boolean attribute) {
     if (attribute == null) {
-        return 0;
+        return 1;
     }
     if (attribute) {
         return 1;

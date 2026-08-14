@@ -36,13 +36,9 @@ public interface TrainerController {
     })
     ResponseEntity<TrainerProfileDTO> getTrainerProfile(
             @Parameter(description = "Trainer username", required = true)
-            @PathVariable("username") String username,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @PathVariable("username") String username);
 
-    @PutMapping
+    @PutMapping("/{id}")
     @Operation(summary = "Update trainer profile", description = "Updates trainer profile information (specialization is read-only)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Trainer profile updated successfully"),
@@ -51,11 +47,7 @@ public interface TrainerController {
     })
     ResponseEntity<TrainerProfileDTO> updateTrainerProfile(
             @Parameter(description = "Trainer update data", required = true)
-            @Valid @RequestBody UpdateTrainerRequestDTO request,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @Valid @RequestBody UpdateTrainerRequestDTO request, @PathVariable("id") Long id);
 
     @PutMapping("/change-password")
     @Operation(summary = "Change trainer password", description = "Changes the password for a trainer")
@@ -66,11 +58,7 @@ public interface TrainerController {
     })
     ResponseEntity<Void> changePassword(
             @Parameter(description = "Password change request", required = true)
-            @Valid @RequestBody ChangePasswordRequestDTO request,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @Valid @RequestBody ChangePasswordRequestDTO request);
 
     @PatchMapping("/activation")
     @Operation(summary = "Activate/Deactivate trainer", description = "Activates or deactivates a trainer profile (non-idempotent operation)")
@@ -82,9 +70,5 @@ public interface TrainerController {
             @Parameter(description = "Trainer username", required = true)
             @RequestParam("username") String username,
             @Parameter(description = "Active status", required = true)
-            @RequestParam("isActive") Boolean isActive,
-            @Parameter(description = "Trainer header username", required = true)
-            @RequestHeader("X-Username") String headerUsername,
-            @Parameter(description = "Trainer header password", required = true)
-            @RequestHeader("X-Password") String headerPassword);
+            @RequestParam("isActive") Boolean isActive);
 }

@@ -9,6 +9,7 @@ import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -21,10 +22,12 @@ import java.util.Optional;
 public class TraineeRepository implements EntityRepository<Trainee, Long> {
 
     private final EntityManager entityManager;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public TraineeRepository(EntityManager entityManager) {
+    public TraineeRepository(EntityManager entityManager, PasswordEncoder passwordEncoder) {
         this.entityManager = entityManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class TraineeRepository implements EntityRepository<Trainee, Long> {
         Trainee entity = findByUsername(username).orElseThrow(() ->
                 new IllegalArgumentException("Trainee not found with username: " + username));
 
-        entity.setPassword(newPassword);
+        entity.setPassword(passwordEncoder.encode(newPassword));
         entityManager.merge(entity);
         log.info("Password changed for trainee with user name: {}", username);
     }

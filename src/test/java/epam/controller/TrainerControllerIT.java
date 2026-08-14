@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -169,8 +170,6 @@ public class TrainerControllerIT {
         changePasswordRequest.setNewPassword("newPassword789");
 
         mockMvc.perform(put("/api/v1/trainers/change-password")
-                        .header("X-Username", username)
-                        .header("X-Password", oldPassword)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().is4xxClientError());
@@ -207,18 +206,15 @@ public class TrainerControllerIT {
         String responseBody = registerResult.getResponse().getContentAsString();
         var response = objectMapper.readValue(responseBody, RegistrationResponseDTO.class);
         String username = response.getUsername();
-        String password = response.getPassword();
 
-        mockMvc.perform(get("/api/v1/trainers/" + username)
-                        .header("X-Username", username)
-                        .header("X-Password", password))
+        mockMvc.perform(get("/api/v1/trainers/" + username))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.username").value(username))
                 .andExpect(jsonPath("$.firstName").value("Jastin"))
                 .andExpect(jsonPath("$.lastName").value("Trudo"))
                 .andExpect(jsonPath("$.specialization").value("Javascript"))
-                .andExpect(jsonPath("$.isActive").value(false))
+                .andExpect(jsonPath("$.isActive").value(true))
                 .andExpect(jsonPath("$.trainees").isArray());
     }
 
@@ -229,6 +225,7 @@ public class TrainerControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Sarah.Connor", roles = {"ADMIN"})
     void testShouldActivateTrainer() throws Exception {
         var request = new TrainerRequestDTO();
         request.setFirstName("Jastin");
@@ -253,12 +250,20 @@ public class TrainerControllerIT {
                         .param("isActive", "true"))
                 .andExpect(status().isOk());
 
+        mockMvc.perform(patch("/api/v1/trainers/activation")
+                        .header("X-Username", username)
+                        .header("X-Password", password)
+                        .param("username", username)
+                        .param("isActive", "true"))
+                .andExpect(status().isOk());
+
         var trainer = trainerService.findByUsername(username);
         assertNotNull(trainer);
         assertTrue(trainer.isActive());
     }
 
     @Test
+    @WithMockUser(username = "Sarah.Connor", roles = {"ADMIN"})
     void testShouldDeactivateTrainee() throws Exception {
         var request = new TrainerRequestDTO();
         request.setFirstName("Jastin");
@@ -283,12 +288,12 @@ public class TrainerControllerIT {
                         .param("isActive", "false"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(patch("/api/v1/trainers/activation")
-                        .header("X-Username", username)
-                        .header("X-Password", password)
-                        .param("username", username)
-                        .param("isActive", "false"))
-                .andExpect(status().isOk());
+//        mockMvc.perform(patch("/api/v1/trainers/activation")
+//                        .header("X-Username", username)
+//                        .header("X-Password", password)
+//                        .param("username", username)
+//                        .param("isActive", "false"))
+//                .andExpect(status().isOk());
 
         var trainer = trainerService.findByUsername(username);
         assertNotNull(trainer);
@@ -296,6 +301,7 @@ public class TrainerControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Sarah.Connor",  roles = {"TRAINER", "ADMIN"})
     void testShouldUpdateTrainerProfile() throws Exception {
         var request = new TrainerRequestDTO();
         request.setFirstName("Jastin");
@@ -311,7 +317,6 @@ public class TrainerControllerIT {
         String responseBody = registerResult.getResponse().getContentAsString();
         var response = objectMapper.readValue(responseBody, RegistrationResponseDTO.class);
         String username = response.getUsername();
-        String password = response.getPassword();
 
         String updateRequestJson = """
                 {
@@ -323,9 +328,7 @@ public class TrainerControllerIT {
                 }
                 """.formatted(username);
 
-        mockMvc.perform(put("/api/v1/trainers")
-                        .header("X-Username", username)
-                        .header("X-Password", password)
+        mockMvc.perform(put("/api/v1/trainers/3")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateRequestJson))
                 .andExpect(status().isOk())

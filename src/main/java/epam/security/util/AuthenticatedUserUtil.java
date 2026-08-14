@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class AuthenticatedUserUtil {
 
     public boolean isProfileOwner(Long ownerId, String username) {
-        if (username == null || ownerId == null) {
+        if (ownerId == null || username == null) {
             return false;
         }
 
@@ -19,15 +19,6 @@ public class AuthenticatedUserUtil {
             return ownerId.equals(user.getId());
         }
         return false;
-    }
-
-    public String getCurrentUsername() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated() &&
-                !"anonymousUser".equals(authentication.getPrincipal())) {
-            return authentication.getName();
-        }
-        throw new AccessDeniedException("U have no permission due to trouble with your authorization");
     }
 
     public boolean isProfileOwnerByUsername(String requestUsername, String authUsername) {

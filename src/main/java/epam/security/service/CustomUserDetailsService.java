@@ -1,6 +1,7 @@
 package epam.security.service;
 
 
+import epam.domain.entity.Trainee;
 import epam.domain.entity.User;
 import epam.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,5 +31,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         log.debug("User found: {}, roles: {}", username, user.getRoles().size());
         return user;
+//        return org.springframework.security.core.userdetails.User
+//                .builder()
+//                .username(user.getUsername())
+//                .password(user.getPassword())
+//                .disabled(!user.isActive())
+//                .roles(RoleName roleName)
+//                .build();
     }
 }

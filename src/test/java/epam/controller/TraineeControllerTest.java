@@ -11,6 +11,7 @@ import epam.domain.dto.response.RegistrationResponseDTO;
 import epam.domain.dto.response.TraineeProfileDTO;
 import epam.domain.dto.response.TrainerInfoDTO;
 import epam.controller.exception.UnauthorizedException;
+import epam.security.util.AuthenticatedUserUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,13 +36,15 @@ public class TraineeControllerTest {
 
     @Mock
     private FacadeGymCrmSystem facadeGymCrmSystem;
+    @Mock
+    private AuthenticatedUserUtil authenticatedUserUtil;
 
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setup() {
-        TraineeController controller = new TraineeControllerImpl(facadeGymCrmSystem);
+        TraineeController controller = new TraineeControllerImpl(facadeGymCrmSystem, authenticatedUserUtil);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new ExceptionHandlerController())
                 .build();
@@ -99,8 +102,7 @@ public class TraineeControllerTest {
         profileDTO.setIsActive(false);
         profileDTO.setTrainers(List.of());
 
-        Mockito.when(facadeGymCrmSystem.getTraineeByUsername(Mockito.any(), Mockito.any(),
-                Mockito.any())).thenReturn(profileDTO);
+        Mockito.when(facadeGymCrmSystem.getTraineeByUsername(Mockito.any())).thenReturn(profileDTO);
 
         mockMvc.perform(get("/api/v1/trainees/" + username)
                         .header("X-Username", "Josh")
@@ -119,8 +121,7 @@ public class TraineeControllerTest {
     @Test
     void shouldThrowExceptionWhenNotAuthorized() throws Exception {
         String username = "Josef.Marti";
-        Mockito.when(facadeGymCrmSystem.getTraineeByUsername(Mockito.any(), Mockito.any(),
-                Mockito.any())).thenThrow(new UnauthorizedException("User is not authenticated: " + username));
+        Mockito.when(facadeGymCrmSystem.getTraineeByUsername(Mockito.any())).thenThrow(new UnauthorizedException("User is not authenticated: " + username));
 
         mockMvc.perform(get("/api/v1/trainees/"+ username)
                         .header("X-Username", "Josh")
@@ -153,14 +154,14 @@ public class TraineeControllerTest {
         var registrationResp = objectMapper.readValue(registrationResponse, RegistrationResponseDTO.class);
         String username = registrationResp.getUsername();
 
-        Mockito.doNothing().when(facadeGymCrmSystem).deleteTrainee(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(facadeGymCrmSystem).deleteTrainee(Mockito.any());
 
         mockMvc.perform(delete("/api/v1/trainees/" + username)
                         .header("X-Username", "Josh")
                         .header("X-Password", "34322ds"))
                 .andExpect(status().isNoContent());
 
-        verify(facadeGymCrmSystem, times(1)).deleteTrainee(Mockito.any(), Mockito.any(), Mockito.any());
+        verify(facadeGymCrmSystem, times(1)).deleteTrainee(Mockito.any());
     }
 
     @Test
@@ -185,8 +186,7 @@ public class TraineeControllerTest {
         var registrationResp = objectMapper.readValue(registrationResponse, RegistrationResponseDTO.class);
         String username = registrationResp.getUsername();
 
-        Mockito.when(facadeGymCrmSystem.getAvailableTrainers(Mockito.any(), Mockito.any(),
-                Mockito.any())).thenReturn(createTrainers());
+        Mockito.when(facadeGymCrmSystem.getAvailableTrainers(Mockito.any())).thenReturn(createTrainers());
 
         mockMvc.perform(get("/api/v1/trainees/" + username + "/available-trainers")
                         .header("X-Username", "Josh")
@@ -236,7 +236,7 @@ public class TraineeControllerTest {
         profile.setAddress("455 Light Ave");
         profile.setIsActive(false);
 
-        Mockito.when(facadeGymCrmSystem.updateTraineeProfile(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(facadeGymCrmSystem.updateTraineeProfile(Mockito.any()))
                 .thenReturn(profile);
 
         mockMvc.perform(put("/api/v1/trainees")
@@ -281,8 +281,7 @@ public class TraineeControllerTest {
         changePasswordRequest.setOldPassword(oldPassword);
         changePasswordRequest.setNewPassword("newPass5435");
 
-        Mockito.doNothing().when(facadeGymCrmSystem).changeTraineePassword(Mockito.any(), Mockito.any(),
-                Mockito.any());
+        Mockito.doNothing().when(facadeGymCrmSystem).changeTraineePassword(Mockito.any());
 
         mockMvc.perform(put("/api/v1/trainees/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -290,8 +289,7 @@ public class TraineeControllerTest {
                         .header("X-Username", "Josh")
                         .header("X-Password", "34322ds"))
                 .andExpect(status().isOk());
-        verify(facadeGymCrmSystem, times(1)).changeTraineePassword(Mockito.any(), Mockito.any(),
-                Mockito.any());
+        verify(facadeGymCrmSystem, times(1)).changeTraineePassword(Mockito.any());
     }
 
     @Test
@@ -316,18 +314,14 @@ public class TraineeControllerTest {
         var registrationResp = objectMapper.readValue(registrationResponse, RegistrationResponseDTO.class);
         String username = registrationResp.getUsername();
 
-        doNothing().when(facadeGymCrmSystem).activateDeactivateTrainee(username, true,
-                "Josh", "34322ds");
+        doNothing().when(facadeGymCrmSystem).activateDeactivateTrainee(username, true);
 
         mockMvc.perform(patch("/api/v1/trainees/activation")
                         .param("username", username)
-                        .param("isActive", "true")
-                        .header("X-Username", "Josh")
-                        .header("X-Password", "34322ds"))
+                        .param("isActive", "true"))
                 .andExpect(status().isOk());
 
-        verify(facadeGymCrmSystem, times(1)).activateDeactivateTrainee(username, true,
-                "Josh", "34322ds");
+        verify(facadeGymCrmSystem, times(1)).activateDeactivateTrainee(username, true);
     }
 
     private static List<TrainerInfoDTO> createTrainers() {

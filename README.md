@@ -23,25 +23,27 @@ Prometheus:
  - Targets: http://localhost:9090/targets
  - 
    Available Metrics
-   Custom Metrics
+   **Custom Metrics**
+
    Training Metrics:
 
- 1. gym_trainings_created_total - Total number of trainings created
- 2. gym_trainings_active - Number of active trainings
+1. gym_trainings_created_total - Total number of trainings created
+2. gym_trainings_active - Number of active trainings
 
    User Metrics:
 
- 1. gym_users_registered_total - Total number of registered users
- 2. gym_users_logins_total - Total number of logins
- 3. gym_users_active - Number of active users
+1. gym_users_registered_total - Total number of registered users
+2. gym_users_logins_total - Total number of logins
+3. gym_users_active - Number of active users
 
    Request Metrics:
 
- 1. gym_requests_total - Total number of HTTP requests
- 2. gym_requests_errors_total - Number of errors
- 3. gym_requests_duration_seconds - Request duration
+1. gym_requests_total - Total number of HTTP requests
+2. gym_requests_errors_total - Number of errors
+3. gym_requests_duration_seconds - Request duration
 
   Health Indicators
+
   Database Health:
 
  1. MySQL connection status
@@ -71,3 +73,12 @@ rate(gym_requests_errors_total[1m]) / rate(gym_requests_total[1m]) * 100
 
  - Active users
 gym_users_active
+
+  Stop Services
+
+docker-compose down
+
+To remove data (volumes):
+
+docker-compose down -v
+

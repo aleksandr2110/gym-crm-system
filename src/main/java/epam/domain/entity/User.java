@@ -51,8 +51,7 @@ public class User implements UserDetails {
 
     @Convert(converter = BooleanAttributeConverter.class)
     @Column(name="is_active", nullable = false, columnDefinition = "TINYINT", length = 1)
-    @ColumnDefault("1")
-    private boolean isActive;
+    private boolean isActive = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

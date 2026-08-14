@@ -5,7 +5,6 @@ import epam.constants.RoleName;
 import epam.domain.entity.Role;
 import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
-import epam.domain.entity.User;
 import epam.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,24 +19,24 @@ public class RoleService {
     private final RoleRepository roleRepository;
 
     @Transactional
-    public void assignRoleToTrainee(Trainee user, RoleName roleName) {
-        log.debug("Assigning role {} to trainee {}", roleName, user.getUsername());
+    public void assignRoleToTrainee(Trainee trainee, RoleName roleName) {
+        log.debug("Assigning role {} to trainee {}", roleName, trainee.getUsername());
 
         Role role = roleRepository.findByName(roleName.name())
                 .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
 
-        user.getRoles().add(role);
-        log.debug("Role {} assigned to trainee {}", roleName, user.getUsername());
+        trainee.getRoles().add(role);
+        log.debug("Role {} assigned to trainee {}", roleName, trainee.getUsername());
     }
 
     @Transactional
-    public void assignRoleToTrainer(Trainer user, RoleName roleName) {
-        log.debug("Assigning role {} to trainer {}", roleName, user.getUsername());
+    public void assignRoleToTrainer(Trainer trainer, RoleName roleName) {
+        log.debug("Assigning role {} to trainer {}", roleName, trainer.getUsername());
 
         Role role = roleRepository.findByName(roleName.name())
                 .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
 
-        user.getRoles().add(role);
-        log.debug("Role {} assigned to trainer {}", roleName, user.getUsername());
+        trainer.getRoles().add(role);
+        log.debug("Role {} assigned to trainer {}", roleName, trainer.getUsername());
     }
 }

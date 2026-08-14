@@ -11,6 +11,7 @@ import epam.domain.dto.request.UpdateTrainerRequestDTO;
 import epam.domain.dto.response.RegistrationResponseDTO;
 import epam.domain.dto.response.TrainerProfileDTO;
 import epam.controller.exception.UnauthorizedException;
+import epam.security.util.AuthenticatedUserUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -31,13 +33,15 @@ public class TrainerControllerTest {
 
     @Mock
     private FacadeGymCrmSystem facadeGymCrmSystem;
+    @Mock
+    private AuthenticatedUserUtil authenticatedUserUtil;
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setup() {
-        TrainerController controller = new TrainerControllerImpl(facadeGymCrmSystem);
+        TrainerController controller = new TrainerControllerImpl(facadeGymCrmSystem, authenticatedUserUtil);
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
                 .setControllerAdvice(new ExceptionHandlerController())
                 .build();
@@ -95,8 +99,7 @@ public class TrainerControllerTest {
         profileDTO.setIsActive(false);
         profileDTO.setSpecialization("Python");
 
-        Mockito.when(facadeGymCrmSystem.getTrainerByUsername(Mockito.any(), Mockito.any(),
-                Mockito.any())).thenReturn(profileDTO);
+        Mockito.when(facadeGymCrmSystem.getTrainerByUsername(Mockito.any())).thenReturn(profileDTO);
 
         mockMvc.perform(get("/api/v1/trainers/" + username)
                         .header("X-Username", "Josh")
@@ -112,8 +115,8 @@ public class TrainerControllerTest {
     @Test
     void shouldThrowExceptionWhenNotAuthorized() throws Exception {
         String username = "Josef.Marti";
-        Mockito.when(facadeGymCrmSystem.getTrainerByUsername(Mockito.any(), Mockito.any(),
-                Mockito.any())).thenThrow(new UnauthorizedException("User is not authenticated: " + username));
+        Mockito.when(facadeGymCrmSystem.getTrainerByUsername(Mockito.any()))
+                .thenThrow(new UnauthorizedException("User is not authenticated: " + username));
 
         mockMvc.perform(get("/api/v1/trainers/"+ username)
                         .header("X-Username", "Josh")
@@ -159,14 +162,12 @@ public class TrainerControllerTest {
         profile.setSpecialization("Python");
         profile.setIsActive(false);
 
-        Mockito.when(facadeGymCrmSystem.updateTrainerProfile(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(facadeGymCrmSystem.updateTrainerProfile(Mockito.any()))
                 .thenReturn(profile);
 
         mockMvc.perform(put("/api/v1/trainers")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateRequestJson)
-                        .header("X-Username", "Josh")
-                        .header("X-Password", "3wwdqq"))
+                        .content(updateRequestJson))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.username").value(username))
@@ -204,8 +205,7 @@ public class TrainerControllerTest {
         changePasswordRequest.setOldPassword(oldPassword);
         changePasswordRequest.setNewPassword("newPas5421");
 
-        doNothing().when(facadeGymCrmSystem).changeTrainerPassword(Mockito.any(), Mockito.any(),
-                Mockito.any());
+        doNothing().when(facadeGymCrmSystem).changeTrainerPassword(Mockito.any());
 
         mockMvc.perform(put("/api/v1/trainers/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -213,8 +213,7 @@ public class TrainerControllerTest {
                         .header("X-Username", "Josh")
                         .header("X-Password", "3wwdqq"))
                 .andExpect(status().isOk());
-        verify(facadeGymCrmSystem, times(1)).changeTrainerPassword(Mockito.any(), Mockito.any(),
-                Mockito.any());
+        verify(facadeGymCrmSystem, times(1)).changeTrainerPassword(Mockito.any());
     }
 
     @Test
@@ -239,16 +238,12 @@ public class TrainerControllerTest {
         var registrationResp = objectMapper.readValue(registrationResponse, RegistrationResponseDTO.class);
         String username = registrationResp.getUsername();
 
-        doNothing().when(facadeGymCrmSystem).activateDeactivateTrainer(username, true,
-                "Jastin.Trudo", "34322ds");
+        doNothing().when(facadeGymCrmSystem).activateDeactivateTrainer(username, true);
 
         mockMvc.perform(patch("/api/v1/trainers/activation")
                         .param("username", username)
-                        .param("isActive", "true")
-                        .header("X-Username", "Jastin.Trudo")
-                        .header("X-Password", "34322ds"))
+                        .param("isActive", "true"))
                 .andExpect(status().isOk());
-        verify(facadeGymCrmSystem, times(1)).activateDeactivateTrainer(username, true,
-                "Jastin.Trudo", "34322ds");
+        verify(facadeGymCrmSystem, times(1)).activateDeactivateTrainer(username, true);
     }
 }

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -108,6 +110,7 @@ public class TraineeControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Martin.Rossi",  roles = {"TRAINEE", "ADMIN"})
     void testShouldChangePasswordWithValidCredentials() throws Exception {
         var request = new TraineeRequestDTO();
         request.setFirstName("Martin");
@@ -131,18 +134,17 @@ public class TraineeControllerIT {
         changePasswordRequest.setNewPassword("newPassword678979897");
 
         mockMvc.perform(put("/api/v1/trainees/change-password")
-                        .header("X-Username", username)
-                        .header("X-Password", oldPassword)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().isOk());
 
         var trainee = traineeService.findByUsername(username);
         assertNotNull(trainee);
-        assertEquals("newPassword678979897", trainee.getPassword());
+        assertThat(trainee.getPassword()).startsWith("$2a$10$");
     }
 
     @Test
+    @WithMockUser(username = "Martin.Rossi",  roles = {"TRAINEE", "ADMIN"})
     void testShouldReturnErrorWhenChangePassword() throws Exception {
         var request = new TraineeRequestDTO();
         request.setFirstName("Maria");
@@ -158,7 +160,6 @@ public class TraineeControllerIT {
         var registrationResponse = objectMapper.readValue(registerResponseBody,
                 RegistrationResponseDTO.class);
         String username = registrationResponse.getUsername();
-        String oldPassword = registrationResponse.getPassword();
 
         var changePasswordRequest = new ChangePasswordRequestDTO();
         changePasswordRequest.setUsername(username);
@@ -166,14 +167,13 @@ public class TraineeControllerIT {
         changePasswordRequest.setNewPassword("newPassword678979897");
 
         mockMvc.perform(put("/api/v1/trainees/change-password")
-                        .header("X-Username", username)
-                        .header("X-Password", oldPassword)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(changePasswordRequest)))
                 .andExpect(status().is4xxClientError());
     }
 
     @Test
+    @WithMockUser(username = "Martin.Rossi",  roles = {"TRAINEE", "ADMIN"})
     void testShouldReturnErrorWithNotExistedUser() throws Exception {
         var changePasswordRequest = new ChangePasswordRequestDTO();
         changePasswordRequest.setUsername("NotExisted");
@@ -219,7 +219,7 @@ public class TraineeControllerIT {
                 .andExpect(jsonPath("$.lastName").value("Brown"))
                 .andExpect(jsonPath("$.dateOfBirth").exists())
                 .andExpect(jsonPath("$.address").value("68 Rose Ave"))
-                .andExpect(jsonPath("$.isActive").value(false))
+                .andExpect(jsonPath("$.isActive").value(true))
                 .andExpect(jsonPath("$.trainers").isArray());
     }
 
@@ -232,6 +232,7 @@ public class TraineeControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Denis.Bridges", roles = {"ADMIN"})
     void testShouldDeleteTraineeProfileSuccessfully() throws Exception {
         var request = new TraineeRequestDTO();
         request.setFirstName("Tim");
@@ -249,11 +250,8 @@ public class TraineeControllerIT {
         var registrationResponse = objectMapper.readValue(registerResponseBody,
                 RegistrationResponseDTO.class);
         String username = registrationResponse.getUsername();
-        String password = registrationResponse.getPassword();
 
-        mockMvc.perform(delete("/api/v1/trainees/" + username)
-                        .header("X-Username", username)
-                        .header("X-Password", password))
+        mockMvc.perform(delete("/api/v1/trainees/" + username))
                 .andExpect(status().isNoContent());
 
         IllegalArgumentException exception = assertThrows(
@@ -283,11 +281,8 @@ public class TraineeControllerIT {
         var registrationResponse = objectMapper.readValue(registerResponseBody,
                     RegistrationResponseDTO.class);
         String username = registrationResponse.getUsername();
-        String password = registrationResponse.getPassword();
 
-        mockMvc.perform(get("/api/v1/trainees/" + username + "/available-trainers")
-                            .header("X-Username", username)
-                            .header("X-Password", password))
+        mockMvc.perform(get("/api/v1/trainees/" + username + "/available-trainers"))
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$").isArray());
@@ -300,6 +295,7 @@ public class TraineeControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Denis.Brown", roles = {"ADMIN"})
     void testShouldActivateTrainee() throws Exception {
         var request = new TraineeRequestDTO();
         request.setFirstName("Tim");
@@ -317,11 +313,13 @@ public class TraineeControllerIT {
         var registrationResponse = objectMapper.readValue(registerResponseBody,
                 RegistrationResponseDTO.class);
         String username = registrationResponse.getUsername();
-        String password = registrationResponse.getPassword();
 
         mockMvc.perform(patch("/api/v1/trainees/activation")
-                        .header("X-Username", username)
-                        .header("X-Password", password)
+                        .param("username", username)
+                        .param("isActive", "true"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(patch("/api/v1/trainees/activation")
                         .param("username", username)
                         .param("isActive", "true"))
                 .andExpect(status().isOk());
@@ -332,6 +330,7 @@ public class TraineeControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Antony.Brown", roles = {"ADMIN"})
     void testShouldDeactivateTrainee() throws Exception {
         var request = new TraineeRequestDTO();
         request.setFirstName("Tim");
@@ -349,18 +348,8 @@ public class TraineeControllerIT {
         var registrationResponse = objectMapper.readValue(registerResponseBody,
                 RegistrationResponseDTO.class);
         String username = registrationResponse.getUsername();
-        String password = registrationResponse.getPassword();
 
         mockMvc.perform(patch("/api/v1/trainees/activation")
-                        .header("X-Username", username)
-                        .header("X-Password", password)
-                        .param("username", username)
-                        .param("isActive", "false"))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(patch("/api/v1/trainees/activation")
-                        .header("X-Username", username)
-                        .header("X-Password", password)
                         .param("username", username)
                         .param("isActive", "false"))
                 .andExpect(status().isOk());
@@ -371,6 +360,7 @@ public class TraineeControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Vanessa.Mey",  roles = {"TRAINEE", "ADMIN"})
     void testShouldUpdateTraineeProfile() throws Exception {
         var request = new TraineeRequestDTO();
         request.setFirstName("Tim");
@@ -388,7 +378,6 @@ public class TraineeControllerIT {
         var registrationResponse = objectMapper.readValue(registerResponseBody,
                 RegistrationResponseDTO.class);
         String username = registrationResponse.getUsername();
-        String password = registrationResponse.getPassword();
 
         String updateRequestJson = """
                 {
@@ -397,13 +386,11 @@ public class TraineeControllerIT {
                     "lastName": "Shnaider",
                     "dateOfBirth": "1987-10-21",
                     "address": "60 Dnipro Ave",
-                    "isActive": false
+                    "isActive": true
                 }
                 """.formatted(username);
 
-        mockMvc.perform(put("/api/v1/trainees")
-                        .header("X-Username", username)
-                        .header("X-Password", password)
+        mockMvc.perform(put("/api/v1/trainees/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateRequestJson))
                 .andExpect(status().isOk())
@@ -412,14 +399,14 @@ public class TraineeControllerIT {
                 .andExpect(jsonPath("$.firstName").value("Tim"))
                 .andExpect(jsonPath("$.lastName").value("Shnaider"))
                 .andExpect(jsonPath("$.address").value("60 Dnipro Ave"))
-                .andExpect(jsonPath("$.isActive").value(false));
+                .andExpect(jsonPath("$.isActive").value(true));
 
         var trainee = traineeService.findByUsername(username);
         assertNotNull(trainee);
         assertEquals("Tim", trainee.getFirstName());
         assertEquals("Shnaider", trainee.getLastName());
         assertEquals("60 Dnipro Ave", trainee.getAddress());
-        assertFalse(trainee.isActive());
+        assertTrue(trainee.isActive());
     }
 
     @Test
@@ -440,7 +427,6 @@ public class TraineeControllerIT {
         var registrationResponse = objectMapper.readValue(traineeResponseBody,
                 RegistrationResponseDTO.class);
         String traineeUsername = registrationResponse.getUsername();
-        String password = registrationResponse.getPassword();
 
         String updateTrainersRequestJson = """
                 {
@@ -450,8 +436,6 @@ public class TraineeControllerIT {
                 """.formatted(traineeUsername);
 
         mockMvc.perform(put("/api/v1/trainees/trainers")
-                        .header("X-Username", traineeUsername)
-                        .header("X-Password", password)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateTrainersRequestJson))
                 .andExpect(status().isOk())

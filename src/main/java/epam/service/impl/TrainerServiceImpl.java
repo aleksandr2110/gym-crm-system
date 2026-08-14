@@ -7,15 +7,12 @@ import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
 import epam.domain.entity.Training;
 import epam.domain.entity.TrainingTypeName;
-import epam.controller.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
 import epam.security.service.RoleService;
 import epam.service.TrainerService;
 import epam.service.TrainingTypeService;
-import epam.util.DataMapper;
-import epam.util.UsernameAndPasswordGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,7 +48,7 @@ public class TrainerServiceImpl implements TrainerService {
 
     @Override
     public void beforeCreate(Trainer entity) {
-        roleService.assignRoleToTrainer(entity, RoleName.ROLE_TRAINEE);
+        roleService.assignRoleToTrainer(entity, RoleName.ROLE_TRAINER);
     }
 
     @Override
@@ -74,14 +71,8 @@ public class TrainerServiceImpl implements TrainerService {
         }
         trainer.setTrainings(trainingsList);
 
-        if (trainer.getUsername() == null) {
-            setUsername(trainer);
-            String plainPassword = trainer.getPassword();
-            trainer.setPassword(passwordEncoder.encode(plainPassword));
-        } else {
-            throw new IllegalArgumentException("Attempt to save trainer with username: "
-                    + trainer.getUsername());
-        }
+        String plainPassword = trainer.getPassword();
+        trainer.setPassword(passwordEncoder.encode(plainPassword));
 
         return trainerRepository.save(trainer);
     }
@@ -115,9 +106,10 @@ public class TrainerServiceImpl implements TrainerService {
     public void changePassword(String username, String oldPassword, String newPassword) {
         var trainer = trainerRepository.findByUsername(username).orElseThrow(
                 () -> new IllegalArgumentException("Trainer not found with username: " + username));
-        if (!trainer.getPassword().equals(oldPassword)) {
+        if (!passwordEncoder.matches(oldPassword, trainer.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password");
         }
+
         trainerRepository.changePassword(username, newPassword);
     }
 
@@ -149,23 +141,6 @@ public class TrainerServiceImpl implements TrainerService {
         trainerRepository.toggleStatus(entity.getId());
     }
 
-    @Transactional
-    @Override
-    public Trainer authenticateTrainer(String username, String password) {
-        if (username == null || password == null) {
-            throw new UnauthorizedException("Trainer is not authenticated");
-        }
-        if (username.equals("") || password.equals("")) {
-            throw new UnauthorizedException("Trainer is not authenticated");
-        }
-        var entity = trainerRepository.findByUsername(username).orElseThrow(()
-                -> new IllegalArgumentException("Trainer not found with username: " + username));
-        if (!entity.getPassword().equals(password)) {
-            throw new UnauthorizedException("Trainer is not authenticated: " + username);
-        }
-        return entity;
-    }
-
     @Override
     public void deleteProfile(String username) {
         trainerRepository.delete(username);
@@ -192,13 +167,6 @@ public class TrainerServiceImpl implements TrainerService {
         return trainerRepository.findAllNotAssignedToTrainee(traineeUsername);
     }
 
-    private void setUsername(Trainer trainer) {
-        trainer.setUsername(UsernameAndPasswordGenerator.createUsername(
-                trainer.getFirstName(),
-                trainer.getLastName()));
-        trainer.setPassword(UsernameAndPasswordGenerator.generatePassword());
-        List<String> usernameDuplicates = trainerRepository.findUsernamesLike(trainer.getUsername() + "%");
-        trainer.setUsername(trainer.getUsername() + (usernameDuplicates.size() == 0 ? "" : usernameDuplicates.size()));
-    }
+
 
 }

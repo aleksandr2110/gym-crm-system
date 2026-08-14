@@ -29,8 +29,8 @@ public class LoginAttemptDetails {
         if (blockedDateTime == null) {
             return 0;
         }
-        LocalDateTime unblockTime = blockedDateTime.plusMinutes(5);
         LocalDateTime now = LocalDateTime.now();
+        LocalDateTime unblockTime = blockedDateTime.plusMinutes(5);
 
         if (now.isBefore(unblockTime)) {
             return java.time.Duration.between(now, unblockTime).getSeconds();

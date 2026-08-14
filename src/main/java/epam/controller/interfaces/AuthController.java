@@ -11,12 +11,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @Tag(name = "Authentication", description = "Authentication endpoints for login")
 public interface AuthController {
 
     @PostMapping("/login")
-    @Operation(summary = "User login", description = "Authenticates user and returns JWT token",security = {})
+    @Operation(summary = "User login", description = "Authenticates user and returns JWT token", security = {})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Login successful"),
             @ApiResponse(responseCode = "401", description = "Invalid credentials")

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -77,11 +78,14 @@ public class TrainingControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Sarah.Connor", roles = {"TRAINER", "ADMIN"})
     void testShouldCreateTrainingSuccessfully() throws Exception {
         String firstSpecialization = "Python";
         var trainee = new Trainee();
+        trainee.setPassword("yuiouil");
         trainee.setFirstName("Rihard");
         trainee.setLastName("Brown");
+        trainee.setUsername("Rihard.Brown");
 
         var traineeResponse = traineeService.save(trainee);
         String traineeUsername = traineeResponse.getUsername();
@@ -89,11 +93,12 @@ public class TrainingControllerIT {
         var trainer = new Trainer();
         trainer.setFirstName("Tim");
         trainer.setLastName("Shnaider");
+        trainer.setPassword("hdegr45t3");
+        trainer.setUsername("Tim.Shnaider");
         var trainingType = trainingTypeService.findByName(firstSpecialization.toUpperCase());
         trainer.setSpecialization(trainingType);
         var trainerResponse = trainerService.save(trainer, firstSpecialization);
         String trainerUsername = trainerResponse.getUsername();
-        String trainerPassword = trainerResponse.getPassword();
 
         String trainingRequestJson = """
                 {
@@ -107,31 +112,32 @@ public class TrainingControllerIT {
                 """.formatted(traineeUsername, trainerUsername);
 
         mockMvc.perform(post("/api/v1/trainings")
-                        .header("X-Username", trainerUsername)
-                        .header("X-Password", trainerPassword)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(trainingRequestJson))
                 .andExpect(status().isOk());
     }
 
     @Test
+    @WithMockUser(username = "Sarah.Connor", roles = {"TRAINER", "ADMIN"})
     void testShouldGetTraineeTrainings() throws Exception {
         String specialization = "Python";
         var traineeRequest = new Trainee();
         traineeRequest.setFirstName("Casey");
         traineeRequest.setLastName("Sherman");
+        traineeRequest.setPassword("yuiouil");
+        traineeRequest.setUsername("Casey.Sherman");
         var traineeResponse = traineeService.save(traineeRequest);
         String traineeUsername = traineeResponse.getUsername();
-        String traineePassword = traineeResponse.getPassword();
 
         var trainer = new Trainer();
         trainer.setFirstName("Jane");
         trainer.setLastName("Smith");
+        trainer.setPassword("hdegr45t3");
+        trainer.setUsername("Jane.Smith");
         var trainingType = trainingTypeService.findByName(specialization.toUpperCase());
         trainer.setSpecialization(trainingType);
         var trainerResponse = trainerService.save(trainer, specialization);
         String trainerUsername = trainerResponse.getUsername();
-        String trainerPassword = trainerResponse.getPassword();
 
         String trainingRequestJson = """
                 {
@@ -145,8 +151,6 @@ public class TrainingControllerIT {
                 """.formatted(traineeUsername, trainerUsername);
 
         mockMvc.perform(post("/api/v1/trainings")
-                        .header("X-Username", trainerUsername)
-                        .header("X-Password", trainerPassword)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(trainingRequestJson))
                 .andExpect(status().isOk());
@@ -162,8 +166,6 @@ public class TrainingControllerIT {
                 """.formatted(traineeUsername, trainerUsername);
 
         mockMvc.perform(get("/api/v1/trainings/trainee")
-                        .header("X-Username", traineeUsername)
-                        .header("X-Password", traineePassword)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(trainingTraineeRequestJson))
                 .andExpect(status().isOk())
@@ -175,22 +177,26 @@ public class TrainingControllerIT {
     }
 
     @Test
+    @WithMockUser(username = "Sarah.Connor", roles = {"TRAINER", "ADMIN"})
     void testShouldGetTrainerTrainings() throws Exception {
         String specialization = "Python";
         var traineeRequest = new Trainee();
         traineeRequest.setFirstName("Casey");
         traineeRequest.setLastName("Sherman");
+        traineeRequest.setPassword("yuiouil");
+        traineeRequest.setUsername("Casey.Sherman");
         var traineeResponse = traineeService.save(traineeRequest);
         String traineeUsername = traineeResponse.getUsername();
 
         var trainer = new Trainer();
         trainer.setFirstName("Jane");
         trainer.setLastName("Smith");
+        trainer.setPassword("hdegr45t3");
+        trainer.setUsername("Jane.Smith");
         var trainingType = trainingTypeService.findByName(specialization.toUpperCase());
         trainer.setSpecialization(trainingType);
         var trainerResponse = trainerService.save(trainer, specialization);
         String trainerUsername = trainerResponse.getUsername();
-        String trainerPassword = trainerResponse.getPassword();
 
         String trainingRequestJson = """
                 {
@@ -205,9 +211,7 @@ public class TrainingControllerIT {
 
         mockMvc.perform(post("/api/v1/trainings")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(trainingRequestJson)
-                        .header("X-Username", trainerUsername)
-                        .header("X-Password", trainerPassword))
+                        .content(trainingRequestJson))
                 .andExpect(status().isOk());
 
         String trainingTrainerRequestJson = """
@@ -220,8 +224,6 @@ public class TrainingControllerIT {
                 """.formatted(trainerUsername, traineeUsername);
 
         mockMvc.perform(get("/api/v1/trainings/trainer")
-                        .header("X-Username", trainerUsername)
-                        .header("X-Password", trainerPassword)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(trainingTrainerRequestJson))
                 .andExpect(status().isOk())

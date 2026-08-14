@@ -35,7 +35,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+            http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(manager ->
                         manager.sessionCreationPolicy(STATELESS))
@@ -46,23 +46,26 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**").permitAll()
+                                "/swagger-resources/**").permitAll()
                         .requestMatchers("/api/v1/trainings/types").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/trainees/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/v1/trainees","/api/v1/trainers").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/trainees/activation",
+                                "/api/v1/trainers/activation").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/trainees/**").hasAnyRole("TRAINEE", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/trainees/**").hasAnyRole("TRAINEE", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/trainers/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/trainers/**").hasAnyRole("TRAINER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/trainings").hasAnyRole("TRAINEE", "TRAINER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/trainings/trainer","/api/v1/trainers/profile").hasRole("TRAINER")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/trainings/trainee","/api/v1/trainees/profile").hasRole("TRAINEE")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/trainings").hasAnyRole("TRAINER", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/trainings/trainer","/api/v1/trainers/profile")
+                                 .hasRole("TRAINER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/trainings/trainee","/api/v1/trainees/profile")
+                                 .hasRole("TRAINEE")
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(bruteForceProtectionFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

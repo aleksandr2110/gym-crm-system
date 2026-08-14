@@ -38,23 +38,23 @@ public class FacadeGymCrmSystem {
         this.trainingTypeService = trainingTypeService;
     }
 
+    @Transactional
     public RegistrationResponseDTO createTrainee(TraineeRequestDTO request) {
         var trainee = dataMapper.toTrainee(request);
+        traineeService.beforeCreate(trainee);
+        String password = setTraineeUsername(trainee);
         var createdTrainee = traineeService.save(trainee);
 
         RegistrationResponseDTO response = RegistrationResponseDTO.builder()
                 .username(createdTrainee.getUsername())
-                .password(createdTrainee.getPassword())
+                .password(password)
                 .build();
 
         return response;
     }
 
     @Transactional
-    public TraineeProfileDTO getTraineeByUsername(String username, String headerUsername,
-                                                  String headerPassword) {
-        traineeService.authenticateTrainee(headerUsername, headerPassword);
-
+    public TraineeProfileDTO getTraineeByUsername(String username) {
         var trainee = traineeService.findByUsername(username);
         List<Trainer> trainers = trainee.getTrainers();
         List<TrainerInfoDTO> trainerDtos = new ArrayList<>();
@@ -68,16 +68,12 @@ public class FacadeGymCrmSystem {
     }
 
     @Transactional
-    public void deleteTrainee(String username, String headerUsername,
-                              String headerPassword) {
-       traineeService.authenticateTrainee(headerUsername, headerPassword);
+    public void deleteTrainee(String username) {
        traineeService.deleteProfile(username);
     }
 
     @Transactional
-    public List<TrainerInfoDTO> getAvailableTrainers(String username, String headerUsername,
-                                                     String headerPassword) {
-        traineeService.authenticateTrainee(headerUsername, headerPassword);
+    public List<TrainerInfoDTO> getAvailableTrainers(String username) {
         List<Trainer> trainers = trainerService.findAllNotAssignedToTrainee(username);
         List<TrainerInfoDTO> trainerDtos = new ArrayList<>();
         for (Trainer trainer : trainers) {
@@ -86,16 +82,8 @@ public class FacadeGymCrmSystem {
         return trainerDtos;
     }
 
-    public void loginTrainee(String username, String password) {
-
-        traineeService.authenticateTrainee(username, password);
-    }
-
     @Transactional
-    public TraineeProfileDTO updateTraineeProfile(UpdateTraineeRequestDTO traineeRequestDTO,
-                                                  String headerUsername,
-                                                  String headerPassword) {
-        traineeService.authenticateTrainee(headerUsername, headerPassword);
+    public TraineeProfileDTO updateTraineeProfile(UpdateTraineeRequestDTO traineeRequestDTO) {
         var updateTrainee = dataMapper.toUpdateTrainee(traineeRequestDTO);
         updateTrainee.setDateOfBirth(LocalDate.parse(traineeRequestDTO.getDateOfBirth()));
 
@@ -106,29 +94,17 @@ public class FacadeGymCrmSystem {
     }
 
     @Transactional
-    public void changeTraineePassword(ChangePasswordRequestDTO request, String headerUsername,
-                               String headerPassword) {
-        traineeService.authenticateTrainee(headerUsername, headerPassword);
+    public void changeTraineePassword(ChangePasswordRequestDTO request) {
         traineeService.changePassword(request.getUsername(), request.getOldPassword(), request.getNewPassword());
     }
 
     @Transactional
-    public void activateDeactivateTrainee(String username, Boolean isActive, String headerUsername,
-                                          String headerPassword) {
-        traineeService.authenticateTrainee(headerUsername, headerPassword);
+    public void activateDeactivateTrainee(String username, Boolean isActive) {
         traineeService.activateDeactivateTrainee(username, isActive);
     }
 
-    public void loginTrainer(String username, String password) {
-
-        trainerService.authenticateTrainer(username, password);
-    }
-
     @Transactional
-    public List<TrainerInfoDTO> updateTrainersList(UpdateTraineeTrainersRequestDTO request,
-                                                   String headerUsername,
-                                                   String headerPassword) {
-        traineeService.authenticateTrainee(headerUsername, headerPassword);
+    public List<TrainerInfoDTO> updateTrainersList(UpdateTraineeTrainersRequestDTO request) {
         List<Trainer> newTrainers = traineeService.updateTrainersList(request.getTraineeUsername(),
                 request.getTrainerUsernames());
         List<TrainerInfoDTO> result = newTrainers.stream()
@@ -137,21 +113,22 @@ public class FacadeGymCrmSystem {
         return result;
     }
 
+    @Transactional
     public RegistrationResponseDTO createTrainer(TrainerRequestDTO request) {
         var trainer = dataMapper.toTrainer(request);
+        String password = setTrainerUsername(trainer);
+        trainerService.beforeCreate(trainer);
         var createdTrainer = trainerService.save(trainer, request.getSpecialization());
 
         RegistrationResponseDTO trainerDTO = RegistrationResponseDTO.builder()
                 .username(createdTrainer.getUsername())
-                .password(createdTrainer.getPassword())
+                .password(password)
                 .build();
         return trainerDTO;
     }
 
     @Transactional
-    public TrainerProfileDTO getTrainerByUsername(String username, String headerUsername, String headerPassword) {
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-
+    public TrainerProfileDTO getTrainerByUsername(String username) {
         var trainer = trainerService.findByUsername(username);
 
         var trainerProfileDTO = dataMapper.toProfileTrainerDTO(trainer);
@@ -161,8 +138,7 @@ public class FacadeGymCrmSystem {
     }
 
     @Transactional
-    public TrainerProfileDTO updateTrainerProfile(UpdateTrainerRequestDTO request, String headerUsername, String headerPassword) {
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
+    public TrainerProfileDTO updateTrainerProfile(UpdateTrainerRequestDTO request) {
         var trainer = trainerService.updateProfile(request);
 
         var trainerProfileDTO = dataMapper.toProfileTrainerDTO(trainer);
@@ -173,21 +149,13 @@ public class FacadeGymCrmSystem {
     }
 
     @Transactional
-    public void changeTrainerPassword(ChangePasswordRequestDTO request, String headerUsername,
-                                      String headerPassword) {
-        var trainer = trainerService.authenticateTrainer(headerUsername, headerPassword);
+    public void changeTrainerPassword(ChangePasswordRequestDTO request) {
         trainerService.changePassword(request.getUsername(), request.getOldPassword(), request.getNewPassword());
     }
 
     @Transactional
-    public void activateDeactivateTrainer(String username, Boolean isActive,
-                                          String headerUsername, String headerPassword) {
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
+    public void activateDeactivateTrainer(String username, Boolean isActive) {
         trainerService.activateDeactivateTrainee(username, isActive);
-    }
-
-    public Trainer authenticateTrainer(String username, String password) {
-        return trainerService.authenticateTrainer(username, password);
     }
 
     public List<TrainingTypeDTO> getTrainingTypes() {
@@ -202,9 +170,7 @@ public class FacadeGymCrmSystem {
         return types;
     }
 
-    public void createTraining(TrainingRequestDTO trainingRequest, String headerUsername, String headerPassword) {
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-
+    public void createTraining(TrainingRequestDTO trainingRequest) {
         var training = dataMapper.toTraining(trainingRequest);
         var trainingType = new TrainingType();
         trainingType.setTrainingTypeName(TrainingTypeName.getByName(trainingRequest.getTrainingType().toUpperCase()));
@@ -215,11 +181,7 @@ public class FacadeGymCrmSystem {
     }
 
     @Transactional
-    public List<TrainingTraineeDTO> getTraineeTrainings(TraineeTrainingsRequestDTO filterRequest, String headerUsername,
-                                                        String headerPassword) {
-
-        traineeService.authenticateTrainee(headerUsername, headerPassword);
-
+    public List<TrainingTraineeDTO> getTraineeTrainings(TraineeTrainingsRequestDTO filterRequest) {
         String username = filterRequest.getUsername();
         LocalDateTime fromDate = LocalDateTime.parse(filterRequest.getPeriodFrom());
         LocalDateTime toDate  = LocalDateTime.parse(filterRequest.getPeriodTo());
@@ -243,10 +205,7 @@ public class FacadeGymCrmSystem {
     }
 
     @Transactional
-    public List<TrainingTrainerDTO> getTrainerTrainings(TrainerTrainingsRequestDTO filterRequest, String headerUsername,
-                                                        String headerPassword) {
-        trainerService.authenticateTrainer(headerUsername, headerPassword);
-
+    public List<TrainingTrainerDTO> getTrainerTrainings(TrainerTrainingsRequestDTO filterRequest) {
         String trainerUsername = filterRequest.getUsername();
         LocalDateTime fromDate = LocalDateTime.parse(filterRequest.getPeriodFrom());
         LocalDateTime toDate  = LocalDateTime.parse(filterRequest.getPeriodTo());
@@ -265,5 +224,29 @@ public class FacadeGymCrmSystem {
                 }
         ).toList();
         return trainingDTOs;
+    }
+
+    private String setTraineeUsername(Trainee trainee) {
+        if (trainee.getUsername() != null) {
+            throw new IllegalArgumentException("Attempt to save trainee with username: "
+                    + trainee.getUsername());
+        }
+        trainee.setUsername(UsernameAndPasswordGenerator.createUsername(
+                trainee.getFirstName(),
+                trainee.getLastName()));
+        trainee.setPassword(UsernameAndPasswordGenerator.generatePassword());
+        List<String> usernameDuplicates = traineeService.findUsernamesLike(trainee.getFirstName() + "%");
+        trainee.setUsername(trainee.getUsername() + (usernameDuplicates.size() == 0 ? "" : usernameDuplicates.size()));
+        return trainee.getPassword();
+    }
+
+    private String setTrainerUsername(Trainer trainer) {
+        trainer.setUsername(UsernameAndPasswordGenerator.createUsername(
+                trainer.getFirstName(),
+                trainer.getLastName()));
+        trainer.setPassword(UsernameAndPasswordGenerator.generatePassword());
+        List<String> usernameDuplicates = trainerService.findUsernamesLike(trainer.getUsername() + "%");
+        trainer.setUsername(trainer.getUsername() + (usernameDuplicates.size() == 0 ? "" : usernameDuplicates.size()));
+        return trainer.getPassword();
     }
 }

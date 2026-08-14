@@ -2,15 +2,13 @@ package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
 import epam.constants.RoleName;
+import epam.controller.exception.UnauthorizedException;
 import epam.domain.entity.Trainee;
 import epam.domain.entity.Trainer;
-import epam.controller.exception.UnauthorizedException;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.security.service.RoleService;
 import epam.service.TraineeService;
-import epam.util.DataMapper;
-import epam.util.UsernameAndPasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -45,19 +43,9 @@ public class TraineeServiceImpl implements TraineeService {
     @Transactional
     @Override
     public Trainee save(Trainee trainee) {
-
-        if (trainee.getUsername() == null) {
-            setUsername(trainee);
-            String plainPassword = trainee.getPassword();
-            trainee.setPassword(passwordEncoder.encode(plainPassword));
-        } else {
-            throw new IllegalArgumentException("Attempt to save trainee with username: "
-                    + trainee.getUsername());
-        }
-
-        var created = traineeRepository.save(trainee);
-
-        return created;
+        String plainPassword = trainee.getPassword();
+        trainee.setPassword(passwordEncoder.encode(plainPassword));
+        return traineeRepository.save(trainee);
     }
 
     @Override
@@ -83,9 +71,10 @@ public class TraineeServiceImpl implements TraineeService {
     public void changePassword(String username, String oldPassword, String newPassword) {
         var trainee = traineeRepository.findByUsername(username).orElseThrow(
                 () -> new IllegalArgumentException("Trainee not found with username: " + username));
-        if (!trainee.getPassword().equals(oldPassword)) {
+        if (!passwordEncoder.matches(oldPassword, trainee.getPassword())) {
             throw new IllegalArgumentException("Invalid username or password");
         }
+
         traineeRepository.changePassword(trainee.getUsername(), newPassword);
     }
 
@@ -162,13 +151,10 @@ public class TraineeServiceImpl implements TraineeService {
         return newTrainers;
     }
 
-    private void setUsername(Trainee trainee) {
-        trainee.setUsername(UsernameAndPasswordGenerator.createUsername(
-                trainee.getFirstName(),
-                trainee.getLastName()));
-        trainee.setPassword(UsernameAndPasswordGenerator.generatePassword());
-        List<String> usernameDuplicates = traineeRepository.findUsernamesLike(trainee.getFirstName() + "%");
-        trainee.setUsername(trainee.getUsername() + (usernameDuplicates.size() == 0 ? "" : usernameDuplicates.size()));
+    @Override
+    @Transactional
+    public List<String> findUsernamesLike(String likeUsername) {
+        return traineeRepository.findUsernamesLike(likeUsername);
     }
 
 }

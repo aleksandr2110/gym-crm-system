@@ -27,7 +27,7 @@ public class LoginAttemptService {
 
         if (details.getAttempts() >= MAX_ATTEMPTS) {
             details.block();
-            log.warn("User {} has been blocked due to {} failed login attempts", username,
+            log.warn("User {} has been blocked according to {} failed login attempts", username,
                     details.getAttempts());
         }
     }

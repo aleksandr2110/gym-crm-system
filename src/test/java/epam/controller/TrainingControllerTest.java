@@ -84,18 +84,15 @@ public class TrainingControllerTest {
         trainingRequest.setTrainingDate("2026-07-29T18:30:00");
         trainingRequest.setTrainingDuration(60);
 
-        Mockito.doNothing().when(facadeGymCrmSystem).createTraining(Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.doNothing().when(facadeGymCrmSystem).createTraining(Mockito.any());
 
         mockMvc.perform(post("/api/v1/trainings")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(trainingRequest))
-                        .header("X-Username", "Josh")
-                        .header("X-Password", "34322ds"))
+                        .content(objectMapper.writeValueAsString(trainingRequest)))
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
-        verify(facadeGymCrmSystem, times(1)).createTraining(Mockito.any(),
-                Mockito.any(), Mockito.any());
+        verify(facadeGymCrmSystem, times(1)).createTraining(Mockito.any());
     }
 
     @Test
@@ -107,7 +104,7 @@ public class TrainingControllerTest {
         filterRequest.setPeriodTo("2026-07-30 20:38:00");
         filterRequest.setTrainerName("Java learning");
 
-        Mockito.when(facadeGymCrmSystem.getTraineeTrainings(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(facadeGymCrmSystem.getTraineeTrainings(Mockito.any()))
                 .thenReturn(getTrainings());
 
         mockMvc.perform(get("/api/v1/trainings/trainee")
@@ -130,14 +127,12 @@ public class TrainingControllerTest {
         filterRequest.setPeriodTo("2026-07-30 20:38:00");
         filterRequest.setTraineeName("Stive.Jobs");
 
-        Mockito.when(facadeGymCrmSystem.getTrainerTrainings(Mockito.any(), Mockito.any(), Mockito.any()))
+        Mockito.when(facadeGymCrmSystem.getTrainerTrainings(Mockito.any()))
                 .thenReturn(getTrainerTrainings());
 
         mockMvc.perform(get("/api/v1/trainings/trainer")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(filterRequest))
-                        .header("X-Username", "Josh")
-                        .header("X-Password", "34322ds"))
+                        .content(objectMapper.writeValueAsString(filterRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
