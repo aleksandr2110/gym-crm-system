@@ -3,6 +3,7 @@ package epam.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import epam.application.FacadeGymCrmSystem;
 import epam.controller.exception.ExceptionHandlerController;
+import epam.controller.exception.UnauthorizedException;
 import epam.controller.interfaces.TraineeController;
 import epam.controller.rest.TraineeControllerImpl;
 import epam.domain.dto.request.ChangePasswordRequestDTO;
@@ -10,7 +11,6 @@ import epam.domain.dto.request.TraineeRequestDTO;
 import epam.domain.dto.response.RegistrationResponseDTO;
 import epam.domain.dto.response.TraineeProfileDTO;
 import epam.domain.dto.response.TrainerInfoDTO;
-import epam.controller.exception.UnauthorizedException;
 import epam.security.util.AuthenticatedUserUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -239,11 +239,9 @@ public class TraineeControllerTest {
         Mockito.when(facadeGymCrmSystem.updateTraineeProfile(Mockito.any()))
                 .thenReturn(profile);
 
-        mockMvc.perform(put("/api/v1/trainees")
+        mockMvc.perform(put("/api/v1/trainees/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateRequestJson)
-                        .header("X-Username", "Josh")
-                        .header("X-Password", "34322ds"))
+                        .content(updateRequestJson))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.username").value(username))

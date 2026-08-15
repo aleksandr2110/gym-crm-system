@@ -165,7 +165,7 @@ public class TrainerControllerTest {
         Mockito.when(facadeGymCrmSystem.updateTrainerProfile(Mockito.any()))
                 .thenReturn(profile);
 
-        mockMvc.perform(put("/api/v1/trainers")
+        mockMvc.perform(put("/api/v1/trainers/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateRequestJson))
                 .andExpect(status().isOk())
