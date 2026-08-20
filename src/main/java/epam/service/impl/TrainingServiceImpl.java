@@ -1,13 +1,16 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
+import epam.domain.dto.request.WorkloadRequest;
 import epam.domain.entity.Training;
+import epam.monitoring.metrics.TrainingMetrics;
 import epam.repository.TraineeRepository;
 import epam.repository.TrainerRepository;
 import epam.repository.TrainingRepository;
 import epam.repository.TrainingTypeRepository;
 import epam.service.TrainingService;
-import epam.util.DataMapper;
+import epam.service.WorkloadService;
+import epam.util.WorkloadRequestMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,17 +24,20 @@ public class TrainingServiceImpl implements TrainingService {
     private final TraineeRepository traineeRepository;
     private final TrainerRepository trainerRepository;
     private final TrainingTypeRepository trainingTypeRepository;
-    private final DataMapper dataMapper;
+    private final TrainingMetrics trainingMetrics;
+    private final WorkloadService workloadService;
 
     public TrainingServiceImpl(TrainingRepository trainingRepository,
                                TraineeRepository traineeRepository,
                                TrainerRepository trainerRepository,
-                               TrainingTypeRepository trainingTypeRepository, DataMapper dataMapper) {
+                               TrainingTypeRepository trainingTypeRepository,
+                               TrainingMetrics trainingMetrics, WorkloadService workloadService) {
         this.trainingRepository = trainingRepository;
         this.traineeRepository = traineeRepository;
         this.trainerRepository = trainerRepository;
         this.trainingTypeRepository = trainingTypeRepository;
-        this.dataMapper = dataMapper;
+        this.trainingMetrics = trainingMetrics;
+        this.workloadService =  workloadService;
     }
 
     @ExecutionTime
@@ -45,6 +51,11 @@ public class TrainingServiceImpl implements TrainingService {
         training.setTrainingDuration(trainingRequest.getTrainingDuration());
 
         trainingRepository.save(training);
+
+        trainingMetrics.incrementTrainingCreated();
+        trainingMetrics.incrementActiveTrainings();
+
+        workloadService.updateWorkload(WorkloadRequestMapper.fromTraining(training, WorkloadRequest.ActionType.ADD));
     }
 
     @Override

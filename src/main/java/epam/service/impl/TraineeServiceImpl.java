@@ -1,6 +1,7 @@
 package epam.service.impl;
 
 import epam.annotation.ExecutionTime;
+import epam.constants.Permission;
 import epam.constants.RoleName;
 import epam.controller.exception.UnauthorizedException;
 import epam.domain.entity.Trainee;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TraineeServiceImpl implements TraineeService {
@@ -37,7 +39,8 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     public void beforeCreate(Trainee entity) {
-        roleService.assignRoleToTrainee(entity, RoleName.ROLE_TRAINEE);
+        roleService.assignRoleToTrainee(entity,
+                RoleName.ROLE_TRAINEE);
     }
 
     @Transactional

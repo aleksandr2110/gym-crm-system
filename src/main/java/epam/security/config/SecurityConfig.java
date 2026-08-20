@@ -1,4 +1,4 @@
-package epam.config;
+package epam.security.config;
 
 import epam.security.filter.BruteForceProtectionFilter;
 import epam.security.jwt.JwtAuthenticationFilter;
@@ -56,7 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/trainees/**").hasAnyRole("TRAINEE", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/trainers/**").hasAnyRole("TRAINER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/trainers/**").hasAnyRole("TRAINER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/trainings").hasAnyRole("TRAINER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/trainings").hasAnyRole("TRAINER", "TRAINEE")
                         .requestMatchers(HttpMethod.GET, "/api/v1/trainings/trainer","/api/v1/trainers/profile")
                                  .hasRole("TRAINER")
                         .requestMatchers(HttpMethod.GET, "/api/v1/trainings/trainee","/api/v1/trainees/profile")

@@ -4,7 +4,7 @@ spring:
   datasource:
     username: root
     password: sqlpas
-    url: jdbc:mysql://localhost:3306/springsecurity?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/service?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -16,15 +16,72 @@ spring:
 
   liquibase:
     enabled: true
-    change-log: classpath:data/db-changelog-master.xml
+    change-log: classpath:db/changelog/db-changelog-master.xml
+
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: false
+      client:
+        config:
+          default:
+            connect-timeout: 5000
+            read-timeout: 5000
+            logger-level: basic
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 8640000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: count_based
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 2s
+        event-consumer-buffer-size: 10
+        record-exceptions:
+          - java.io.IOException
+          - feign.FeignException
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+    instances:
+      workloadService:
+        base-config: default
+  retry:
+    instances:
+      workloadService:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - java.io.IOException
+          - feign.RetryableException
+
+
   jackson:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
 
-jwt:
-  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-  expiration: 8640000
+
 
 management:
   endpoints:
@@ -37,11 +94,11 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
-    distribution:
-      percentiles-histogram:
-        http:
-          server:
-            requests: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 #  http://localhost:8080/swagger-ui.html.
 springdoc:
   api-docs:
