@@ -1,12 +1,4 @@
-FROM maven:3.9.8-amazoncorretto-17 AS build
-WORKDIR /build/
 
-COPY pom.xml ./
-COPY .mvn .mvn
-
-COPY src ./src
-
-RUN mvn clean package -e -DskipTests
 
 FROM amazoncorretto:17
 
@@ -15,10 +7,10 @@ LABEL org.opencontainers.image.title="gym crm system"
 LABEL org.opencontainers.image.version="${VERSION}"
 LABEL org.opencontainers.image.description="gym crm Management System"
 
-WORKDIR /app/
+WORKDIR /app
 
-COPY --from=build /build/target/gym-crm-system*.jar ./gym-crm-system.jar
+COPY target/gym-crm-system-1.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8082
 
-CMD ["java", "-jar", "-cp", "gym-crm-system.jar", "epam.GymApplication", "--spring.profiles.active=prod"]
+CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
