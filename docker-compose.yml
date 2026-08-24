@@ -1,17 +1,4 @@
 services:
-  gym-app:
-    build: .
-    container_name: gym-crm-app
-    ports:
-      - "8080:8080"
-    restart: always
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-  #    networks:
-  #      - monitoring
-  #    depends_on:
-  #      - prometheus
-
   mysql:
     image: mysql:8.0.32
     mem_limit: 512m
@@ -27,6 +14,52 @@ services:
       interval: 5s
       timeout: 2s
       retries: 60
+    networks:
+      - microservice-network
+
+  eureka-server:
+    container_name: eureka-server
+    build:
+      context: .
+      dockerfile: Dockerfile.eurekaserver
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - microservice-network
+
+  gym-app:
+    build: .
+    container_name: gym-crm-app
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    networks:
+      - microservice-network
+  #    networks:
+  #      - monitoring
+  #    depends_on:
+  #      - prometheus
+  track-gym-app:
+    container_name: work-load-service
+    build:
+      context: .
+      dockerfile: Dockerfile.track
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    networks:
+      - microservice-network
 
 #  prometheus:
 #    image: prom/prometheus:latest
@@ -44,9 +77,10 @@ services:
 #    networks:
 #      - monitoring
 
-#networks:
+networks:
 #  monitoring:
-#    driver: bridge
+  microservice-network:
+    driver: bridge
 
 volumes:
   prometheus-data:
