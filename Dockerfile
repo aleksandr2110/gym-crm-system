@@ -1,7 +1,19 @@
-FROM eclipse-temurin:17.0.5_8-jre-focal
-WORKDIR application
+FROM maven:3.9.8-amazoncorretto-17 AS build
+WORKDIR /build/
 
-ADD ./target/gym-crm-system-1.0-SNAPSHOT.jar app.jar
+COPY pom.xml ./
+
+COPY .mvn .mvn
+
+COPY src ./src
+
+RUN mvn clean package -e -DskipTests
+
+FROM eclipse-temurin:17.0.5_8-jre-focal
+
+WORKDIR /app/
+
+COPY --from=build /build/target/gym-crm-system-1.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 

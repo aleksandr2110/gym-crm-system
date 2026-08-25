@@ -17,10 +17,26 @@ services:
     networks:
       - microservice-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - monitoring
+
   eureka-server:
     container_name: eureka-server
     build:
-      context: .
+      context: ../eureka-server/
       dockerfile: Dockerfile.eurekaserver
     ports:
       - "8761:8761"
@@ -30,7 +46,8 @@ services:
       - microservice-network
 
   gym-app:
-    build: .
+    build:
+      context: .
     container_name: gym-crm-app
     ports:
       - "8080:8080"
@@ -40,16 +57,15 @@ services:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       - eureka-server
+      - prometheus
     networks:
       - microservice-network
-  #    networks:
-  #      - monitoring
-  #    depends_on:
-  #      - prometheus
+      - monitoring
+
   track-gym-app:
     container_name: work-load-service
     build:
-      context: .
+      context: ../track-crm-system/
       dockerfile: Dockerfile.track
     ports:
       - "8083:8083"
@@ -61,24 +77,10 @@ services:
     networks:
       - microservice-network
 
-#  prometheus:
-#    image: prom/prometheus:latest
-#    container_name: prometheus
-#    ports:
-#      - "9090:9090"
-#    volumes:
-#      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-#      - prometheus-data:/prometheus
-#    command:
-#      - '--config.file=/etc/prometheus/prometheus.yml'
-#      - '--storage.tsdb.path=/prometheus'
-#      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-#      - '--web.console.templates=/usr/share/prometheus/consoles'
-#    networks:
-#      - monitoring
 
 networks:
-#  monitoring:
+  monitoring:
+    driver: bridge
   microservice-network:
     driver: bridge
 
